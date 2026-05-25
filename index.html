@@ -391,7 +391,7 @@ const PLAN = [
   // WEEK 1 — Foundation (2 sets, learning movements)
   {day:1,type:'A',label:'Chest & Arms',exs:[
     {id:'push-ups',sets:2,reps:'10'},
-    {id:'bicep-curls',sets:2,reps:'10'},
+    {id:'bicep-curls',sets:2,reps:'10',weight:17.5},
     {id:'tricep-dips',sets:2,reps:'10'},
     {id:'crunches',sets:2,reps:'15'}
   ]},
@@ -403,12 +403,12 @@ const PLAN = [
   ]},
   {day:3,type:'C',label:'Cardio & Shoulders',exs:[
     {id:'elliptical',sets:1,reps:'15 min'},
-    {id:'hammer-curls',sets:2,reps:'10'},
-    {id:'lateral-raises',sets:2,reps:'10'}
+    {id:'hammer-curls',sets:2,reps:'10',weight:17.5},
+    {id:'lateral-raises',sets:2,reps:'10',weight:10}
   ]},
   {day:4,type:'A',label:'Chest & Arms',exs:[
     {id:'push-ups',sets:2,reps:'12'},
-    {id:'bicep-curls',sets:2,reps:'12'},
+    {id:'bicep-curls',sets:2,reps:'12',weight:17.5},
     {id:'tricep-dips',sets:2,reps:'12'},
     {id:'crunches',sets:2,reps:'20'}
   ]},
@@ -420,16 +420,16 @@ const PLAN = [
   ]},
   {day:6,type:'C',label:'Cardio & Shoulders',exs:[
     {id:'elliptical',sets:1,reps:'18 min'},
-    {id:'hammer-curls',sets:2,reps:'12'},
-    {id:'shoulder-press',sets:2,reps:'10'}
+    {id:'hammer-curls',sets:2,reps:'12',weight:17.5},
+    {id:'shoulder-press',sets:2,reps:'10',weight:20}
   ]},
   {day:7,type:'R',label:'Rest Day',exs:[]},
 
   // WEEK 2 — Building (3 sets, introduce dumbbells)
   {day:8,type:'A',label:'Chest & Arms',exs:[
-    {id:'db-bench-press',sets:3,reps:'8'},
-    {id:'bicep-curls',sets:3,reps:'10'},
-    {id:'tricep-extensions',sets:3,reps:'10'},
+    {id:'db-bench-press',sets:3,reps:'8',weight:25},
+    {id:'bicep-curls',sets:3,reps:'10',weight:17.5},
+    {id:'tricep-extensions',sets:3,reps:'10',weight:20},
     {id:'push-ups',sets:2,reps:'12'}
   ]},
   {day:9,type:'B',label:'Core & Abs',exs:[
@@ -440,13 +440,13 @@ const PLAN = [
   ]},
   {day:10,type:'C',label:'Cardio & Shoulders',exs:[
     {id:'elliptical',sets:1,reps:'20 min'},
-    {id:'hammer-curls',sets:3,reps:'10'},
-    {id:'lateral-raises',sets:3,reps:'10'}
+    {id:'hammer-curls',sets:3,reps:'10',weight:17.5},
+    {id:'lateral-raises',sets:3,reps:'10',weight:10}
   ]},
   {day:11,type:'A',label:'Chest & Arms',exs:[
-    {id:'db-bench-press',sets:3,reps:'10'},
-    {id:'db-flyes',sets:2,reps:'10'},
-    {id:'bicep-curls',sets:3,reps:'12'},
+    {id:'db-bench-press',sets:3,reps:'10',weight:25},
+    {id:'db-flyes',sets:2,reps:'10',weight:15},
+    {id:'bicep-curls',sets:3,reps:'12',weight:17.5},
     {id:'tricep-dips',sets:3,reps:'12'}
   ]},
   {day:12,type:'B',label:'Core & Abs',exs:[
@@ -457,18 +457,18 @@ const PLAN = [
   ]},
   {day:13,type:'C',label:'Cardio & Shoulders',exs:[
     {id:'elliptical',sets:1,reps:'22 min'},
-    {id:'concentration-curls',sets:2,reps:'10'},
-    {id:'shoulder-press',sets:3,reps:'10'}
+    {id:'concentration-curls',sets:2,reps:'10',weight:15},
+    {id:'shoulder-press',sets:3,reps:'10',weight:20}
   ]},
   {day:14,type:'R',label:'Rest Day',exs:[]},
 
   // WEEK 3 — Progression (3 sets, more exercises, heavier feel)
   {day:15,type:'A',label:'Chest & Arms',exs:[
-    {id:'db-bench-press',sets:3,reps:'10'},
-    {id:'db-flyes',sets:3,reps:'10'},
+    {id:'db-bench-press',sets:3,reps:'10',weight:25},
+    {id:'db-flyes',sets:3,reps:'10',weight:15},
     {id:'incline-push-ups',sets:3,reps:'12'},
-    {id:'bicep-curls',sets:3,reps:'12'},
-    {id:'tricep-extensions',sets:3,reps:'12'}
+    {id:'bicep-curls',sets:3,reps:'12',weight:20},
+    {id:'tricep-extensions',sets:3,reps:'12',weight:20}
   ]},
   {day:16,type:'B',label:'Core & Abs',exs:[
     {id:'plank',sets:3,reps:'50s'},
@@ -478,15 +478,15 @@ const PLAN = [
   ]},
   {day:17,type:'C',label:'Cardio & Shoulders',exs:[
     {id:'elliptical',sets:1,reps:'25 min'},
-    {id:'hammer-curls',sets:3,reps:'12'},
-    {id:'lateral-raises',sets:3,reps:'12'},
-    {id:'shoulder-press',sets:2,reps:'12'}
+    {id:'hammer-curls',sets:3,reps:'12',weight:20},
+    {id:'lateral-raises',sets:3,reps:'12',weight:12},
+    {id:'shoulder-press',sets:2,reps:'12',weight:20}
   ]},
   {day:18,type:'A',label:'Chest & Arms',exs:[
     {id:'diamond-push-ups',sets:3,reps:'10'},
-    {id:'db-bench-press',sets:3,reps:'12'},
-    {id:'bicep-curls',sets:3,reps:'12'},
-    {id:'concentration-curls',sets:2,reps:'10'},
+    {id:'db-bench-press',sets:3,reps:'12',weight:25},
+    {id:'bicep-curls',sets:3,reps:'12',weight:20},
+    {id:'concentration-curls',sets:2,reps:'10',weight:15},
     {id:'tricep-dips',sets:3,reps:'15'}
   ]},
   {day:19,type:'B',label:'Core & Abs',exs:[
@@ -497,18 +497,18 @@ const PLAN = [
   ]},
   {day:20,type:'C',label:'Cardio & Shoulders',exs:[
     {id:'elliptical',sets:1,reps:'25 min'},
-    {id:'hammer-curls',sets:3,reps:'12'},
-    {id:'shoulder-press',sets:3,reps:'12'}
+    {id:'hammer-curls',sets:3,reps:'12',weight:20},
+    {id:'shoulder-press',sets:3,reps:'12',weight:20}
   ]},
   {day:21,type:'R',label:'Rest Day',exs:[]},
 
   // WEEK 4 — Peak (4 sets, max volume)
   {day:22,type:'A',label:'Chest & Arms',exs:[
-    {id:'db-bench-press',sets:4,reps:'10'},
-    {id:'db-flyes',sets:3,reps:'10'},
+    {id:'db-bench-press',sets:4,reps:'10',weight:30},
+    {id:'db-flyes',sets:3,reps:'10',weight:17.5},
     {id:'diamond-push-ups',sets:3,reps:'12'},
-    {id:'bicep-curls',sets:4,reps:'12'},
-    {id:'tricep-extensions',sets:3,reps:'12'}
+    {id:'bicep-curls',sets:4,reps:'12',weight:20},
+    {id:'tricep-extensions',sets:3,reps:'12',weight:25}
   ]},
   {day:23,type:'B',label:'Core & Abs',exs:[
     {id:'plank',sets:4,reps:'60s'},
@@ -517,16 +517,16 @@ const PLAN = [
     {id:'russian-twists',sets:3,reps:'25'}
   ]},
   {day:24,type:'A',label:'Chest & Arms',exs:[
-    {id:'db-bench-press',sets:4,reps:'12'},
+    {id:'db-bench-press',sets:4,reps:'12',weight:30},
     {id:'incline-push-ups',sets:3,reps:'15'},
-    {id:'concentration-curls',sets:3,reps:'12'},
-    {id:'hammer-curls',sets:3,reps:'12'},
+    {id:'concentration-curls',sets:3,reps:'12',weight:17.5},
+    {id:'hammer-curls',sets:3,reps:'12',weight:20},
     {id:'tricep-dips',sets:4,reps:'15'}
   ]},
   {day:25,type:'C',label:'Cardio & Shoulders',exs:[
     {id:'elliptical',sets:1,reps:'28 min'},
-    {id:'lateral-raises',sets:3,reps:'12'},
-    {id:'shoulder-press',sets:4,reps:'12'}
+    {id:'lateral-raises',sets:3,reps:'12',weight:12},
+    {id:'shoulder-press',sets:4,reps:'12',weight:25}
   ]},
   {day:26,type:'B',label:'Core & Abs',exs:[
     {id:'plank',sets:4,reps:'60s'},
@@ -535,31 +535,31 @@ const PLAN = [
     {id:'leg-raises',sets:4,reps:'15'}
   ]},
   {day:27,type:'A',label:'Chest & Arms',exs:[
-    {id:'db-bench-press',sets:4,reps:'12'},
-    {id:'db-flyes',sets:3,reps:'12'},
-    {id:'bicep-curls',sets:4,reps:'12'},
-    {id:'tricep-extensions',sets:4,reps:'12'}
+    {id:'db-bench-press',sets:4,reps:'12',weight:30},
+    {id:'db-flyes',sets:3,reps:'12',weight:17.5},
+    {id:'bicep-curls',sets:4,reps:'12',weight:20},
+    {id:'tricep-extensions',sets:4,reps:'12',weight:25}
   ]},
   {day:28,type:'C',label:'Cardio & Shoulders',exs:[
     {id:'elliptical',sets:1,reps:'30 min'},
-    {id:'hammer-curls',sets:4,reps:'12'},
-    {id:'shoulder-press',sets:4,reps:'12'},
-    {id:'lateral-raises',sets:3,reps:'15'}
+    {id:'hammer-curls',sets:4,reps:'12',weight:20},
+    {id:'shoulder-press',sets:4,reps:'12',weight:25},
+    {id:'lateral-raises',sets:3,reps:'15',weight:12}
   ]},
 
   // DAYS 29–30 — Finishers
   {day:29,type:'A',label:'Chest, Arms & Core',exs:[
-    {id:'db-bench-press',sets:3,reps:'12'},
-    {id:'bicep-curls',sets:3,reps:'12'},
+    {id:'db-bench-press',sets:3,reps:'12',weight:30},
+    {id:'bicep-curls',sets:3,reps:'12',weight:20},
     {id:'tricep-dips',sets:3,reps:'12'},
     {id:'plank',sets:3,reps:'60s'},
     {id:'bicycle-crunches',sets:3,reps:'20'}
   ]},
   {day:30,type:'A',label:'30-Day Finisher 🏆',exs:[
     {id:'push-ups',sets:4,reps:'15'},
-    {id:'db-bench-press',sets:3,reps:'12'},
-    {id:'bicep-curls',sets:4,reps:'12'},
-    {id:'tricep-extensions',sets:4,reps:'12'},
+    {id:'db-bench-press',sets:3,reps:'12',weight:30},
+    {id:'bicep-curls',sets:4,reps:'12',weight:20},
+    {id:'tricep-extensions',sets:4,reps:'12',weight:25},
     {id:'plank',sets:4,reps:'60s'},
     {id:'leg-raises',sets:3,reps:'15'},
     {id:'mountain-climbers',sets:3,reps:'30'}
@@ -766,7 +766,7 @@ function renderToday(){
     card.innerHTML = `
       <div class="exercise-info">
         <div class="exercise-name">${def.name}</div>
-        <div class="exercise-meta">${ex.sets} sets × ${ex.reps}${typeof ex.reps==='number'?' reps':''}</div>
+        <div class="exercise-meta">${ex.sets} sets × ${ex.reps}${ex.weight ? ' · <span style="color:var(--orange)">' + ex.weight + ' lbs</span>' : ''}</div>
       </div>
       <div class="set-tracker">
         <div class="set-dots">${dots}</div>
@@ -860,6 +860,7 @@ function openModal(exId, dayNum){
   document.getElementById('m-stats').innerHTML=`
     <div class="modal-stat"><div class="val">${ex.sets}</div><div class="lbl">Sets</div></div>
     <div class="modal-stat"><div class="val">${ex.reps}</div><div class="lbl">Reps/Time</div></div>
+    ${ex.weight ? `<div class="modal-stat"><div class="val">${ex.weight}</div><div class="lbl">Lbs</div></div>` : ''}
     <div class="modal-stat"><div class="val">${sc}/${ex.sets}</div><div class="lbl">Done</div></div>`;
   renderModalSets(ex.sets, sc);
   document.getElementById('modal-overlay').classList.add('open');
@@ -895,6 +896,7 @@ function logSetFromModal(){
     document.getElementById('m-stats').innerHTML=`
       <div class="modal-stat"><div class="val">${ex.sets}</div><div class="lbl">Sets</div></div>
       <div class="modal-stat"><div class="val">${ex.reps}</div><div class="lbl">Reps/Time</div></div>
+      ${ex.weight ? `<div class="modal-stat"><div class="val">${ex.weight}</div><div class="lbl">Lbs</div></div>` : ''}
       <div class="modal-stat"><div class="val">${sc}/${ex.sets}</div><div class="lbl">Done</div></div>`;
     if(navigator.vibrate) navigator.vibrate(25);
     renderToday();
