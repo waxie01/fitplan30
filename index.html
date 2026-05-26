@@ -74,23 +74,47 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 
 /* EXERCISE CARDS */
 .exercise-list{padding:0 16px;display:flex;flex-direction:column;gap:10px}
-.exercise-card{background:var(--card);border-radius:16px;padding:14px 16px;
-  display:flex;align-items:center;gap:14px;border:1px solid var(--border);
-  cursor:pointer;transition:transform 0.12s,opacity 0.12s;
-  -webkit-tap-highlight-color:transparent;animation:fadeUp 0.3s ease both}
-.exercise-card:active{transform:scale(0.97);opacity:0.85}
-.exercise-card.complete{border-color:rgba(46,204,113,0.3);background:rgba(46,204,113,0.04)}
-.exercise-info{flex:1;min-width:0}
-.exercise-name{font-size:23px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.exercise-card{background:var(--card);border-radius:16px;border:1px solid var(--border);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;animation:fadeUp 0.3s ease both;
+  position:relative;overflow:hidden;user-select:none;-webkit-user-select:none;
+  transition:border-color 0.2s,background 0.2s}
+.exercise-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--orange);border-radius:3px 0 0 3px;transition:background 0.2s}
+.exercise-card.complete{border-color:rgba(46,204,113,0.3);background:rgba(46,204,113,0.04);cursor:default}
+.exercise-card.complete::before{background:var(--green)}
+.ex-card-inner{display:flex;align-items:center;gap:10px;padding:14px 14px 14px 18px}
+.ex-card-main{flex:1;min-width:0}
+.ex-card-progress{display:flex;align-items:center;gap:8px;margin-top:7px}
+.exercise-name{font-size:23px;font-weight:700;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
 .exercise-meta{font-size:19px;color:var(--dim);margin-top:2px;font-family:'Barlow Condensed',sans-serif}
-.set-tracker{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.weight-tag{color:var(--orange)}
 .set-dots{display:flex;gap:5px;align-items:center}
-.set-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--dim);transition:all 0.2s}
+.set-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--dim);
+  transition:background 0.15s,border-color 0.15s}
 .set-dot.done{background:var(--green);border-color:var(--green)}
-.set-btn{background:var(--orange);color:#fff;border:none;border-radius:8px;
-  padding:6px 12px;font-size:19px;font-weight:700;cursor:pointer;white-space:nowrap;
-  -webkit-tap-highlight-color:transparent;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px}
-.done-label{font-size:18px;color:var(--green);font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px}
+.set-counter{font-size:17px;font-weight:700;color:var(--orange);
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.done-label{font-size:17px;color:var(--green);font-weight:700;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.ex-menu-btn{background:rgba(255,255,255,0.06);border:1px solid var(--border);
+  color:var(--dim);border-radius:8px;width:34px;height:34px;display:flex;
+  align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;padding:0;
+  transition:background 0.12s,color 0.12s,border-color 0.12s}
+.ex-menu-btn:active,.ex-menu-btn.open{background:rgba(255,255,255,0.14);
+  color:var(--text);border-color:rgba(255,255,255,0.2)}
+/* CONTEXTUAL MENU */
+.ctx-menu{position:fixed;background:#1c1c35;border:1px solid rgba(255,255,255,0.13);
+  border-radius:14px;padding:6px;z-index:400;min-width:196px;
+  box-shadow:0 12px 40px rgba(0,0,0,0.65);animation:ctxFadeIn 0.15s cubic-bezier(0.34,1.4,0.64,1) both}
+@keyframes ctxFadeIn{from{opacity:0;transform:scale(0.86) translateY(-8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.ctx-menu-item{display:flex;align-items:center;gap:10px;padding:12px 14px;
+  border-radius:9px;font-size:19px;font-weight:600;color:var(--text);cursor:pointer;
+  -webkit-tap-highlight-color:transparent;font-family:'Barlow Condensed',sans-serif;
+  letter-spacing:0.3px;background:transparent;border:none;width:100%;text-align:left}
+.ctx-menu-item:active{background:rgba(255,255,255,0.09)}
+.ctx-icon{font-size:16px;width:22px;text-align:center;flex-shrink:0;opacity:0.85}
 
 /* COMPLETE BANNER */
 .complete-banner{margin:16px;background:linear-gradient(135deg,#27ae60,#2ecc71);
@@ -195,8 +219,25 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .exercise-card:nth-child(5){animation-delay:0.24s}
 .exercise-card:nth-child(6){animation-delay:0.29s}
 .exercise-card:nth-child(7){animation-delay:0.34s}
-@keyframes popDot{0%{transform:scale(1)}50%{transform:scale(1.5)}100%{transform:scale(1)}}
-.set-dot.pop{animation:popDot 0.28s ease}
+/* Card punch — springy press feedback */
+@keyframes cardPunch{
+  0%  {transform:scale(1)}
+  18% {transform:scale(0.90)}
+  52% {transform:scale(1.06)}
+  72% {transform:scale(0.98)}
+  100%{transform:scale(1)}}
+/* Burst particles */
+@keyframes burstOut{
+  0%  {transform:translate(-50%,-50%) scale(1.3) rotate(0deg);opacity:1}
+  100%{transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(0.1) rotate(220deg);opacity:0}}
+/* +1 float */
+@keyframes floatUp{
+  0%  {transform:translate(-50%,-50%) scale(0.5);opacity:0}
+  22% {transform:translate(-50%,-68%) scale(1.25);opacity:1}
+  100%{transform:translate(-50%,-145%) scale(0.85);opacity:0}}
+/* Dot pop */
+@keyframes popDot{0%{transform:scale(1)}50%{transform:scale(1.6)}100%{transform:scale(1)}}
+.set-dot.pop{animation:popDot 0.3s cubic-bezier(0.34,1.6,0.64,1)}
 #confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200}
 </style>
 </head>
@@ -796,18 +837,28 @@ function renderToday(){
     const card = document.createElement('div');
     card.className = 'exercise-card' + (allDone?' complete':'');
     card.style.animationDelay = (i*0.05)+'s';
-    card.onclick = ()=>openModal(ex.id, S.currentDay);
+    card.onclick = (e) => {
+      if(e.target.closest('.ex-menu-btn')) return;
+      closeCtxMenu();
+      if(!allDone) tapLog(ex.id, card);
+    };
     card.innerHTML = `
-      <div class="exercise-info">
-        <div class="exercise-name">${def.name}</div>
-        <div class="exercise-meta">${ex.sets} sets × ${ex.reps}${ex.weight ? ' · <span style="color:var(--orange)">' + ex.weight + ' lbs</span>' : ''}</div>
-      </div>
-      <div class="set-tracker">
-        <div class="set-dots">${dots}</div>
-        ${allDone
-          ? `<div class="done-label">✓ Done</div>`
-          : `<button class="set-btn" onclick="event.stopPropagation();quickLog('${ex.id}')">Set ${sc+1}/${ex.sets}</button>`
-        }
+      <div class="ex-card-inner">
+        <div class="ex-card-main">
+          <div class="exercise-name">${def.name}</div>
+          <div class="exercise-meta">${ex.sets} sets × ${ex.reps}${ex.weight ? ' · <span class="weight-tag">' + ex.weight + ' lbs</span>' : ''}</div>
+          <div class="ex-card-progress">
+            <div class="set-dots">${dots}</div>
+            <div class="${allDone?'done-label':'set-counter'}">${allDone ? '✓ Done' : 'Set '+(sc+1)+' of '+ex.sets}</div>
+          </div>
+        </div>
+        <button class="ex-menu-btn" onclick="event.stopPropagation();showCtxMenu('${ex.id}',this)" aria-label="Exercise options">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <circle cx="8" cy="2.5" r="1.6"/>
+            <circle cx="8" cy="8" r="1.6"/>
+            <circle cx="8" cy="13.5" r="1.6"/>
+          </svg>
+        </button>
       </div>`;
     list.appendChild(card);
   });
@@ -858,16 +909,157 @@ function checkComplete(){
   }
 }
 
-// ── QUICK LOG (tap Set button on card) ───────────────────────────────────────
-function quickLog(id){
+// ── TAP-TO-LOG ───────────────────────────────────────────────────────────────
+function tapLog(id, cardEl){
   const plan = PLAN[S.currentDay-1];
   const ex = plan.exs.find(e=>e.id===id);
   if(!ex) return;
   const p = dp(S.currentDay);
   if(!p.sets[id]) p.sets[id]=0;
-  if(p.sets[id]<ex.sets){ p.sets[id]++; save(); }
-  if(navigator.vibrate) navigator.vibrate(25);
-  renderToday();
+  if(p.sets[id] >= ex.sets) return; // already complete
+
+  p.sets[id]++;
+  save();
+  if(navigator.vibrate) navigator.vibrate([12,8,18]);
+
+  // Springy punch animation (set via style to override fadeUp)
+  cardEl.style.animation = 'cardPunch 0.4s cubic-bezier(0.34,1.5,0.64,1) both';
+  cardEl.addEventListener('animationend', ()=>{ cardEl.style.animation=''; }, {once:true});
+
+  // Burst particles + floating +1
+  spawnBurst(cardEl);
+
+  // Update dots & counter in-place for instant feedback
+  updateCardInPlace(cardEl, ex, p.sets[id]);
+
+  // Update ring immediately
+  let total=0, doneCount=0;
+  plan.exs.forEach(e=>{
+    total += e.sets;
+    doneCount += Math.min(setsFor(S.currentDay, e.id), e.sets);
+  });
+  updateRing(doneCount, total);
+  checkComplete();
+
+  // Full re-render after animation settles
+  setTimeout(renderToday, 440);
+}
+
+function updateCardInPlace(cardEl, ex, newSc){
+  // Fill the newly-completed dot with a pop
+  const dots = cardEl.querySelectorAll('.set-dot');
+  const newDot = dots[newSc-1];
+  if(newDot && !newDot.classList.contains('done')){
+    newDot.classList.add('done','pop');
+    newDot.addEventListener('animationend', ()=>newDot.classList.remove('pop'), {once:true});
+  }
+  // Update counter label
+  const counter = cardEl.querySelector('.set-counter, .done-label');
+  if(counter){
+    if(newSc >= ex.sets){
+      counter.className = 'done-label';
+      counter.textContent = '✓ Done';
+      cardEl.classList.add('complete');
+    } else {
+      counter.textContent = 'Set '+(newSc+1)+' of '+ex.sets;
+    }
+  }
+}
+
+// ── BURST ANIMATION ──────────────────────────────────────────────────────────
+function spawnBurst(cardEl){
+  const rect = cardEl.getBoundingClientRect();
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+  const colors = ['#e8651a','#ff9a42','#2ecc71','#f1c40f','#9b59b6','#3498db','#e74c3c','#1abc9c'];
+  const N = 12;
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:300;overflow:hidden';
+
+  for(let i=0;i<N;i++){
+    const angle = (i/N)*Math.PI*2 + (Math.random()-0.5)*0.6;
+    const dist  = 46 + Math.random()*38;
+    const size  = 5 + Math.random()*8;
+    const color = colors[Math.floor(Math.random()*colors.length)];
+    const shape = Math.random()>0.55 ? '2px' : '50%';
+    const dur   = (0.38 + Math.random()*0.18).toFixed(2);
+    const tx    = (Math.cos(angle)*dist).toFixed(1);
+    const ty    = (Math.sin(angle)*dist - 18).toFixed(1);
+
+    const p = document.createElement('div');
+    p.style.cssText = `position:absolute;left:${cx}px;top:${cy}px;
+      width:${size}px;height:${size}px;border-radius:${shape};background:${color};
+      pointer-events:none;
+      animation:burstOut ${dur}s ease-out forwards;
+      --tx:${tx}px;--ty:${ty}px`;
+    wrap.appendChild(p);
+  }
+
+  // +1 floating label
+  const plus = document.createElement('div');
+  plus.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;
+    transform:translate(-50%,-50%);
+    font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;
+    color:#ff9a42;pointer-events:none;z-index:301;
+    animation:floatUp 0.72s ease-out forwards;
+    text-shadow:0 2px 10px rgba(0,0,0,0.6)`;
+  plus.textContent = '+1';
+
+  document.body.appendChild(wrap);
+  document.body.appendChild(plus);
+  setTimeout(()=>{ wrap.remove(); plus.remove(); }, 820);
+}
+
+// ── CONTEXTUAL MENU ──────────────────────────────────────────────────────────
+function showCtxMenu(exId, btnEl){
+  closeCtxMenu();
+  const def = EX[exId];
+  btnEl.classList.add('open');
+
+  const menu = document.createElement('div');
+  menu.className = 'ctx-menu';
+  menu.id = '_ctx';
+  menu.innerHTML = `
+    <button class="ctx-menu-item" onclick="closeCtxMenu();openModal('${exId}',${S.currentDay})">
+      <span class="ctx-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </span>Exercise Details
+    </button>
+    <button class="ctx-menu-item" onclick="closeCtxMenu();window.open('${def.video}','_blank')">
+      <span class="ctx-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>
+      </span>Watch Video
+    </button>`;
+
+  document.body.appendChild(menu);
+
+  // Position: align right edge of menu with right edge of button, below it
+  const rect = btnEl.getBoundingClientRect();
+  const menuW = 200;
+  let left = rect.right - menuW;
+  let top  = rect.bottom + 8;
+  if(left < 8) left = 8;
+  if(top + 110 > window.innerHeight - 8) top = rect.top - 118;
+  menu.style.left = left+'px';
+  menu.style.top  = top+'px';
+
+  // Dismiss on next outside tap
+  setTimeout(()=>{
+    document.addEventListener('click', closeCtxMenu, {once:true});
+  }, 10);
+
+  // Store reference to active button
+  menu._btn = btnEl;
+}
+
+function closeCtxMenu(){
+  const m = document.getElementById('_ctx');
+  if(m){ if(m._btn) m._btn.classList.remove('open'); m.remove(); }
 }
 
 function advanceDay(){
