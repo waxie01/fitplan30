@@ -714,6 +714,40 @@ function save(){ localStorage.setItem(SK, JSON.stringify(S)); }
 function dp(d){ if(!S.progress[d]) S.progress[d]={done:false,sets:{}}; return S.progress[d]; }
 function setsFor(d,id){ const p=dp(d); if(!p.sets[id]) p.sets[id]=0; return p.sets[id]; }
 
+// ── DATE HELPERS ─────────────────────────────────────────────────────────────
+function todayStr(){ return new Date().toISOString().split('T')[0]; }
+function calDaysBetween(a, b){
+  // returns absolute difference in calendar days between two YYYY-MM-DD strings
+  return Math.round(Math.abs(new Date(b) - new Date(a)) / 86400000);
+}
+function restsBetween(dayA, dayB){
+  // count rest days in the plan strictly between plan day numbers dayA and dayB
+  let n = 0;
+  const lo = Math.min(dayA, dayB), hi = Math.max(dayA, dayB);
+  for(let d = lo + 1; d < hi; d++) if(PLAN[d-1].type === 'R') n++;
+  return n;
+}
+function calcStreak(){
+  // Collect all completed days that have a recorded date, in plan order
+  const done = [];
+  for(let d = 1; d <= 30; d++){
+    const p = dp(d);
+    if(p.done) done.push({ day:d, date: p.completedDate || null });
+  }
+  if(done.length === 0) return 0;
+  // Walk backwards; break when calendar gap exceeds allowed window
+  let streak = 1;
+  for(let i = done.length - 1; i > 0; i--){
+    const curr = done[i], prev = done[i-1];
+    // If either entry has no date (completed before this feature), give benefit of the doubt
+    if(!curr.date || !prev.date){ streak++; continue; }
+    const allowed = 1 + restsBetween(prev.day, curr.day);
+    if(calDaysBetween(prev.date, curr.date) > allowed) break;
+    streak++;
+  }
+  return streak;
+}
+
 let S = loadState();
 let modalEx = null, modalDay = null;
 
@@ -802,7 +836,9 @@ function checkComplete(){
     allDone = plan.exs.length>0 && plan.exs.every(ex => setsFor(S.currentDay,ex.id)>=ex.sets);
   }
   if(allDone && !dp(S.currentDay).done){
-    dp(S.currentDay).done = true; save(); launchConfetti();
+    dp(S.currentDay).done = true;
+    dp(S.currentDay).completedDate = todayStr();
+    save(); launchConfetti();
   }
   if(allDone){
     banner.classList.add('show');
@@ -939,12 +975,9 @@ function renderProgress(){
     grid.appendChild(cell);
   }
   // compute stats
-  let doneCt=0, curStreak=0;
-  for(let d=S.currentDay;d>=1;d--){
-    if(dp(d).done) curStreak++;
-    else break;
-  }
+  let doneCt=0;
   for(let d=1;d<=30;d++) if(dp(d).done) doneCt++;
+  const curStreak = calcStreak();
   document.getElementById('s-done').textContent=doneCt;
   document.getElementById('s-streak').textContent=curStreak;
   document.getElementById('s-left').textContent=Math.max(0,30-doneCt);
