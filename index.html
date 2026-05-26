@@ -905,9 +905,12 @@ function tapLog(id, cardEl){
   const p = dp(S.currentDay);
   if(!p.sets[id]) p.sets[id]=0;
 
-  // Punch animation fires for both log and reset
-  cardEl.style.animation = 'cardPunch 0.4s cubic-bezier(0.34,1.5,0.64,1) both';
-  cardEl.addEventListener('animationend', ()=>{ cardEl.style.animation=''; }, {once:true});
+  // Punch animation — reset to none first so rapid taps always restart cleanly.
+  // Leave the inline style set (don't clear on animationend) so fadeUp never
+  // re-triggers and causes the card to flash invisible.
+  cardEl.style.animation = 'none';
+  void cardEl.offsetWidth; // force reflow
+  cardEl.style.animation = 'cardPunch 0.4s cubic-bezier(0.34,1.5,0.64,1) forwards';
 
   if(p.sets[id] >= ex.sets){
     // ── RESET ── tap beyond completion clears the exercise
