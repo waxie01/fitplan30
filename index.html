@@ -228,10 +228,103 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 @keyframes popDot{0%{transform:scale(1)}50%{transform:scale(1.6)}100%{transform:scale(1)}}
 .set-dot.pop{animation:popDot 0.3s cubic-bezier(0.34,1.6,0.64,1)}
 #confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200}
+
+/* SETUP SCREEN */
+#setup-screen{position:fixed;inset:0;background:var(--bg);z-index:600;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 24px 32px;overflow-y:auto}
+#setup-screen.hidden{display:none}
+.setup-inner{width:100%;max-width:390px;display:flex;flex-direction:column}
+.setup-glyph{font-size:52px;text-align:center;margin-bottom:14px}
+.setup-inner h1{font-size:36px;font-weight:800;font-family:'Barlow Condensed',sans-serif;
+  letter-spacing:0.3px;text-align:center;margin-bottom:8px}
+.setup-sub{font-size:19px;color:var(--dim);text-align:center;line-height:1.55;margin-bottom:26px}
+.setup-steps{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.setup-step{display:flex;align-items:flex-start;gap:12px;background:var(--card);
+  border-radius:12px;padding:13px 14px;border:1px solid var(--border)}
+.setup-step .sn{background:var(--orange);color:#fff;border-radius:50%;width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;
+  flex-shrink:0;margin-top:1px;font-family:'Barlow Condensed',sans-serif}
+.setup-step .st{font-size:18px;color:var(--dim);line-height:1.45;font-family:'Barlow Condensed',sans-serif}
+.setup-step .st strong{color:var(--text)}
+.setup-link{display:block;text-align:center;font-size:18px;color:var(--orange);
+  text-decoration:none;margin-bottom:18px;font-family:'Barlow Condensed',sans-serif;font-weight:700}
+.token-row{display:flex;gap:8px;margin-bottom:8px}
+.token-input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:13px 14px;font-size:18px;color:var(--text);font-family:'Barlow Condensed',sans-serif;
+  letter-spacing:0.3px;outline:none;-webkit-appearance:none}
+.token-input:focus{border-color:var(--orange)}
+.token-input::placeholder{color:var(--dim)}
+.setup-connect-btn{background:var(--orange);color:#fff;border:none;border-radius:12px;
+  padding:13px 18px;font-size:21px;font-weight:700;cursor:pointer;white-space:nowrap;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;flex-shrink:0}
+.setup-connect-btn:disabled{opacity:0.5;cursor:default}
+.setup-error{font-size:17px;color:#e74c3c;text-align:center;margin-bottom:4px;
+  font-family:'Barlow Condensed',sans-serif;min-height:22px}
+.setup-note{font-size:16px;color:var(--dim);text-align:center;line-height:1.5;
+  font-family:'Barlow Condensed',sans-serif;margin-top:14px}
+
+/* SYNC STATUS BUTTON */
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.sync-btn{background:transparent;border:none;padding:4px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;display:flex;align-items:center;
+  justify-content:center;border-radius:8px;transition:opacity 0.2s}
+.sync-icon{width:18px;height:18px;color:var(--dim);transition:color 0.2s}
+.sync-btn.syncing .sync-icon{color:var(--orange);animation:spinSync 1s linear infinite}
+.sync-btn.synced .sync-icon{color:var(--green)}
+.sync-btn.error .sync-icon{color:#e74c3c}
+.sync-btn.pending .sync-icon{color:var(--dim);opacity:0.5}
+@keyframes spinSync{to{transform:rotate(360deg)}}
+
+/* SETTINGS SHEET EXTRAS */
+.settings-section{margin-bottom:18px}
+.settings-label{font-size:15px;font-weight:700;color:var(--dim);text-transform:uppercase;
+  letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;margin-bottom:8px}
+.settings-row{background:var(--card2);border-radius:12px;padding:14px 16px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  border:1px solid var(--border);margin-bottom:8px}
+.settings-val{font-size:18px;color:var(--dim);font-family:'Barlow Condensed',sans-serif;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.settings-val.ok{color:var(--green)}
+.settings-val.err{color:#e74c3c}
+.settings-pill-btn{border-radius:8px;padding:6px 14px;font-size:17px;font-weight:700;
+  cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px;
+  white-space:nowrap;flex-shrink:0;border:1px solid}
+.settings-pill-btn.orange{background:var(--orange-dim);color:var(--orange);border-color:var(--orange-mid)}
+.settings-pill-btn.red{background:rgba(231,76,60,0.1);color:#e74c3c;border-color:rgba(231,76,60,0.25)}
+.gist-link{color:var(--orange);font-size:17px;text-decoration:none;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;flex-shrink:0}
 </style>
 </head>
 <body>
 <canvas id="confetti"></canvas>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen" class="hidden">
+  <div class="setup-inner">
+    <div class="setup-glyph">🏋️</div>
+    <h1>Sync Setup</h1>
+    <p class="setup-sub">FitPlan 30 saves your progress to a private GitHub Gist — automatically backed up and accessible from any device.</p>
+    <div class="setup-steps">
+      <div class="setup-step">
+        <div class="sn">1</div>
+        <div class="st">Tap the link below. Name the token anything, check only the <strong>gist</strong> scope, then click <strong>Generate token</strong>.</div>
+      </div>
+      <div class="setup-step">
+        <div class="sn">2</div>
+        <div class="st">Copy the token GitHub shows you and paste it here. You won't see it again.</div>
+      </div>
+    </div>
+    <a class="setup-link" href="https://github.com/settings/tokens/new?description=FitPlan+30&scopes=gist" target="_blank" rel="noopener">Open GitHub → New Token ↗</a>
+    <div class="token-row">
+      <input class="token-input" id="token-input" type="password" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" spellcheck="false"/>
+      <button class="setup-connect-btn" id="setup-btn" onclick="setupConnect()">Connect</button>
+    </div>
+    <div class="setup-error" id="setup-error"></div>
+    <p class="setup-note">Your token is stored only in this browser and used solely to sync your workout data. It is never sent anywhere other than api.github.com.</p>
+  </div>
+</div>
+
 <div id="app">
 
   <!-- TODAY VIEW -->
@@ -241,7 +334,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);
         <div class="header-eyebrow">FitPlan 30</div>
         <h1 id="hd-title">Today</h1>
       </div>
-      <div class="day-badge" id="hd-badge">Day 1</div>
+      <div class="header-right">
+        <div class="day-badge" id="hd-badge">Day 1</div>
+        <button class="sync-btn" id="sync-btn" onclick="showSettings()" aria-label="Sync settings">
+          <svg class="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/>
+            <polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <div class="ring-container">
@@ -350,6 +452,18 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <button class="log-btn" id="m-log-btn" onclick="logSetFromModal()">Log Set 1</button>
       <button class="close-modal-btn" onclick="closeModal()">Close</button>
     </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-overlay" onclick="overlayCloseSettings(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-muscle">STORAGE &amp; SYNC</div>
+      <h2>Settings</h2>
+    </div>
+    <div class="modal-body" id="settings-body"></div>
   </div>
 </div>
 
@@ -733,14 +847,17 @@ cardio:`<svg viewBox="0 0 150 120" fill="none" xmlns="http://www.w3.org/2000/svg
 
 // ── STATE ────────────────────────────────────────────────────────────────────
 const SK = 'fp30_v1';
-function loadState(){
+function loadStateLocal(){
   try{ return JSON.parse(localStorage.getItem(SK)) || freshState(); }
   catch(e){ return freshState(); }
 }
 function freshState(){
   return { currentDay:1, progress:{} };
 }
-function save(){ localStorage.setItem(SK, JSON.stringify(S)); }
+function save(){
+  localStorage.setItem(SK, JSON.stringify(S));
+  syncSchedule();
+}
 function dp(d){ if(!S.progress[d]) S.progress[d]={done:false,sets:{}}; return S.progress[d]; }
 function setsFor(d,id){ const p=dp(d); if(!p.sets[id]) p.sets[id]=0; return p.sets[id]; }
 
@@ -778,7 +895,7 @@ function calcStreak(){
   return streak;
 }
 
-let S = loadState();
+let S = loadStateLocal();
 let modalEx = null, modalDay = null;
 
 // ── RENDER TODAY ─────────────────────────────────────────────────────────────
@@ -1168,8 +1285,232 @@ function launchConfetti(){
   })();
 }
 
+// ── GITHUB GIST SYNC ─────────────────────────────────────────────────────────
+const TK = 'fp30_token';
+const GK = 'fp30_gist';
+const GIST_FILE = 'fitplan30-progress.json';
+const GHAPI = 'https://api.github.com';
+
+function getToken(){ return localStorage.getItem(TK); }
+function getGistId(){ return localStorage.getItem(GK); }
+
+async function ghFetch(method, path, token, body){
+  const res = await fetch(GHAPI + path, {
+    method,
+    headers:{
+      'Authorization':'token '+token,
+      'Content-Type':'application/json',
+      'Accept':'application/vnd.github.v3+json'
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if(!res.ok){
+    const err = await res.json().catch(()=>({}));
+    throw new Error(err.message || 'GitHub API error '+res.status);
+  }
+  return res.json();
+}
+
+async function gistCreate(token, state){
+  const data = await ghFetch('POST','/gists',token,{
+    description:'FitPlan 30 — workout progress',
+    public: false,
+    files:{ [GIST_FILE]:{ content: JSON.stringify(state,null,2) } }
+  });
+  localStorage.setItem(GK, data.id);
+  return data.id;
+}
+
+async function gistLoad(token, gistId){
+  const data = await ghFetch('GET','/gists/'+gistId,token);
+  const raw = data.files?.[GIST_FILE]?.content;
+  return raw ? JSON.parse(raw) : null;
+}
+
+async function gistSave(token, gistId, state){
+  await ghFetch('PATCH','/gists/'+gistId,token,{
+    files:{ [GIST_FILE]:{ content: JSON.stringify(state,null,2) } }
+  });
+}
+
+// ── DEBOUNCED SYNC ────────────────────────────────────────────────────────────
+let _syncTimer = null;
+function syncSchedule(){
+  if(!getToken()||!getGistId()) return;
+  clearTimeout(_syncTimer);
+  setSyncState('pending');
+  _syncTimer = setTimeout(syncNow, 1500);
+}
+
+async function syncNow(){
+  const token=getToken(), gistId=getGistId();
+  if(!token||!gistId) return;
+  setSyncState('syncing');
+  try{
+    await gistSave(token, gistId, S);
+    setSyncState('synced');
+    setTimeout(()=>setSyncState('idle'), 3000);
+  } catch(e){
+    console.warn('Sync failed:',e.message);
+    setSyncState('error');
+  }
+}
+
+function setSyncState(state){
+  const btn = document.getElementById('sync-btn');
+  if(!btn) return;
+  btn.className = 'sync-btn' + (state&&state!=='idle' ? ' '+state : '');
+  const tips = {idle:'Sync settings',pending:'Saving…',syncing:'Syncing…',synced:'Synced ✓',error:'Sync error — tap for details'};
+  btn.setAttribute('aria-label', tips[state]||'Sync');
+}
+
+// ── SETUP SCREEN ──────────────────────────────────────────────────────────────
+function showSetup(){
+  document.getElementById('setup-screen').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('token-input').focus(), 120);
+}
+function hideSetup(){
+  document.getElementById('setup-screen').classList.add('hidden');
+}
+
+async function setupConnect(){
+  const input = document.getElementById('token-input');
+  const btn   = document.getElementById('setup-btn');
+  const errEl = document.getElementById('setup-error');
+  const token = input.value.trim();
+  if(!token){ errEl.textContent='Please paste your token first.'; return; }
+
+  btn.disabled=true; btn.textContent='Connecting…'; errEl.textContent='';
+
+  try{
+    // Validate token with a lightweight endpoint
+    const check = await fetch(GHAPI+'/user',{
+      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}
+    });
+    if(!check.ok) throw new Error('Token not accepted — make sure it has the gist scope selected.');
+
+    localStorage.setItem(TK, token);
+
+    // Migrate any existing local progress into the new Gist
+    const existing = loadStateLocal();
+    await gistCreate(token, existing);
+    S = existing;
+
+    hideSetup();
+    renderToday();
+    setSyncState('synced');
+    setTimeout(()=>setSyncState('idle'), 3000);
+  } catch(e){
+    errEl.textContent = e.message;
+    btn.disabled=false; btn.textContent='Connect';
+  }
+}
+
+// Allow Enter key to submit
+document.getElementById('token-input').addEventListener('keydown', e=>{
+  if(e.key==='Enter') setupConnect();
+});
+
+// ── SETTINGS SHEET ────────────────────────────────────────────────────────────
+function showSettings(){
+  const token  = getToken();
+  const gistId = getGistId();
+  const syncBtn = document.getElementById('sync-btn');
+  const isError = syncBtn && syncBtn.classList.contains('error');
+
+  let statusText, statusClass;
+  if(!token)        { statusText='Not connected'; statusClass='err'; }
+  else if(isError)  { statusText='Sync error'; statusClass='err'; }
+  else              { statusText='Connected'; statusClass='ok'; }
+
+  document.getElementById('settings-body').innerHTML = `
+    <div class="settings-section">
+      <div class="settings-label">Sync Status</div>
+      <div class="settings-row">
+        <span class="settings-val ${statusClass}">${statusText}</span>
+        ${gistId ? `<a class="gist-link" href="https://gist.github.com/${gistId}" target="_blank" rel="noopener">View Gist ↗</a>` : ''}
+      </div>
+    </div>
+    ${token && gistId ? `
+    <div class="settings-section">
+      <div class="settings-label">Manual Sync</div>
+      <div class="settings-row">
+        <span class="settings-val">Push local progress to Gist now</span>
+        <button class="settings-pill-btn orange" onclick="closeSettings();syncNow()">Sync Now</button>
+      </div>
+    </div>` : ''}
+    <div class="settings-section">
+      <div class="settings-label">Account</div>
+      <div class="settings-row">
+        <span class="settings-val">${token ? 'Token stored on this device' : 'No token saved'}</span>
+        <button class="settings-pill-btn red" onclick="disconnectGist()">${token ? 'Disconnect' : 'Set Up'}</button>
+      </div>
+    </div>
+    <button class="close-modal-btn" onclick="closeSettings()">Close</button>`;
+
+  document.getElementById('settings-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeSettings(){
+  document.getElementById('settings-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function overlayCloseSettings(e){
+  if(e.target===document.getElementById('settings-overlay')) closeSettings();
+}
+
+function disconnectGist(){
+  if(!getToken()){ closeSettings(); showSetup(); return; }
+  if(!confirm('Remove the sync token from this device? Your progress stays safe in the Gist and can be reconnected later.')) return;
+  localStorage.removeItem(TK);
+  localStorage.removeItem(GK);
+  closeSettings();
+  showSetup();
+}
+
 // ── INIT ─────────────────────────────────────────────────────────────────────
-renderToday();
+async function init(){
+  const token  = getToken();
+  const gistId = getGistId();
+
+  if(!token){
+    showSetup();
+    return;
+  }
+
+  // Render immediately from local cache — no loading screen
+  renderToday();
+
+  if(!gistId){
+    // Token exists but Gist not created yet — make one from local state
+    setSyncState('syncing');
+    try{
+      await gistCreate(token, S);
+      setSyncState('synced');
+      setTimeout(()=>setSyncState('idle'), 3000);
+    } catch(e){ setSyncState('error'); }
+    return;
+  }
+
+  // Background fetch from Gist — silently updates if remote differs
+  setSyncState('syncing');
+  try{
+    const remote = await gistLoad(token, gistId);
+    if(remote){
+      S = remote;
+      localStorage.setItem(SK, JSON.stringify(S));
+      renderToday(); // refresh with authoritative remote data
+    }
+    setSyncState('synced');
+    setTimeout(()=>setSyncState('idle'), 3000);
+  } catch(e){
+    console.warn('Gist load failed, using local cache:', e.message);
+    setSyncState('error');
+  }
+}
+
+init();
 </script>
 </body>
 </html>
