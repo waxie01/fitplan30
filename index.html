@@ -74,23 +74,36 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 
 /* EXERCISE CARDS */
 .exercise-list{padding:0 16px;display:flex;flex-direction:column;gap:10px}
-.exercise-card{background:var(--card);border-radius:16px;padding:14px 16px;
-  display:flex;align-items:center;gap:14px;border:1px solid var(--border);
-  cursor:pointer;transition:transform 0.12s,opacity 0.12s;
-  -webkit-tap-highlight-color:transparent;animation:fadeUp 0.3s ease both}
-.exercise-card:active{transform:scale(0.97);opacity:0.85}
+.exercise-card{background:var(--card);border-radius:16px;border:1px solid var(--border);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;animation:fadeUp 0.3s ease both;
+  position:relative;overflow:hidden;user-select:none;-webkit-user-select:none;
+  transition:border-color 0.2s,background 0.2s}
+.exercise-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--orange);border-radius:3px 0 0 3px;transition:background 0.2s}
 .exercise-card.complete{border-color:rgba(46,204,113,0.3);background:rgba(46,204,113,0.04)}
-.exercise-info{flex:1;min-width:0}
-.exercise-name{font-size:23px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.exercise-card.complete::before{background:var(--green)}
+.ex-card-inner{display:flex;align-items:center;gap:10px;padding:14px 14px 14px 18px}
+.ex-card-main{flex:1;min-width:0}
+.ex-card-progress{display:flex;align-items:center;gap:8px;margin-top:7px}
+.exercise-name{font-size:23px;font-weight:700;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
 .exercise-meta{font-size:19px;color:var(--dim);margin-top:2px;font-family:'Barlow Condensed',sans-serif}
-.set-tracker{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.weight-tag{color:var(--orange)}
 .set-dots{display:flex;gap:5px;align-items:center}
-.set-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--dim);transition:all 0.2s}
+.set-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--dim);
+  transition:background 0.15s,border-color 0.15s}
 .set-dot.done{background:var(--green);border-color:var(--green)}
-.set-btn{background:var(--orange);color:#fff;border:none;border-radius:8px;
-  padding:6px 12px;font-size:19px;font-weight:700;cursor:pointer;white-space:nowrap;
-  -webkit-tap-highlight-color:transparent;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px}
-.done-label{font-size:18px;color:var(--green);font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px}
+.set-counter{font-size:17px;font-weight:700;color:var(--orange);
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.done-label{font-size:17px;color:var(--green);font-weight:700;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.ex-menu-btn{background:rgba(255,255,255,0.06);border:1px solid var(--border);
+  color:var(--dim);border-radius:8px;width:34px;height:34px;display:flex;
+  align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;padding:0;
+  transition:background 0.12s,color 0.12s,border-color 0.12s}
+.ex-menu-btn:active,.ex-menu-btn.open{background:rgba(255,255,255,0.14);
+  color:var(--text);border-color:rgba(255,255,255,0.2)}
 
 /* COMPLETE BANNER */
 .complete-banner{margin:16px;background:linear-gradient(135deg,#27ae60,#2ecc71);
@@ -195,13 +208,123 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .exercise-card:nth-child(5){animation-delay:0.24s}
 .exercise-card:nth-child(6){animation-delay:0.29s}
 .exercise-card:nth-child(7){animation-delay:0.34s}
-@keyframes popDot{0%{transform:scale(1)}50%{transform:scale(1.5)}100%{transform:scale(1)}}
-.set-dot.pop{animation:popDot 0.28s ease}
+/* Card punch — springy press feedback */
+@keyframes cardPunch{
+  0%  {transform:scale(1)}
+  18% {transform:scale(0.90)}
+  52% {transform:scale(1.06)}
+  72% {transform:scale(0.98)}
+  100%{transform:scale(1)}}
+/* Burst particles */
+@keyframes burstOut{
+  0%  {transform:translate(-50%,-50%) scale(1.3) rotate(0deg);opacity:1}
+  100%{transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(0.1) rotate(220deg);opacity:0}}
+/* +1 float */
+@keyframes floatUp{
+  0%  {transform:translate(-50%,-50%) scale(0.5);opacity:0}
+  22% {transform:translate(-50%,-68%) scale(1.25);opacity:1}
+  100%{transform:translate(-50%,-145%) scale(0.85);opacity:0}}
+/* Dot pop */
+@keyframes popDot{0%{transform:scale(1)}50%{transform:scale(1.6)}100%{transform:scale(1)}}
+.set-dot.pop{animation:popDot 0.3s cubic-bezier(0.34,1.6,0.64,1)}
 #confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200}
+
+/* SETUP SCREEN */
+#setup-screen{position:fixed;inset:0;background:var(--bg);z-index:600;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 24px 32px;overflow-y:auto}
+#setup-screen.hidden{display:none}
+.setup-inner{width:100%;max-width:390px;display:flex;flex-direction:column}
+.setup-glyph{font-size:52px;text-align:center;margin-bottom:14px}
+.setup-inner h1{font-size:36px;font-weight:800;font-family:'Barlow Condensed',sans-serif;
+  letter-spacing:0.3px;text-align:center;margin-bottom:8px}
+.setup-sub{font-size:19px;color:var(--dim);text-align:center;line-height:1.55;margin-bottom:26px}
+.setup-steps{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.setup-step{display:flex;align-items:flex-start;gap:12px;background:var(--card);
+  border-radius:12px;padding:13px 14px;border:1px solid var(--border)}
+.setup-step .sn{background:var(--orange);color:#fff;border-radius:50%;width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;
+  flex-shrink:0;margin-top:1px;font-family:'Barlow Condensed',sans-serif}
+.setup-step .st{font-size:18px;color:var(--dim);line-height:1.45;font-family:'Barlow Condensed',sans-serif}
+.setup-step .st strong{color:var(--text)}
+.setup-link{display:block;text-align:center;font-size:18px;color:var(--orange);
+  text-decoration:none;margin-bottom:18px;font-family:'Barlow Condensed',sans-serif;font-weight:700}
+.token-row{display:flex;gap:8px;margin-bottom:8px}
+.token-input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:13px 14px;font-size:18px;color:var(--text);font-family:'Barlow Condensed',sans-serif;
+  letter-spacing:0.3px;outline:none;-webkit-appearance:none}
+.token-input:focus{border-color:var(--orange)}
+.token-input::placeholder{color:var(--dim)}
+.setup-connect-btn{background:var(--orange);color:#fff;border:none;border-radius:12px;
+  padding:13px 18px;font-size:21px;font-weight:700;cursor:pointer;white-space:nowrap;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;flex-shrink:0}
+.setup-connect-btn:disabled{opacity:0.5;cursor:default}
+.setup-error{font-size:17px;color:#e74c3c;text-align:center;margin-bottom:4px;
+  font-family:'Barlow Condensed',sans-serif;min-height:22px}
+.setup-note{font-size:16px;color:var(--dim);text-align:center;line-height:1.5;
+  font-family:'Barlow Condensed',sans-serif;margin-top:14px}
+
+/* SYNC STATUS BUTTON */
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.sync-btn{background:transparent;border:none;padding:4px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;display:flex;align-items:center;
+  justify-content:center;border-radius:8px;transition:opacity 0.2s}
+.sync-icon{width:18px;height:18px;color:var(--dim);transition:color 0.2s}
+.sync-btn.syncing .sync-icon{color:var(--orange);animation:spinSync 1s linear infinite}
+.sync-btn.synced .sync-icon{color:var(--green)}
+.sync-btn.error .sync-icon{color:#e74c3c}
+.sync-btn.pending .sync-icon{color:var(--dim);opacity:0.5}
+@keyframes spinSync{to{transform:rotate(360deg)}}
+
+/* SETTINGS SHEET EXTRAS */
+.settings-section{margin-bottom:18px}
+.settings-label{font-size:15px;font-weight:700;color:var(--dim);text-transform:uppercase;
+  letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;margin-bottom:8px}
+.settings-row{background:var(--card2);border-radius:12px;padding:14px 16px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  border:1px solid var(--border);margin-bottom:8px}
+.settings-val{font-size:18px;color:var(--dim);font-family:'Barlow Condensed',sans-serif;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.settings-val.ok{color:var(--green)}
+.settings-val.err{color:#e74c3c}
+.settings-pill-btn{border-radius:8px;padding:6px 14px;font-size:17px;font-weight:700;
+  cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px;
+  white-space:nowrap;flex-shrink:0;border:1px solid}
+.settings-pill-btn.orange{background:var(--orange-dim);color:var(--orange);border-color:var(--orange-mid)}
+.settings-pill-btn.red{background:rgba(231,76,60,0.1);color:#e74c3c;border-color:rgba(231,76,60,0.25)}
+.gist-link{color:var(--orange);font-size:17px;text-decoration:none;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;flex-shrink:0}
 </style>
 </head>
 <body>
 <canvas id="confetti"></canvas>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen" class="hidden">
+  <div class="setup-inner">
+    <div class="setup-glyph">🏋️</div>
+    <h1>Sync Setup</h1>
+    <p class="setup-sub">FitPlan 30 saves your progress to a private GitHub Gist — automatically backed up and accessible from any device.</p>
+    <div class="setup-steps">
+      <div class="setup-step">
+        <div class="sn">1</div>
+        <div class="st">Tap the link below. Name the token anything, check only the <strong>gist</strong> scope, then click <strong>Generate token</strong>.</div>
+      </div>
+      <div class="setup-step">
+        <div class="sn">2</div>
+        <div class="st">Copy the token GitHub shows you and paste it here. You won't see it again.</div>
+      </div>
+    </div>
+    <a class="setup-link" href="https://github.com/settings/tokens/new?description=FitPlan+30&scopes=gist" target="_blank" rel="noopener">Open GitHub → New Token ↗</a>
+    <div class="token-row">
+      <input class="token-input" id="token-input" type="password" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" spellcheck="false"/>
+      <button class="setup-connect-btn" id="setup-btn" onclick="setupConnect()">Connect</button>
+    </div>
+    <div class="setup-error" id="setup-error"></div>
+    <p class="setup-note">Your token is stored only in this browser and used solely to sync your workout data. It is never sent anywhere other than api.github.com.</p>
+  </div>
+</div>
+
 <div id="app">
 
   <!-- TODAY VIEW -->
@@ -211,7 +334,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);
         <div class="header-eyebrow">FitPlan 30</div>
         <h1 id="hd-title">Today</h1>
       </div>
-      <div class="day-badge" id="hd-badge">Day 1</div>
+      <div class="header-right">
+        <div class="day-badge" id="hd-badge">Day 1</div>
+        <button class="sync-btn" id="sync-btn" onclick="showSettings()" aria-label="Sync settings">
+          <svg class="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/>
+            <polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <div class="ring-container">
@@ -320,6 +452,18 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <button class="log-btn" id="m-log-btn" onclick="logSetFromModal()">Log Set 1</button>
       <button class="close-modal-btn" onclick="closeModal()">Close</button>
     </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-overlay" onclick="overlayCloseSettings(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-muscle">STORAGE &amp; SYNC</div>
+      <h2>Settings</h2>
+    </div>
+    <div class="modal-body" id="settings-body"></div>
   </div>
 </div>
 
@@ -703,14 +847,17 @@ cardio:`<svg viewBox="0 0 150 120" fill="none" xmlns="http://www.w3.org/2000/svg
 
 // ── STATE ────────────────────────────────────────────────────────────────────
 const SK = 'fp30_v1';
-function loadState(){
+function loadStateLocal(){
   try{ return JSON.parse(localStorage.getItem(SK)) || freshState(); }
   catch(e){ return freshState(); }
 }
 function freshState(){
   return { currentDay:1, progress:{} };
 }
-function save(){ localStorage.setItem(SK, JSON.stringify(S)); }
+function save(){
+  localStorage.setItem(SK, JSON.stringify(S));
+  syncSchedule();
+}
 function dp(d){ if(!S.progress[d]) S.progress[d]={done:false,sets:{}}; return S.progress[d]; }
 function setsFor(d,id){ const p=dp(d); if(!p.sets[id]) p.sets[id]=0; return p.sets[id]; }
 
@@ -748,7 +895,7 @@ function calcStreak(){
   return streak;
 }
 
-let S = loadState();
+let S = loadStateLocal();
 let modalEx = null, modalDay = null;
 
 // ── RENDER TODAY ─────────────────────────────────────────────────────────────
@@ -796,18 +943,27 @@ function renderToday(){
     const card = document.createElement('div');
     card.className = 'exercise-card' + (allDone?' complete':'');
     card.style.animationDelay = (i*0.05)+'s';
-    card.onclick = ()=>openModal(ex.id, S.currentDay);
+    card.onclick = (e) => {
+      if(e.target.closest('.ex-menu-btn')) return;
+      tapLog(ex.id, card);
+    };
     card.innerHTML = `
-      <div class="exercise-info">
-        <div class="exercise-name">${def.name}</div>
-        <div class="exercise-meta">${ex.sets} sets × ${ex.reps}${ex.weight ? ' · <span style="color:var(--orange)">' + ex.weight + ' lbs</span>' : ''}</div>
-      </div>
-      <div class="set-tracker">
-        <div class="set-dots">${dots}</div>
-        ${allDone
-          ? `<div class="done-label">✓ Done</div>`
-          : `<button class="set-btn" onclick="event.stopPropagation();quickLog('${ex.id}')">Set ${sc+1}/${ex.sets}</button>`
-        }
+      <div class="ex-card-inner">
+        <div class="ex-card-main">
+          <div class="exercise-name">${def.name}</div>
+          <div class="exercise-meta">${ex.sets} sets × ${ex.reps}${ex.weight ? ' · <span class="weight-tag">' + ex.weight + ' lbs</span>' : ''}</div>
+          <div class="ex-card-progress">
+            <div class="set-dots">${dots}</div>
+            <div class="${allDone?'done-label':'set-counter'}">${allDone ? '✓ Done' : 'Set '+(sc+1)+' of '+ex.sets}</div>
+          </div>
+        </div>
+        <button class="ex-menu-btn" onclick="event.stopPropagation();openModal('${ex.id}',${S.currentDay})" aria-label="Exercise details">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <circle cx="8" cy="2.5" r="1.6"/>
+            <circle cx="8" cy="8" r="1.6"/>
+            <circle cx="8" cy="13.5" r="1.6"/>
+          </svg>
+        </button>
       </div>`;
     list.appendChild(card);
   });
@@ -858,17 +1014,123 @@ function checkComplete(){
   }
 }
 
-// ── QUICK LOG (tap Set button on card) ───────────────────────────────────────
-function quickLog(id){
+// ── TAP-TO-LOG ───────────────────────────────────────────────────────────────
+function tapLog(id, cardEl){
   const plan = PLAN[S.currentDay-1];
   const ex = plan.exs.find(e=>e.id===id);
   if(!ex) return;
   const p = dp(S.currentDay);
   if(!p.sets[id]) p.sets[id]=0;
-  if(p.sets[id]<ex.sets){ p.sets[id]++; save(); }
-  if(navigator.vibrate) navigator.vibrate(25);
-  renderToday();
+
+  // Punch animation — reset to none first so rapid taps always restart cleanly.
+  // Leave the inline style set (don't clear on animationend) so fadeUp never
+  // re-triggers and causes the card to flash invisible.
+  cardEl.style.animation = 'none';
+  void cardEl.offsetWidth; // force reflow
+  cardEl.style.animation = 'cardPunch 0.4s cubic-bezier(0.34,1.5,0.64,1) forwards';
+
+  if(p.sets[id] >= ex.sets){
+    // ── RESET ── tap beyond completion clears the exercise
+    p.sets[id] = 0;
+    if(dp(S.currentDay).done){
+      dp(S.currentDay).done = false;
+      dp(S.currentDay).completedDate = null;
+    }
+    save();
+    if(navigator.vibrate) navigator.vibrate(20);
+    resetCardInPlace(cardEl, ex);
+  } else {
+    // ── LOG SET ──
+    p.sets[id]++;
+    save();
+    if(navigator.vibrate) navigator.vibrate([12,8,18]);
+    spawnBurst(cardEl);
+    updateCardInPlace(cardEl, ex, p.sets[id]);
+  }
+
+  // Update ring + completion banner in-place (no full re-render)
+  let total=0, doneCount=0;
+  plan.exs.forEach(e=>{
+    total += e.sets;
+    doneCount += Math.min(setsFor(S.currentDay, e.id), e.sets);
+  });
+  updateRing(doneCount, total);
+  checkComplete();
 }
+
+function resetCardInPlace(cardEl, ex){
+  cardEl.querySelectorAll('.set-dot').forEach(dot=>dot.classList.remove('done','pop'));
+  const label = cardEl.querySelector('.set-counter, .done-label');
+  if(label){ label.className='set-counter'; label.textContent='Set 1 of '+ex.sets; }
+  cardEl.classList.remove('complete');
+}
+
+function updateCardInPlace(cardEl, ex, newSc){
+  // Fill the newly-completed dot with a pop
+  const dots = cardEl.querySelectorAll('.set-dot');
+  const newDot = dots[newSc-1];
+  if(newDot && !newDot.classList.contains('done')){
+    newDot.classList.add('done','pop');
+    newDot.addEventListener('animationend', ()=>newDot.classList.remove('pop'), {once:true});
+  }
+  // Update counter label
+  const counter = cardEl.querySelector('.set-counter, .done-label');
+  if(counter){
+    if(newSc >= ex.sets){
+      counter.className = 'done-label';
+      counter.textContent = '✓ Done';
+      cardEl.classList.add('complete');
+    } else {
+      counter.textContent = 'Set '+(newSc+1)+' of '+ex.sets;
+    }
+  }
+}
+
+// ── BURST ANIMATION ──────────────────────────────────────────────────────────
+function spawnBurst(cardEl){
+  const rect = cardEl.getBoundingClientRect();
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+  const colors = ['#e8651a','#ff9a42','#2ecc71','#f1c40f','#9b59b6','#3498db','#e74c3c','#1abc9c'];
+  const N = 12;
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:300;overflow:hidden';
+
+  for(let i=0;i<N;i++){
+    const angle = (i/N)*Math.PI*2 + (Math.random()-0.5)*0.6;
+    const dist  = 46 + Math.random()*38;
+    const size  = 5 + Math.random()*8;
+    const color = colors[Math.floor(Math.random()*colors.length)];
+    const shape = Math.random()>0.55 ? '2px' : '50%';
+    const dur   = (0.38 + Math.random()*0.18).toFixed(2);
+    const tx    = (Math.cos(angle)*dist).toFixed(1);
+    const ty    = (Math.sin(angle)*dist - 18).toFixed(1);
+
+    const p = document.createElement('div');
+    p.style.cssText = `position:absolute;left:${cx}px;top:${cy}px;
+      width:${size}px;height:${size}px;border-radius:${shape};background:${color};
+      pointer-events:none;
+      animation:burstOut ${dur}s ease-out forwards;
+      --tx:${tx}px;--ty:${ty}px`;
+    wrap.appendChild(p);
+  }
+
+  // +1 floating label
+  const plus = document.createElement('div');
+  plus.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;
+    transform:translate(-50%,-50%);
+    font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;
+    color:#ff9a42;pointer-events:none;z-index:301;
+    animation:floatUp 0.72s ease-out forwards;
+    text-shadow:0 2px 10px rgba(0,0,0,0.6)`;
+  plus.textContent = '+1';
+
+  document.body.appendChild(wrap);
+  document.body.appendChild(plus);
+  setTimeout(()=>{ wrap.remove(); plus.remove(); }, 820);
+}
+
 
 function advanceDay(){
   if(S.currentDay<30){
@@ -1023,8 +1285,232 @@ function launchConfetti(){
   })();
 }
 
+// ── GITHUB GIST SYNC ─────────────────────────────────────────────────────────
+const TK = 'fp30_token';
+const GK = 'fp30_gist';
+const GIST_FILE = 'fitplan30-progress.json';
+const GHAPI = 'https://api.github.com';
+
+function getToken(){ return localStorage.getItem(TK); }
+function getGistId(){ return localStorage.getItem(GK); }
+
+async function ghFetch(method, path, token, body){
+  const res = await fetch(GHAPI + path, {
+    method,
+    headers:{
+      'Authorization':'token '+token,
+      'Content-Type':'application/json',
+      'Accept':'application/vnd.github.v3+json'
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if(!res.ok){
+    const err = await res.json().catch(()=>({}));
+    throw new Error(err.message || 'GitHub API error '+res.status);
+  }
+  return res.json();
+}
+
+async function gistCreate(token, state){
+  const data = await ghFetch('POST','/gists',token,{
+    description:'FitPlan 30 — workout progress',
+    public: false,
+    files:{ [GIST_FILE]:{ content: JSON.stringify(state,null,2) } }
+  });
+  localStorage.setItem(GK, data.id);
+  return data.id;
+}
+
+async function gistLoad(token, gistId){
+  const data = await ghFetch('GET','/gists/'+gistId,token);
+  const raw = data.files?.[GIST_FILE]?.content;
+  return raw ? JSON.parse(raw) : null;
+}
+
+async function gistSave(token, gistId, state){
+  await ghFetch('PATCH','/gists/'+gistId,token,{
+    files:{ [GIST_FILE]:{ content: JSON.stringify(state,null,2) } }
+  });
+}
+
+// ── DEBOUNCED SYNC ────────────────────────────────────────────────────────────
+let _syncTimer = null;
+function syncSchedule(){
+  if(!getToken()||!getGistId()) return;
+  clearTimeout(_syncTimer);
+  setSyncState('pending');
+  _syncTimer = setTimeout(syncNow, 1500);
+}
+
+async function syncNow(){
+  const token=getToken(), gistId=getGistId();
+  if(!token||!gistId) return;
+  setSyncState('syncing');
+  try{
+    await gistSave(token, gistId, S);
+    setSyncState('synced');
+    setTimeout(()=>setSyncState('idle'), 3000);
+  } catch(e){
+    console.warn('Sync failed:',e.message);
+    setSyncState('error');
+  }
+}
+
+function setSyncState(state){
+  const btn = document.getElementById('sync-btn');
+  if(!btn) return;
+  btn.className = 'sync-btn' + (state&&state!=='idle' ? ' '+state : '');
+  const tips = {idle:'Sync settings',pending:'Saving…',syncing:'Syncing…',synced:'Synced ✓',error:'Sync error — tap for details'};
+  btn.setAttribute('aria-label', tips[state]||'Sync');
+}
+
+// ── SETUP SCREEN ──────────────────────────────────────────────────────────────
+function showSetup(){
+  document.getElementById('setup-screen').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('token-input').focus(), 120);
+}
+function hideSetup(){
+  document.getElementById('setup-screen').classList.add('hidden');
+}
+
+async function setupConnect(){
+  const input = document.getElementById('token-input');
+  const btn   = document.getElementById('setup-btn');
+  const errEl = document.getElementById('setup-error');
+  const token = input.value.trim();
+  if(!token){ errEl.textContent='Please paste your token first.'; return; }
+
+  btn.disabled=true; btn.textContent='Connecting…'; errEl.textContent='';
+
+  try{
+    // Validate token with a lightweight endpoint
+    const check = await fetch(GHAPI+'/user',{
+      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}
+    });
+    if(!check.ok) throw new Error('Token not accepted — make sure it has the gist scope selected.');
+
+    localStorage.setItem(TK, token);
+
+    // Migrate any existing local progress into the new Gist
+    const existing = loadStateLocal();
+    await gistCreate(token, existing);
+    S = existing;
+
+    hideSetup();
+    renderToday();
+    setSyncState('synced');
+    setTimeout(()=>setSyncState('idle'), 3000);
+  } catch(e){
+    errEl.textContent = e.message;
+    btn.disabled=false; btn.textContent='Connect';
+  }
+}
+
+// Allow Enter key to submit
+document.getElementById('token-input').addEventListener('keydown', e=>{
+  if(e.key==='Enter') setupConnect();
+});
+
+// ── SETTINGS SHEET ────────────────────────────────────────────────────────────
+function showSettings(){
+  const token  = getToken();
+  const gistId = getGistId();
+  const syncBtn = document.getElementById('sync-btn');
+  const isError = syncBtn && syncBtn.classList.contains('error');
+
+  let statusText, statusClass;
+  if(!token)        { statusText='Not connected'; statusClass='err'; }
+  else if(isError)  { statusText='Sync error'; statusClass='err'; }
+  else              { statusText='Connected'; statusClass='ok'; }
+
+  document.getElementById('settings-body').innerHTML = `
+    <div class="settings-section">
+      <div class="settings-label">Sync Status</div>
+      <div class="settings-row">
+        <span class="settings-val ${statusClass}">${statusText}</span>
+        ${gistId ? `<a class="gist-link" href="https://gist.github.com/${gistId}" target="_blank" rel="noopener">View Gist ↗</a>` : ''}
+      </div>
+    </div>
+    ${token && gistId ? `
+    <div class="settings-section">
+      <div class="settings-label">Manual Sync</div>
+      <div class="settings-row">
+        <span class="settings-val">Push local progress to Gist now</span>
+        <button class="settings-pill-btn orange" onclick="closeSettings();syncNow()">Sync Now</button>
+      </div>
+    </div>` : ''}
+    <div class="settings-section">
+      <div class="settings-label">Account</div>
+      <div class="settings-row">
+        <span class="settings-val">${token ? 'Token stored on this device' : 'No token saved'}</span>
+        <button class="settings-pill-btn red" onclick="disconnectGist()">${token ? 'Disconnect' : 'Set Up'}</button>
+      </div>
+    </div>
+    <button class="close-modal-btn" onclick="closeSettings()">Close</button>`;
+
+  document.getElementById('settings-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeSettings(){
+  document.getElementById('settings-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function overlayCloseSettings(e){
+  if(e.target===document.getElementById('settings-overlay')) closeSettings();
+}
+
+function disconnectGist(){
+  if(!getToken()){ closeSettings(); showSetup(); return; }
+  if(!confirm('Remove the sync token from this device? Your progress stays safe in the Gist and can be reconnected later.')) return;
+  localStorage.removeItem(TK);
+  localStorage.removeItem(GK);
+  closeSettings();
+  showSetup();
+}
+
 // ── INIT ─────────────────────────────────────────────────────────────────────
-renderToday();
+async function init(){
+  const token  = getToken();
+  const gistId = getGistId();
+
+  if(!token){
+    showSetup();
+    return;
+  }
+
+  // Render immediately from local cache — no loading screen
+  renderToday();
+
+  if(!gistId){
+    // Token exists but Gist not created yet — make one from local state
+    setSyncState('syncing');
+    try{
+      await gistCreate(token, S);
+      setSyncState('synced');
+      setTimeout(()=>setSyncState('idle'), 3000);
+    } catch(e){ setSyncState('error'); }
+    return;
+  }
+
+  // Background fetch from Gist — silently updates if remote differs
+  setSyncState('syncing');
+  try{
+    const remote = await gistLoad(token, gistId);
+    if(remote){
+      S = remote;
+      localStorage.setItem(SK, JSON.stringify(S));
+      renderToday(); // refresh with authoritative remote data
+    }
+    setSyncState('synced');
+    setTimeout(()=>setSyncState('idle'), 3000);
+  } catch(e){
+    console.warn('Gist load failed, using local cache:', e.message);
+    setSyncState('error');
+  }
+}
+
+init();
 </script>
 </body>
 </html>
