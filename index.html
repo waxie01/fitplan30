@@ -80,7 +80,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   transition:border-color 0.2s,background 0.2s}
 .exercise-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
   background:var(--orange);border-radius:3px 0 0 3px;transition:background 0.2s}
-.exercise-card.complete{border-color:rgba(46,204,113,0.3);background:rgba(46,204,113,0.04);cursor:default}
+.exercise-card.complete{border-color:rgba(46,204,113,0.3);background:rgba(46,204,113,0.04)}
 .exercise-card.complete::before{background:var(--green)}
 .ex-card-inner{display:flex;align-items:center;gap:10px;padding:14px 14px 14px 18px}
 .ex-card-main{flex:1;min-width:0}
@@ -104,17 +104,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   transition:background 0.12s,color 0.12s,border-color 0.12s}
 .ex-menu-btn:active,.ex-menu-btn.open{background:rgba(255,255,255,0.14);
   color:var(--text);border-color:rgba(255,255,255,0.2)}
-/* CONTEXTUAL MENU */
-.ctx-menu{position:fixed;background:#1c1c35;border:1px solid rgba(255,255,255,0.13);
-  border-radius:14px;padding:6px;z-index:400;min-width:196px;
-  box-shadow:0 12px 40px rgba(0,0,0,0.65);animation:ctxFadeIn 0.15s cubic-bezier(0.34,1.4,0.64,1) both}
-@keyframes ctxFadeIn{from{opacity:0;transform:scale(0.86) translateY(-8px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.ctx-menu-item{display:flex;align-items:center;gap:10px;padding:12px 14px;
-  border-radius:9px;font-size:19px;font-weight:600;color:var(--text);cursor:pointer;
-  -webkit-tap-highlight-color:transparent;font-family:'Barlow Condensed',sans-serif;
-  letter-spacing:0.3px;background:transparent;border:none;width:100%;text-align:left}
-.ctx-menu-item:active{background:rgba(255,255,255,0.09)}
-.ctx-icon{font-size:16px;width:22px;text-align:center;flex-shrink:0;opacity:0.85}
 
 /* COMPLETE BANNER */
 .complete-banner{margin:16px;background:linear-gradient(135deg,#27ae60,#2ecc71);
@@ -839,8 +828,7 @@ function renderToday(){
     card.style.animationDelay = (i*0.05)+'s';
     card.onclick = (e) => {
       if(e.target.closest('.ex-menu-btn')) return;
-      closeCtxMenu();
-      if(!allDone) tapLog(ex.id, card);
+      tapLog(ex.id, card);
     };
     card.innerHTML = `
       <div class="ex-card-inner">
@@ -852,7 +840,7 @@ function renderToday(){
             <div class="${allDone?'done-label':'set-counter'}">${allDone ? '✓ Done' : 'Set '+(sc+1)+' of '+ex.sets}</div>
           </div>
         </div>
-        <button class="ex-menu-btn" onclick="event.stopPropagation();showCtxMenu('${ex.id}',this)" aria-label="Exercise options">
+        <button class="ex-menu-btn" onclick="event.stopPropagation();openModal('${ex.id}',${S.currentDay})" aria-label="Exercise details">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <circle cx="8" cy="2.5" r="1.6"/>
             <circle cx="8" cy="8" r="1.6"/>
@@ -916,23 +904,31 @@ function tapLog(id, cardEl){
   if(!ex) return;
   const p = dp(S.currentDay);
   if(!p.sets[id]) p.sets[id]=0;
-  if(p.sets[id] >= ex.sets) return; // already complete
 
-  p.sets[id]++;
-  save();
-  if(navigator.vibrate) navigator.vibrate([12,8,18]);
-
-  // Springy punch animation (set via style to override fadeUp)
+  // Punch animation fires for both log and reset
   cardEl.style.animation = 'cardPunch 0.4s cubic-bezier(0.34,1.5,0.64,1) both';
   cardEl.addEventListener('animationend', ()=>{ cardEl.style.animation=''; }, {once:true});
 
-  // Burst particles + floating +1
-  spawnBurst(cardEl);
+  if(p.sets[id] >= ex.sets){
+    // ── RESET ── tap beyond completion clears the exercise
+    p.sets[id] = 0;
+    if(dp(S.currentDay).done){
+      dp(S.currentDay).done = false;
+      dp(S.currentDay).completedDate = null;
+    }
+    save();
+    if(navigator.vibrate) navigator.vibrate(20);
+    resetCardInPlace(cardEl, ex);
+  } else {
+    // ── LOG SET ──
+    p.sets[id]++;
+    save();
+    if(navigator.vibrate) navigator.vibrate([12,8,18]);
+    spawnBurst(cardEl);
+    updateCardInPlace(cardEl, ex, p.sets[id]);
+  }
 
-  // Update dots & counter in-place for instant feedback
-  updateCardInPlace(cardEl, ex, p.sets[id]);
-
-  // Update ring immediately
+  // Update ring + completion banner in-place (no full re-render)
   let total=0, doneCount=0;
   plan.exs.forEach(e=>{
     total += e.sets;
@@ -940,9 +936,13 @@ function tapLog(id, cardEl){
   });
   updateRing(doneCount, total);
   checkComplete();
+}
 
-  // Full re-render after animation settles
-  setTimeout(renderToday, 440);
+function resetCardInPlace(cardEl, ex){
+  cardEl.querySelectorAll('.set-dot').forEach(dot=>dot.classList.remove('done','pop'));
+  const label = cardEl.querySelector('.set-counter, .done-label');
+  if(label){ label.className='set-counter'; label.textContent='Set 1 of '+ex.sets; }
+  cardEl.classList.remove('complete');
 }
 
 function updateCardInPlace(cardEl, ex, newSc){
@@ -1011,56 +1011,6 @@ function spawnBurst(cardEl){
   setTimeout(()=>{ wrap.remove(); plus.remove(); }, 820);
 }
 
-// ── CONTEXTUAL MENU ──────────────────────────────────────────────────────────
-function showCtxMenu(exId, btnEl){
-  closeCtxMenu();
-  const def = EX[exId];
-  btnEl.classList.add('open');
-
-  const menu = document.createElement('div');
-  menu.className = 'ctx-menu';
-  menu.id = '_ctx';
-  menu.innerHTML = `
-    <button class="ctx-menu-item" onclick="closeCtxMenu();openModal('${exId}',${S.currentDay})">
-      <span class="ctx-icon">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-      </span>Exercise Details
-    </button>
-    <button class="ctx-menu-item" onclick="closeCtxMenu();window.open('${def.video}','_blank')">
-      <span class="ctx-icon">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-        </svg>
-      </span>Watch Video
-    </button>`;
-
-  document.body.appendChild(menu);
-
-  // Position: align right edge of menu with right edge of button, below it
-  const rect = btnEl.getBoundingClientRect();
-  const menuW = 200;
-  let left = rect.right - menuW;
-  let top  = rect.bottom + 8;
-  if(left < 8) left = 8;
-  if(top + 110 > window.innerHeight - 8) top = rect.top - 118;
-  menu.style.left = left+'px';
-  menu.style.top  = top+'px';
-
-  // Dismiss on next outside tap
-  setTimeout(()=>{
-    document.addEventListener('click', closeCtxMenu, {once:true});
-  }, 10);
-
-  // Store reference to active button
-  menu._btn = btnEl;
-}
-
-function closeCtxMenu(){
-  const m = document.getElementById('_ctx');
-  if(m){ if(m._btn) m._btn.classList.remove('open'); m.remove(); }
-}
 
 function advanceDay(){
   if(S.currentDay<30){
