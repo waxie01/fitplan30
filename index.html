@@ -56,7 +56,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .ring-subtitle strong{color:var(--orange)}
 
 /* TYPE PILL */
-.workout-type{margin:10px 20px 0}
+.workout-type{margin:10px 20px 0;display:flex;align-items:center;justify-content:space-between}
 .type-pill{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:20px;
   font-size:19px;font-weight:700;background:var(--orange-dim);color:var(--orange);
   border:1px solid var(--orange-mid);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px}
@@ -311,9 +311,37 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .settings-pill-btn.red{background:rgba(231,76,60,0.1);color:#e74c3c;border-color:rgba(231,76,60,0.25)}
 .gist-link{color:var(--orange);font-size:17px;text-decoration:none;
   font-family:'Barlow Condensed',sans-serif;font-weight:700;flex-shrink:0}
+
+/* THEME TOGGLE */
+.theme-toggle{display:flex;align-items:center;background:var(--card2);
+  border:1px solid var(--border);border-radius:999px;padding:3px;gap:2px}
+.theme-btn{width:28px;height:28px;border:none;border-radius:999px;background:transparent;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:var(--dim);-webkit-tap-highlight-color:transparent;padding:0;
+  transition:background 0.18s,color 0.18s;flex-shrink:0}
+.theme-btn.active{background:var(--orange);color:#fff}
+
+/* LIGHT THEME */
+body.light{
+  --bg:#f4f3ef;
+  --card:#ffffff;
+  --card2:#eeedf0;
+  --text:#1a1a2e;
+  --dim:#6e6e9a;
+  --border:rgba(0,0,0,0.08);
+  --orange-dim:rgba(232,101,26,0.10);
+  --orange-mid:rgba(232,101,26,0.35);
+}
+body.light .ring-wrap svg circle:first-child{stroke:rgba(0,0,0,0.07)}
+body.light .modal-handle{background:rgba(0,0,0,0.12)}
+body.light .modal-desc{color:#555566}
+body.light .ex-menu-btn{background:rgba(0,0,0,0.05);border-color:rgba(0,0,0,0.1);color:#888}
+body.light .ex-menu-btn:active,body.light .ex-menu-btn.open{background:rgba(0,0,0,0.1);color:var(--text);border-color:rgba(0,0,0,0.18)}
+body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
 </style>
 </head>
 <body>
+<script>document.body.classList.toggle('light',localStorage.getItem('fp30_theme')==='light')</script>
 <canvas id="confetti"></canvas>
 
 <!-- SETUP SCREEN -->
@@ -390,6 +418,21 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <div class="type-pill" id="type-pill">
         <div class="dot"></div>
         <span id="type-label">Chest &amp; Arms</span>
+      </div>
+      <div class="theme-toggle">
+        <button class="theme-btn" id="btn-light" onclick="setTheme('light')" aria-label="Light mode">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+            <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+            <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+          </svg>
+        </button>
+        <button class="theme-btn" id="btn-dark" onclick="setTheme('dark')" aria-label="Dark mode">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
       </div>
     </div>
 
@@ -1441,6 +1484,16 @@ function launchConfetti(){
   })();
 }
 
+// ── THEME ────────────────────────────────────────────────────────────────────
+const TH='fp30_theme';
+function applyTheme(t){
+  document.body.classList.toggle('light',t==='light');
+  const bl=document.getElementById('btn-light'),bd=document.getElementById('btn-dark');
+  if(bl) bl.classList.toggle('active',t==='light');
+  if(bd) bd.classList.toggle('active',t==='dark');
+}
+function setTheme(t){ localStorage.setItem(TH,t); applyTheme(t); }
+
 // ── GITHUB GIST SYNC ─────────────────────────────────────────────────────────
 const TK = 'fp30_token';
 const GK = 'fp30_gist';
@@ -1668,6 +1721,7 @@ async function init(){
   }
 }
 
+applyTheme(localStorage.getItem(TH)||'dark');
 init();
 </script>
 </body>
