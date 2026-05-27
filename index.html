@@ -186,18 +186,26 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .streak-fire{font-size:44px}
 .streak-info h3{font-size:26px;font-weight:800;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
 .streak-info p{font-size:19px;opacity:0.85;margin-top:2px;font-family:'Barlow Condensed',sans-serif}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;padding:16px}
-.cal-cell{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;
+.cal-grid{padding:0 16px 16px}
+.cal-month{margin-bottom:28px}
+.cal-month-title{font-size:21px;font-weight:800;font-family:'Barlow Condensed',sans-serif;
+  color:var(--text);letter-spacing:0.3px;padding:12px 0 8px;text-transform:uppercase}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.cal-dow>div{text-align:center;font-size:13px;font-weight:700;color:var(--dim);
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;padding:3px 0}
+.cal-month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-cell{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;
   align-items:center;justify-content:center;background:var(--card);border:1px solid var(--border);
-  font-size:17px;cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:'Barlow Condensed',sans-serif}
-.cal-cell .cn{font-size:21px;font-weight:800}
-.cal-cell .ct{font-size:15px;color:var(--dim);letter-spacing:0.3px;text-transform:uppercase}
+  cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:'Barlow Condensed',sans-serif;
+  user-select:none;-webkit-user-select:none}
+.cal-cell .cn{font-size:16px;font-weight:800;line-height:1.1}
+.cal-cell .ct{font-size:10px;color:inherit;letter-spacing:0.3px;text-transform:uppercase;opacity:0.85;margin-top:1px;line-height:1}
 .cal-cell.today{border-color:var(--orange);background:var(--orange-dim);color:var(--orange)}
-.cal-cell.today .ct{color:var(--orange);opacity:0.8}
 .cal-cell.done{background:rgba(46,204,113,0.12);border-color:rgba(46,204,113,0.35);color:var(--green)}
-.cal-cell.done .ct{color:var(--green);opacity:0.7}
-.cal-cell.rest{color:var(--dim)}
-.cal-cell.future{opacity:0.35}
+.cal-cell.future{opacity:0.4}
+.cal-cell.no-plan{background:transparent;border-color:transparent;cursor:default;opacity:0.25}
+.cal-cell.no-plan.real-today{background:var(--card);border-color:rgba(255,255,255,0.15);opacity:1;cursor:default}
+.cal-cell.cal-cell-empty{background:transparent;border-color:transparent;cursor:default;pointer-events:none}
 .cal-cell.selected{box-shadow:0 0 0 2px var(--orange);z-index:1}
 .header-date{font-size:15px;color:var(--dim);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;margin-top:1px}
 /* DAY DRAWER */
@@ -949,9 +957,12 @@ function renderToday(){
   const plan = PLAN[idx];
   document.getElementById('hd-badge').textContent = `Day ${S.currentDay}`;
   document.getElementById('hd-date').textContent = formatDateFull(new Date());
+  const _pDt=planDate(S.currentDay),_tDt=new Date(); _tDt.setHours(0,0,0,0);
+  const _diff=Math.round((_pDt-_tDt)/86400000);
   document.getElementById('hd-title').textContent =
     S.currentDay===30 ? 'Final Day! 🏆' :
-    plan.type==='R' ? 'Rest Day 😌' : 'Today';
+    plan.type==='R' ? 'Rest Day 😌' :
+    _diff<=0 ? 'Today' : _diff===1 ? 'Tomorrow' : formatDate(_pDt);
 
   // pill color
   const pill = document.getElementById('type-pill');
@@ -1308,36 +1319,83 @@ function overlayCloseCalDay(e){
 
 // ── PROGRESS VIEW ─────────────────────────────────────────────────────────────
 function renderProgress(){
+  ensureStartDate();
   const grid=document.getElementById('cal-grid');
   grid.innerHTML='';
-  const typeShort={A:'Push',B:'Core',C:'Cardio',R:'Rest'};
-  for(let d=1;d<=30;d++){
-    const plan=PLAN[d-1];
-    const p=dp(d);
-    const isCur=d===S.currentDay, isFut=d>S.currentDay;
-    let cls='cal-cell';
-    if(plan.type==='R') cls+=' rest';
-    if(p.done) cls+=' done';
-    else if(isCur) cls+=' today';
-    else if(isFut) cls+=' future';
-    const cell=document.createElement('div');
-    cell.className=cls;
-    const realDate=planDate(d);
-    const dateLabel=formatDate(realDate);
-    if(p.done){
-      cell.innerHTML=`<div class="sn" style="font-size:20px">✓</div><div class="ct">${dateLabel}</div>`;
-    } else if(isCur){
-      cell.innerHTML=`<div class="cn">${d}</div><div class="ct">Today</div>`;
-    } else {
-      cell.innerHTML=`<div class="cn">${d}</div><div class="ct">${dateLabel}</div>`;
+
+  // Map date strings → plan day numbers
+  const dateToPlan={};
+  for(let d=1;d<=30;d++) dateToPlan[planDate(d).toISOString().split('T')[0]]=d;
+
+  const todayDt=new Date(); todayDt.setHours(0,0,0,0);
+  const today0=todayDt.toISOString().split('T')[0];
+
+  // Render months: from plan start through 2 months past plan end
+  const [sy,sm]=S.startDate.split('-').map(Number);
+  const planEndDt=planDate(30);
+  const stopDt=new Date(planEndDt.getFullYear(),planEndDt.getMonth()+3,1);
+  let curM=new Date(sy,sm-1,1);
+
+  while(curM<stopDt){
+    const yr=curM.getFullYear(), mo=curM.getMonth();
+    const firstDow=new Date(yr,mo,1).getDay();
+    const daysInMo=new Date(yr,mo+1,0).getDate();
+
+    const mWrap=document.createElement('div');
+    mWrap.className='cal-month';
+
+    const mTitle=document.createElement('div');
+    mTitle.className='cal-month-title';
+    mTitle.textContent=`${MONTHS[mo]} ${yr}`;
+    mWrap.appendChild(mTitle);
+
+    const dowRow=document.createElement('div');
+    dowRow.className='cal-dow';
+    ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(lbl=>{
+      const h=document.createElement('div'); h.textContent=lbl; dowRow.appendChild(h);
+    });
+    mWrap.appendChild(dowRow);
+
+    const mGrid=document.createElement('div');
+    mGrid.className='cal-month-grid';
+
+    for(let i=0;i<firstDow;i++){
+      const e=document.createElement('div');
+      e.className='cal-cell cal-cell-empty';
+      mGrid.appendChild(e);
     }
-    cell.onclick=()=>{ openDayDrawer(d); };
-    grid.appendChild(cell);
+
+    for(let day=1;day<=daysInMo;day++){
+      const ds=`${yr}-${String(mo+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const planDay=dateToPlan[ds];
+      const isToday=ds===today0;
+      const cell=document.createElement('div');
+      let cls='cal-cell';
+
+      if(planDay){
+        const p=dp(planDay);
+        if(p.done) cls+=' done';
+        else if(planDay===S.currentDay) cls+=' today';
+        else cls+=' future';
+        cell.onclick=()=>openDayDrawer(planDay);
+      } else {
+        cls+=' no-plan';
+      }
+      if(isToday) cls+=' real-today';
+      cell.className=cls;
+      cell.innerHTML=`<div class="cn">${day}</div>${isToday?'<div class="ct">today</div>':''}`;
+      mGrid.appendChild(cell);
+    }
+
+    mWrap.appendChild(mGrid);
+    grid.appendChild(mWrap);
+    curM=new Date(yr,mo+1,1);
   }
-  // compute stats
+
+  // Stats
   let doneCt=0;
   for(let d=1;d<=30;d++) if(dp(d).done) doneCt++;
-  const curStreak = calcStreak();
+  const curStreak=calcStreak();
   document.getElementById('s-done').textContent=doneCt;
   document.getElementById('s-streak').textContent=curStreak;
   document.getElementById('s-left').textContent=Math.max(0,30-doneCt);
