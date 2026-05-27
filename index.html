@@ -198,6 +198,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .cal-cell.done .ct{color:var(--green);opacity:0.7}
 .cal-cell.rest{color:var(--dim)}
 .cal-cell.future{opacity:0.35}
+.cal-cell.selected{box-shadow:0 0 0 2px var(--orange);z-index:1}
+.header-date{font-size:15px;color:var(--dim);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;margin-top:1px}
+/* DAY DRAWER */
+.cd-ex-row{padding:11px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cd-ex-row:last-child{border-bottom:none}
+.cd-ex-name{font-size:21px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.cd-ex-name.done{color:var(--green)}
+.cd-ex-meta{font-size:17px;color:var(--dim);font-family:'Barlow Condensed',sans-serif;margin-top:2px}
+.cd-done-badge{font-size:15px;font-weight:700;color:var(--green);font-family:'Barlow Condensed',sans-serif;white-space:nowrap;margin-left:10px}
 
 /* ANIMATIONS */
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -333,6 +342,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <div class="header-left">
         <div class="header-eyebrow">FitPlan 30</div>
         <h1 id="hd-title">Today</h1>
+        <div class="header-date" id="hd-date"></div>
       </div>
       <div class="header-right">
         <div class="day-badge" id="hd-badge">Day 1</div>
@@ -451,6 +461,22 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <div class="set-boxes" id="m-sets"></div>
       <button class="log-btn" id="m-log-btn" onclick="logSetFromModal()">Log Set 1</button>
       <button class="close-modal-btn" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- DAY DETAIL DRAWER -->
+<div class="modal-overlay" id="cal-day-overlay" onclick="overlayCloseCalDay(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-muscle" id="cd-daynum">DAY 1</div>
+      <h2 id="cd-title">Rest Day</h2>
+    </div>
+    <div class="modal-body">
+      <div id="cd-date" style="font-size:16px;color:var(--dim);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;margin-bottom:14px"></div>
+      <div id="cd-list"></div>
+      <button class="close-modal-btn" style="margin-top:18px" onclick="closeDayDrawer()">Close</button>
     </div>
   </div>
 </div>
@@ -898,11 +924,31 @@ function calcStreak(){
 let S = loadStateLocal();
 let modalEx = null, modalDay = null;
 
+// ── REAL-DATE MAPPING ────────────────────────────────────────────────────────
+function ensureStartDate(){
+  if(S.startDate) return;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const base=new Date(today); base.setDate(base.getDate()-(S.currentDay-1));
+  S.startDate=base.toISOString().split('T')[0];
+  localStorage.setItem(SK,JSON.stringify(S));
+}
+function planDate(dayNum){
+  ensureStartDate();
+  const [y,m,d]=S.startDate.split('-').map(Number);
+  const dt=new Date(y,m-1,d); dt.setDate(dt.getDate()+(dayNum-1));
+  return dt;
+}
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const WDAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function formatDate(d){ return `${MONTHS[d.getMonth()]} ${d.getDate()}`; }
+function formatDateFull(d){ return `${WDAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`; }
+
 // ── RENDER TODAY ─────────────────────────────────────────────────────────────
 function renderToday(){
   const idx = S.currentDay - 1;
   const plan = PLAN[idx];
   document.getElementById('hd-badge').textContent = `Day ${S.currentDay}`;
+  document.getElementById('hd-date').textContent = formatDateFull(new Date());
   document.getElementById('hd-title').textContent =
     S.currentDay===30 ? 'Final Day! 🏆' :
     plan.type==='R' ? 'Rest Day 😌' : 'Today';
@@ -1210,6 +1256,56 @@ function overlayClose(e){
   if(e.target===document.getElementById('modal-overlay')) closeModal();
 }
 
+// ── DAY DETAIL DRAWER ─────────────────────────────────────────────────────────
+let _calDayOpen=false;
+function openDayDrawer(dayNum){
+  renderDayDrawer(dayNum);
+  document.querySelectorAll('#cal-grid .cal-cell').forEach(c=>c.classList.remove('selected'));
+  const cells=document.querySelectorAll('#cal-grid .cal-cell');
+  if(cells[dayNum-1]) cells[dayNum-1].classList.add('selected');
+  if(!_calDayOpen){
+    document.getElementById('cal-day-overlay').classList.add('open');
+    document.body.style.overflow='hidden';
+    _calDayOpen=true;
+  }
+}
+function renderDayDrawer(dayNum){
+  const plan=PLAN[dayNum-1];
+  document.getElementById('cd-daynum').textContent=`DAY ${dayNum}`;
+  document.getElementById('cd-title').textContent=plan.label;
+  document.getElementById('cd-date').textContent=formatDateFull(planDate(dayNum));
+  const list=document.getElementById('cd-list');
+  if(plan.type==='R'||plan.exs.length===0){
+    list.innerHTML=`<div style="text-align:center;padding:24px 0">
+      <div style="font-size:48px;margin-bottom:10px">😌</div>
+      <div style="font-size:22px;font-weight:700;font-family:'Barlow Condensed',sans-serif">Rest &amp; Recover</div>
+      <div style="font-size:18px;color:var(--dim);margin-top:6px;font-family:'Barlow Condensed',sans-serif">Recovery is part of the plan.</div>
+    </div>`;
+    return;
+  }
+  list.innerHTML='<div class="msec-title" style="margin-bottom:4px">Exercises</div>'+
+    plan.exs.map(ex=>{
+      const def=EX[ex.id];
+      const done=setsFor(dayNum,ex.id)>=ex.sets;
+      return `<div class="cd-ex-row">
+        <div style="flex:1;min-width:0">
+          <div class="cd-ex-name${done?' done':''}">${done?'✓ ':''}${def.name}</div>
+          <div class="cd-ex-meta">${ex.sets} sets &times; ${ex.reps}${ex.weight?` &middot; <span style="color:var(--orange)">${ex.weight} lbs</span>`:''}</div>
+        </div>
+        ${done?'<div class="cd-done-badge">Done</div>':''}
+      </div>`;
+    }).join('');
+}
+function closeDayDrawer(){
+  document.getElementById('cal-day-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  _calDayOpen=false;
+  document.querySelectorAll('#cal-grid .cal-cell').forEach(c=>c.classList.remove('selected'));
+}
+function overlayCloseCalDay(e){
+  if(e.target===document.getElementById('cal-day-overlay')) closeDayDrawer();
+}
+
 // ── PROGRESS VIEW ─────────────────────────────────────────────────────────────
 function renderProgress(){
   const grid=document.getElementById('cal-grid');
@@ -1226,14 +1322,16 @@ function renderProgress(){
     else if(isFut) cls+=' future';
     const cell=document.createElement('div');
     cell.className=cls;
+    const realDate=planDate(d);
+    const dateLabel=formatDate(realDate);
     if(p.done){
-      cell.innerHTML=`<div class="sn" style="font-size:20px">✓</div><div class="ct">${d}</div>`;
+      cell.innerHTML=`<div class="sn" style="font-size:20px">✓</div><div class="ct">${dateLabel}</div>`;
     } else if(isCur){
       cell.innerHTML=`<div class="cn">${d}</div><div class="ct">Today</div>`;
     } else {
-      cell.innerHTML=`<div class="cn">${d}</div><div class="ct">${typeShort[plan.type]}</div>`;
+      cell.innerHTML=`<div class="cn">${d}</div><div class="ct">${dateLabel}</div>`;
     }
-    cell.onclick=()=>{ if(d<=S.currentDay){ S.currentDay=d; save(); renderToday(); switchTab('today'); } };
+    cell.onclick=()=>{ openDayDrawer(d); };
     grid.appendChild(cell);
   }
   // compute stats
@@ -1479,6 +1577,7 @@ async function init(){
     return;
   }
 
+  ensureStartDate();
   // Render immediately from local cache — no loading screen
   renderToday();
 
@@ -1499,6 +1598,7 @@ async function init(){
     const remote = await gistLoad(token, gistId);
     if(remote){
       S = remote;
+      ensureStartDate();
       localStorage.setItem(SK, JSON.stringify(S));
       renderToday(); // refresh with authoritative remote data
     }
