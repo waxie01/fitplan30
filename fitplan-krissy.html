@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>FitPlan — Krissy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f1a;
+  --card:#1a1a2e;
+  --card2:#22223a;
+  --orange:#e8651a;
+  --orange-dim:rgba(232,101,26,0.15);
+  --orange-mid:rgba(232,101,26,0.4);
+  --green:#2ecc71;
+  --purple:#9b59b6;
+  --blue:#2980b9;
+  --text:#ffffff;
+  --dim:#9999bb;
+  --border:rgba(255,255,255,0.08);
+  --tab-h:68px;
+  --safe-b:env(safe-area-inset-bottom,16px);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:'Barlow',system-ui,sans-serif;
+  overflow:hidden;-webkit-font-smoothing:antialiased}
+#app{height:100%;display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative}
+
+/* VIEWS */
+.view{flex:1;overflow-y:auto;overflow-x:hidden;
+  padding-bottom:calc(var(--tab-h) + var(--safe-b) + 16px);
+  -webkit-overflow-scrolling:touch}
+.view::-webkit-scrollbar{display:none}
+.view.hidden{display:none}
+
+/* HEADER */
+.header{padding:52px 20px 12px;display:flex;align-items:flex-start;justify-content:space-between}
+.header-left{display:flex;flex-direction:column;gap:3px}
+.header-eyebrow{font-size:17px;font-weight:700;color:var(--dim);letter-spacing:1.2px;text-transform:uppercase;font-family:'Barlow Condensed',sans-serif}
+.header h1{font-size:38px;font-weight:800;line-height:1.05;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.day-badge{background:var(--orange);color:#fff;font-size:19px;font-weight:700;
+  padding:7px 15px;border-radius:20px;white-space:nowrap;margin-top:4px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px}
+
+/* PROGRESS RING */
+.ring-container{display:flex;flex-direction:column;align-items:center;padding:12px 20px 4px}
+.ring-wrap{position:relative;width:150px;height:150px}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.ring-pct{font-size:40px;font-weight:800;line-height:1;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px}
+.ring-label{font-size:17px;color:var(--dim);margin-top:3px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;text-transform:uppercase}
+.ring-subtitle{margin-top:10px;font-size:19px;color:var(--dim);text-align:center}
+.ring-subtitle strong{color:var(--orange)}
+
+/* TYPE PILL */
+.workout-type{margin:10px 20px 0;display:flex;align-items:center;justify-content:space-between}
+.type-pill{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:20px;
+  font-size:19px;font-weight:700;background:var(--orange-dim);color:var(--orange);
+  border:1px solid var(--orange-mid);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px}
+.type-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--orange);flex-shrink:0}
+.type-pill.core{background:rgba(155,89,182,0.12);color:var(--purple);border-color:rgba(155,89,182,0.35)}
+.type-pill.core .dot{background:var(--purple)}
+.type-pill.cardio{background:rgba(41,128,185,0.12);color:var(--blue);border-color:rgba(41,128,185,0.35)}
+.type-pill.cardio .dot{background:var(--blue)}
+.type-pill.rest{background:rgba(127,140,141,0.12);color:#95a5a6;border-color:rgba(127,140,141,0.3)}
+.type-pill.rest .dot{background:#7f8c8d}
+
+/* SECTION TITLE */
+.section-title{padding:18px 20px 8px;font-size:17px;font-weight:700;color:var(--dim);
+  text-transform:uppercase;letter-spacing:1px;font-family:'Barlow Condensed',sans-serif}
+
+/* EXERCISE CARDS */
+.exercise-list{padding:0 16px;display:flex;flex-direction:column;gap:10px}
+.exercise-card{background:var(--card);border-radius:16px;border:1px solid var(--border);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;animation:fadeUp 0.3s ease both;
+  position:relative;overflow:hidden;user-select:none;-webkit-user-select:none;
+  transition:border-color 0.2s,background 0.2s}
+.exercise-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--orange);border-radius:3px 0 0 3px;transition:background 0.2s}
+.exercise-card.complete{border-color:rgba(46,204,113,0.3);background:rgba(46,204,113,0.04)}
+.exercise-card.complete::before{background:var(--green)}
+.ex-card-inner{display:flex;align-items:center;gap:10px;padding:14px 14px 14px 18px}
+.ex-card-main{flex:1;min-width:0}
+.ex-card-progress{display:flex;align-items:center;gap:8px;margin-top:7px}
+.exercise-name{font-size:23px;font-weight:700;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.exercise-meta{font-size:19px;color:var(--dim);margin-top:2px;font-family:'Barlow Condensed',sans-serif}
+.weight-tag{color:var(--orange)}
+.set-dots{display:flex;gap:5px;align-items:center}
+.set-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--dim);
+  transition:background 0.15s,border-color 0.15s}
+.set-dot.done{background:var(--green);border-color:var(--green)}
+.set-counter{font-size:17px;font-weight:700;color:var(--orange);
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.done-label{font-size:17px;color:var(--green);font-weight:700;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.ex-menu-btn{background:rgba(255,255,255,0.06);border:1px solid var(--border);
+  color:var(--dim);border-radius:8px;width:34px;height:34px;display:flex;
+  align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;padding:0;
+  transition:background 0.12s,color 0.12s,border-color 0.12s}
+.ex-menu-btn:active,.ex-menu-btn.open{background:rgba(255,255,255,0.14);
+  color:var(--text);border-color:rgba(255,255,255,0.2)}
+
+/* COMPLETE BANNER */
+.complete-banner{margin:16px;background:linear-gradient(135deg,#27ae60,#2ecc71);
+  border-radius:18px;padding:22px;text-align:center;display:none}
+.complete-banner.show{display:block}
+.complete-banner h2{font-size:30px;font-weight:800;margin-bottom:6px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px}
+.complete-banner p{font-size:20px;opacity:0.9;line-height:1.5}
+.next-btn{margin-top:16px;background:#fff;color:#27ae60;border:none;border-radius:12px;
+  padding:14px;font-size:22px;font-weight:700;cursor:pointer;width:100%;
+  -webkit-tap-highlight-color:transparent;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px}
+
+/* REST DAY */
+.rest-card{margin:20px 16px;background:var(--card);border-radius:18px;padding:32px 20px;
+  text-align:center;border:1px solid var(--border)}
+.rest-card .rest-icon{font-size:62px;margin-bottom:14px}
+.rest-card h2{font-size:30px;font-weight:700;margin-bottom:8px;font-family:'Barlow Condensed',sans-serif}
+.rest-card p{font-size:20px;color:var(--dim);line-height:1.6}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:100;
+  display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-sheet{background:var(--card);border-radius:24px 24px 0 0;width:100%;
+  max-height:88vh;overflow-y:auto;padding-bottom:calc(24px + var(--safe-b));
+  transform:translateY(100%);transition:transform 0.32s cubic-bezier(0.34,1.2,0.64,1)}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-sheet::-webkit-scrollbar{display:none}
+.modal-handle{width:40px;height:4px;background:rgba(255,255,255,0.18);
+  border-radius:2px;margin:12px auto 0}
+.modal-header{padding:18px 20px 0}
+.modal-muscle{font-size:17px;font-weight:700;color:var(--orange);letter-spacing:1px;margin-bottom:4px;font-family:'Barlow Condensed',sans-serif}
+.modal-header h2{font-size:32px;font-weight:800;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.modal-body{padding:0 20px}
+.modal-stats{display:flex;gap:10px;margin-bottom:18px}
+.modal-stat{flex:1;background:var(--card2);border-radius:12px;padding:12px;text-align:center}
+.modal-stat .val{font-size:32px;font-weight:800;color:var(--orange);font-family:'Barlow Condensed',sans-serif}
+.modal-stat .lbl{font-size:16px;color:var(--dim);margin-top:2px;text-transform:uppercase;letter-spacing:0.5px;font-family:'Barlow Condensed',sans-serif}
+.msec-title{font-size:17px;font-weight:700;color:var(--dim);text-transform:uppercase;
+  letter-spacing:1px;margin-bottom:8px;font-family:'Barlow Condensed',sans-serif}
+.modal-desc{font-size:20px;line-height:1.65;color:#ccccdd;margin-bottom:18px}
+.video-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  background:rgba(255,40,40,0.12);border:1px solid rgba(255,40,40,0.28);color:#ff5555;
+  border-radius:12px;padding:14px;font-size:21px;font-weight:700;cursor:pointer;
+  text-decoration:none;-webkit-tap-highlight-color:transparent;margin-bottom:18px;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:0.4px}
+.set-boxes{display:flex;gap:8px;margin-bottom:12px}
+.set-box{flex:1;background:var(--card2);border-radius:12px;padding:14px 8px;
+  text-align:center;border:2px solid transparent;transition:all 0.2s}
+.set-box.active{border-color:var(--orange);background:var(--orange-dim)}
+.set-box.done{border-color:var(--green);background:rgba(46,204,113,0.1)}
+.set-box .sn{font-size:28px;font-weight:800;font-family:'Barlow Condensed',sans-serif}
+.set-box .sl{font-size:16px;color:var(--dim);margin-top:2px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.log-btn{width:100%;background:var(--orange);color:#fff;border:none;border-radius:14px;
+  padding:16px;font-size:24px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:opacity 0.2s;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px}
+.log-btn:disabled{background:var(--green);opacity:0.85}
+.close-modal-btn{display:block;width:100%;background:transparent;border:1px solid var(--border);
+  color:var(--dim);border-radius:12px;padding:13px;font-size:21px;font-weight:600;
+  cursor:pointer;margin-top:10px;-webkit-tap-highlight-color:transparent;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+
+/* TAB BAR */
+.tab-bar{height:var(--tab-h);background:var(--card);border-top:1px solid var(--border);
+  display:flex;align-items:center;padding-bottom:var(--safe-b);flex-shrink:0}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:8px 0;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  font-size:17px;font-weight:700;color:var(--dim);transition:color 0.15s;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;text-transform:uppercase}
+.tab-item.active{color:var(--orange)}
+.tab-icon{width:24px;height:24px}
+
+/* PROGRESS VIEW */
+.stats-row{display:flex;gap:10px;padding:16px 16px 0}
+.stat-card{flex:1;background:var(--card);border-radius:16px;padding:16px;
+  text-align:center;border:1px solid var(--border)}
+.stat-card .val{font-size:38px;font-weight:800;color:var(--orange);font-family:'Barlow Condensed',sans-serif}
+.stat-card .lbl{font-size:17px;color:var(--dim);margin-top:4px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;text-transform:uppercase}
+.streak-card{margin:12px 16px 0;background:linear-gradient(135deg,var(--orange),#ff9a42);
+  border-radius:16px;padding:18px;display:none;align-items:center;gap:14px}
+.streak-card.show{display:flex}
+.streak-fire{font-size:44px}
+.streak-info h3{font-size:26px;font-weight:800;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.streak-info p{font-size:19px;opacity:0.85;margin-top:2px;font-family:'Barlow Condensed',sans-serif}
+.cal-grid{padding:0 16px 16px}
+.cal-month{margin-bottom:28px}
+.cal-month-title{font-size:21px;font-weight:800;font-family:'Barlow Condensed',sans-serif;
+  color:var(--text);letter-spacing:0.3px;padding:12px 0 8px;text-transform:uppercase}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.cal-dow>div{text-align:center;font-size:13px;font-weight:700;color:var(--dim);
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;padding:3px 0}
+.cal-month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-cell{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;background:var(--card);border:1px solid var(--border);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:'Barlow Condensed',sans-serif;
+  user-select:none;-webkit-user-select:none}
+.cal-cell .cn{font-size:16px;font-weight:800;line-height:1.1}
+.cal-cell .ct{font-size:10px;color:inherit;letter-spacing:0.3px;text-transform:uppercase;opacity:0.85;margin-top:1px;line-height:1}
+.cal-cell.today{border-color:var(--orange);background:var(--orange-dim);color:var(--orange)}
+.cal-cell.done{background:rgba(46,204,113,0.12);border-color:rgba(46,204,113,0.35);color:var(--green)}
+.cal-cell.future{opacity:0.4}
+.cal-cell.no-plan{background:transparent;border-color:transparent;cursor:default;opacity:0.25}
+.cal-cell.no-plan.real-today{background:var(--card);border-color:rgba(255,255,255,0.15);opacity:1;cursor:default}
+.cal-cell.cal-cell-empty{background:transparent;border-color:transparent;cursor:default;pointer-events:none}
+.cal-cell.selected{box-shadow:0 0 0 2px var(--orange);z-index:1}
+.header-date{font-size:15px;color:var(--dim);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;margin-top:1px}
+/* DAY DRAWER */
+.cd-ex-row{padding:11px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cd-ex-row:last-child{border-bottom:none}
+.cd-ex-name{font-size:21px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.cd-ex-name.done{color:var(--green)}
+.cd-ex-meta{font-size:17px;color:var(--dim);font-family:'Barlow Condensed',sans-serif;margin-top:2px}
+.cd-done-badge{font-size:15px;font-weight:700;color:var(--green);font-family:'Barlow Condensed',sans-serif;white-space:nowrap;margin-left:10px}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.exercise-card:nth-child(1){animation-delay:0.04s}
+.exercise-card:nth-child(2){animation-delay:0.09s}
+.exercise-card:nth-child(3){animation-delay:0.14s}
+.exercise-card:nth-child(4){animation-delay:0.19s}
+.exercise-card:nth-child(5){animation-delay:0.24s}
+.exercise-card:nth-child(6){animation-delay:0.29s}
+.exercise-card:nth-child(7){animation-delay:0.34s}
+/* Card punch — springy press feedback */
+@keyframes cardPunch{
+  0%  {transform:scale(1)}
+  18% {transform:scale(0.90)}
+  52% {transform:scale(1.06)}
+  72% {transform:scale(0.98)}
+  100%{transform:scale(1)}}
+/* Burst particles */
+@keyframes burstOut{
+  0%  {transform:translate(-50%,-50%) scale(1.3) rotate(0deg);opacity:1}
+  100%{transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(0.1) rotate(220deg);opacity:0}}
+/* +1 float */
+@keyframes floatUp{
+  0%  {transform:translate(-50%,-50%) scale(0.5);opacity:0}
+  22% {transform:translate(-50%,-68%) scale(1.25);opacity:1}
+  100%{transform:translate(-50%,-145%) scale(0.85);opacity:0}}
+/* Dot pop */
+@keyframes popDot{0%{transform:scale(1)}50%{transform:scale(1.6)}100%{transform:scale(1)}}
+.set-dot.pop{animation:popDot 0.3s cubic-bezier(0.34,1.6,0.64,1)}
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200}
+
+/* SETUP SCREEN */
+#setup-screen{position:fixed;inset:0;background:var(--bg);z-index:600;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 24px 32px;overflow-y:auto}
+#setup-screen.hidden{display:none}
+.setup-inner{width:100%;max-width:390px;display:flex;flex-direction:column}
+.setup-glyph{font-size:52px;text-align:center;margin-bottom:14px}
+.setup-inner h1{font-size:36px;font-weight:800;font-family:'Barlow Condensed',sans-serif;
+  letter-spacing:0.3px;text-align:center;margin-bottom:8px}
+.setup-sub{font-size:19px;color:var(--dim);text-align:center;line-height:1.55;margin-bottom:26px}
+.setup-steps{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.setup-step{display:flex;align-items:flex-start;gap:12px;background:var(--card);
+  border-radius:12px;padding:13px 14px;border:1px solid var(--border)}
+.setup-step .sn{background:var(--orange);color:#fff;border-radius:50%;width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;
+  flex-shrink:0;margin-top:1px;font-family:'Barlow Condensed',sans-serif}
+.setup-step .st{font-size:18px;color:var(--dim);line-height:1.45;font-family:'Barlow Condensed',sans-serif}
+.setup-step .st strong{color:var(--text)}
+.setup-link{display:block;text-align:center;font-size:18px;color:var(--orange);
+  text-decoration:none;margin-bottom:18px;font-family:'Barlow Condensed',sans-serif;font-weight:700}
+.token-row{display:flex;gap:8px;margin-bottom:8px}
+.token-input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:13px 14px;font-size:18px;color:var(--text);font-family:'Barlow Condensed',sans-serif;
+  letter-spacing:0.3px;outline:none;-webkit-appearance:none}
+.token-input:focus{border-color:var(--orange)}
+.token-input::placeholder{color:var(--dim)}
+.setup-connect-btn{background:var(--orange);color:#fff;border:none;border-radius:12px;
+  padding:13px 18px;font-size:21px;font-weight:700;cursor:pointer;white-space:nowrap;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;flex-shrink:0}
+.setup-connect-btn:disabled{opacity:0.5;cursor:default}
+.setup-error{font-size:17px;color:#e74c3c;text-align:center;margin-bottom:4px;
+  font-family:'Barlow Condensed',sans-serif;min-height:22px}
+.setup-note{font-size:16px;color:var(--dim);text-align:center;line-height:1.5;
+  font-family:'Barlow Condensed',sans-serif;margin-top:14px}
+
+/* SYNC STATUS BUTTON */
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.sync-btn{background:transparent;border:none;padding:4px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;display:flex;align-items:center;
+  justify-content:center;border-radius:8px;transition:opacity 0.2s}
+.sync-icon{width:18px;height:18px;color:var(--dim);transition:color 0.2s}
+.sync-btn.syncing .sync-icon{color:var(--orange);animation:spinSync 1s linear infinite}
+.sync-btn.synced .sync-icon{color:var(--green)}
+.sync-btn.error .sync-icon{color:#e74c3c}
+.sync-btn.pending .sync-icon{color:var(--dim);opacity:0.5}
+@keyframes spinSync{to{transform:rotate(360deg)}}
+
+/* SETTINGS SHEET EXTRAS */
+.settings-section{margin-bottom:18px}
+.settings-label{font-size:15px;font-weight:700;color:var(--dim);text-transform:uppercase;
+  letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;margin-bottom:8px}
+.settings-row{background:var(--card2);border-radius:12px;padding:14px 16px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  border:1px solid var(--border);margin-bottom:8px}
+.settings-val{font-size:18px;color:var(--dim);font-family:'Barlow Condensed',sans-serif;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.settings-val.ok{color:var(--green)}
+.settings-val.err{color:#e74c3c}
+.settings-pill-btn{border-radius:8px;padding:6px 14px;font-size:17px;font-weight:700;
+  cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px;
+  white-space:nowrap;flex-shrink:0;border:1px solid}
+.settings-pill-btn.orange{background:var(--orange-dim);color:var(--orange);border-color:var(--orange-mid)}
+.settings-pill-btn.red{background:rgba(231,76,60,0.1);color:#e74c3c;border-color:rgba(231,76,60,0.25)}
+.gist-link{color:var(--orange);font-size:17px;text-decoration:none;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;flex-shrink:0}
+
+/* THEME TOGGLE */
+.theme-toggle{display:flex;align-items:center;background:var(--card2);
+  border:1px solid var(--border);border-radius:999px;padding:3px;gap:2px}
+.theme-btn{width:28px;height:28px;border:none;border-radius:999px;background:transparent;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:var(--dim);-webkit-tap-highlight-color:transparent;padding:0;
+  transition:background 0.18s,color 0.18s;flex-shrink:0}
+.theme-btn.active{background:var(--orange);color:#fff}
+
+/* LIGHT THEME */
+body.light{
+  --bg:#f4f3ef;
+  --card:#ffffff;
+  --card2:#eeedf0;
+  --text:#1a1a2e;
+  --dim:#6e6e9a;
+  --border:rgba(0,0,0,0.08);
+  --orange-dim:rgba(232,101,26,0.10);
+  --orange-mid:rgba(232,101,26,0.35);
+}
+body.light .ring-wrap svg circle:first-child{stroke:rgba(0,0,0,0.07)}
+body.light .modal-handle{background:rgba(0,0,0,0.12)}
+body.light .modal-desc{color:#555566}
+body.light .ex-menu-btn{background:rgba(0,0,0,0.05);border-color:rgba(0,0,0,0.1);color:#888}
+body.light .ex-menu-btn:active,body.light .ex-menu-btn.open{background:rgba(0,0,0,0.1);color:var(--text);border-color:rgba(0,0,0,0.18)}
+body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
+</style>
+</head>
+<body>
+<script>document.body.classList.toggle('light',localStorage.getItem('fpk_theme')==='light')</script>
+<canvas id="confetti"></canvas>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen" class="hidden">
+  <div class="setup-inner">
+    <div class="setup-glyph">🏋️</div>
+    <h1>Sync Setup</h1>
+    <p class="setup-sub">FitPlan — Krissy saves your progress to a private GitHub Gist — automatically backed up and accessible from any device.</p>
+    <div class="setup-steps">
+      <div class="setup-step">
+        <div class="sn">1</div>
+        <div class="st">Tap the link below. Name the token anything, check only the <strong>gist</strong> scope, then click <strong>Generate token</strong>.</div>
+      </div>
+      <div class="setup-step">
+        <div class="sn">2</div>
+        <div class="st">Copy the token GitHub shows you and paste it here. You won't see it again.</div>
+      </div>
+    </div>
+    <a class="setup-link" href="https://github.com/settings/tokens/new?description=FitPlan+Krissy&scopes=gist" target="_blank" rel="noopener">Open GitHub → New Token ↗</a>
+    <div class="token-row">
+      <input class="token-input" id="token-input" type="password" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" spellcheck="false"/>
+      <button class="setup-connect-btn" id="setup-btn" onclick="setupConnect()">Connect</button>
+    </div>
+    <div class="setup-error" id="setup-error"></div>
+    <p class="setup-note">Your token is stored only in this browser and used solely to sync your workout data. It is never sent anywhere other than api.github.com.</p>
+  </div>
+</div>
+
+<div id="app">
+
+  <!-- TODAY VIEW -->
+  <div class="view" id="view-today">
+    <div class="header">
+      <div class="header-left">
+        <div class="header-eyebrow">FitPlan — Krissy</div>
+        <h1 id="hd-title">Today</h1>
+        <div class="header-date" id="hd-date"></div>
+      </div>
+      <div class="header-right">
+        <div class="day-badge" id="hd-badge">Day 1</div>
+        <button class="sync-btn" id="sync-btn" onclick="showSettings()" aria-label="Sync settings">
+          <svg class="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/>
+            <polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="ring-container">
+      <div class="ring-wrap">
+        <svg width="150" height="150" viewBox="0 0 150 150">
+          <circle cx="75" cy="75" r="62" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="11"/>
+          <circle cx="75" cy="75" r="62" fill="none"
+            stroke="url(#rg)" stroke-width="11" stroke-linecap="round"
+            stroke-dasharray="389.6" stroke-dashoffset="389.6" id="ring"/>
+          <defs>
+            <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#e8651a"/>
+              <stop offset="100%" stop-color="#ff9a42"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-pct" id="ring-pct">0%</div>
+          <div class="ring-label">Complete</div>
+        </div>
+      </div>
+      <div class="ring-subtitle" id="ring-sub">0 of 0 sets done</div>
+    </div>
+
+    <div class="workout-type">
+      <div class="type-pill" id="type-pill">
+        <div class="dot"></div>
+        <span id="type-label">Chest &amp; Arms</span>
+      </div>
+      <div class="theme-toggle">
+        <button class="theme-btn" id="btn-light" onclick="setTheme('light')" aria-label="Light mode">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <circle cx="12" cy="12" r="4"/>
+            <line x1="12" y1="2" x2="12" y2="5"/>
+            <line x1="12" y1="19" x2="12" y2="22"/>
+            <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/>
+            <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+            <line x1="2" y1="12" x2="5" y2="12"/>
+            <line x1="19" y1="12" x2="22" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/>
+            <line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+          </svg>
+        </button>
+        <button class="theme-btn" id="btn-dark" onclick="setTheme('dark')" aria-label="Dark mode">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="complete-banner" class="complete-banner">
+      <h2 id="cb-title">Day Complete! 🎉</h2>
+      <p id="cb-msg">Fantastic work. You're building something real.</p>
+      <button class="next-btn" id="cb-btn" onclick="advanceDay()">Start Day <span id="cb-next">2</span></button>
+    </div>
+
+    <div class="section-title" id="ex-section-title">Today's Exercises</div>
+    <div class="exercise-list" id="ex-list"></div>
+  </div>
+
+  <!-- PROGRESS VIEW -->
+  <div class="view hidden" id="view-progress">
+    <div class="header">
+      <div class="header-left">
+        <div class="header-eyebrow">Your Journey</div>
+        <h1>Progress</h1>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="val" id="s-done">0</div><div class="lbl">Days Done</div></div>
+      <div class="stat-card"><div class="val" id="s-streak">0</div><div class="lbl">Streak</div></div>
+      <div class="stat-card"><div class="val" id="s-left">30</div><div class="lbl">Days Left</div></div>
+    </div>
+    <div class="streak-card" id="streak-card">
+      <div class="streak-fire">🔥</div>
+      <div class="streak-info">
+        <h3 id="streak-title">3-Day Streak!</h3>
+        <p>You're on fire. Keep it going.</p>
+      </div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <div class="tab-item active" id="tab-today" onclick="switchTab('today')">
+      <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9,22 9,12 15,12 15,22"/>
+      </svg>
+      Today
+    </div>
+    <div class="tab-item" id="tab-progress" onclick="switchTab('progress')">
+      <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/>
+        <line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+      Progress
+    </div>
+  </div>
+</div>
+
+<!-- EXERCISE MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="overlayClose(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-muscle" id="m-muscle">CHEST</div>
+      <h2 id="m-title">Exercise</h2>
+    </div>
+
+    <div class="modal-body">
+      <div class="modal-stats" id="m-stats"></div>
+      <div class="msec-title">How to Perform</div>
+      <div class="modal-desc" id="m-desc"></div>
+      <a class="video-btn" id="m-video" href="#" target="_blank" rel="noopener noreferrer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>
+        Watch How-To Video
+      </a>
+      <div class="msec-title">Complete Your Sets</div>
+      <div class="set-boxes" id="m-sets"></div>
+      <button class="log-btn" id="m-log-btn" onclick="logSetFromModal()">Log Set 1</button>
+      <button class="close-modal-btn" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- DAY DETAIL DRAWER -->
+<div class="modal-overlay" id="cal-day-overlay" onclick="overlayCloseCalDay(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-muscle" id="cd-daynum">DAY 1</div>
+      <h2 id="cd-title">Rest Day</h2>
+    </div>
+    <div class="modal-body">
+      <div id="cd-date" style="font-size:16px;color:var(--dim);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;margin-bottom:14px"></div>
+      <div id="cd-list"></div>
+      <button class="close-modal-btn" style="margin-top:18px" onclick="closeDayDrawer()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-overlay" onclick="overlayCloseSettings(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-muscle">STORAGE &amp; SYNC</div>
+      <h2>Settings</h2>
+    </div>
+    <div class="modal-body" id="settings-body"></div>
+  </div>
+</div>
+
+<script>
+// ── EXERCISE DEFINITIONS ─────────────────────────────────────────────────────
+const EX = {
+  'push-ups':{name:'Push-ups',muscle:'Chest & Triceps',emoji:'💪',illus:'pushup',
+    desc:'Start in a high plank with hands shoulder-width apart. Lower your chest toward the floor keeping elbows at 45° to your body. Press back up. Keep your core tight and body in a straight line throughout.',
+    video:'https://www.youtube.com/results?search_query=push+ups+proper+form+tutorial'},
+  'incline-push-ups':{name:'Incline Push-ups',muscle:'Upper Chest & Triceps',emoji:'💪',illus:'pushup',
+    desc:'Place your hands on a bench or sturdy surface in front of you (elevated), walk feet back, then perform a push-up. The incline shifts emphasis to your lower chest and reduces total load — good for higher-rep burnouts.',
+    video:'https://www.youtube.com/results?search_query=incline+push+ups+form+tutorial'},
+  'diamond-push-ups':{name:'Diamond Push-ups',muscle:'Triceps & Inner Chest',emoji:'💎',illus:'pushup',
+    desc:'Form a diamond shape with your thumbs and index fingers directly under your chest. Keep elbows tight to your sides as you lower and press. This variation heavily targets the triceps and inner chest.',
+    video:'https://www.youtube.com/results?search_query=diamond+push+ups+form+tutorial'},
+  'db-bench-press':{name:'Dumbbell Bench Press',muscle:'Chest',emoji:'🏋️',illus:'bench',
+    desc:'Lie on a flat bench with dumbbells at chest height, palms forward. Press up until arms are extended, then lower with control. Keep feet flat, shoulder blades pulled back into the bench, and avoid bouncing the weights off your chest.',
+    video:'https://www.youtube.com/results?search_query=dumbbell+bench+press+proper+form'},
+  'db-flyes':{name:'Dumbbell Flyes',muscle:'Chest (Stretch)',emoji:'🦅',illus:'fly',
+    desc:'Lie on a bench with dumbbells above chest, palms facing each other, slight bend in elbows. Lower the weights out in a wide arc until you feel a deep chest stretch, then squeeze them back up along the same arc. Do not fully lock elbows.',
+    video:'https://www.youtube.com/results?search_query=dumbbell+chest+flyes+form+tutorial'},
+  'bicep-curls':{name:'Bicep Curls',muscle:'Biceps',emoji:'💪',illus:'curl',
+    desc:'Stand with dumbbells at your sides, palms facing forward. Keeping elbows pinned to your torso, curl the weights up to shoulder height. Squeeze hard at the top, then lower slowly — resist the weight on the way down.',
+    video:'https://www.youtube.com/results?search_query=dumbbell+bicep+curl+proper+form'},
+  'hammer-curls':{name:'Hammer Curls',muscle:'Biceps & Forearms',emoji:'🔨',illus:'curl',
+    desc:'Hold dumbbells with palms facing each other (neutral grip) and curl up without rotating your wrists. This hits the brachialis and brachioradialis, adding overall arm thickness that standard curls miss.',
+    video:'https://www.youtube.com/results?search_query=hammer+curls+proper+form+tutorial'},
+  'concentration-curls':{name:'Concentration Curls',muscle:'Biceps (Peak)',emoji:'🎯',illus:'curl',
+    desc:'Sit on a bench, legs wide. Rest the back of your upper arm against the inside of your thigh. Curl a single dumbbell slowly, squeezing the peak at full contraction. Lower completely. One arm at a time.',
+    video:'https://www.youtube.com/results?search_query=concentration+curl+bicep+form+tutorial'},
+  'tricep-dips':{name:'Tricep Dips',muscle:'Triceps',emoji:'💺',illus:'dip',
+    desc:'Grip the edge of a bench behind you, hands shoulder-width, fingers forward. Extend legs out and lower by bending elbows to about 90°, then press back up. Keep your torso upright — leaning forward shifts load to shoulders.',
+    video:'https://www.youtube.com/results?search_query=tricep+bench+dips+proper+form'},
+  'tricep-extensions':{name:'Overhead Tricep Extension',muscle:'Triceps (Long Head)',emoji:'🏋️',illus:'overhead',
+    desc:'Stand or sit holding one dumbbell with both hands overhead, arms extended. Lower the weight behind your head by bending only at the elbows, then press back up. Keep elbows pointing forward and close to your ears.',
+    video:'https://www.youtube.com/results?search_query=overhead+tricep+extension+dumbbell+form'},
+  'shoulder-press':{name:'Dumbbell Shoulder Press',muscle:'Shoulders',emoji:'🔝',illus:'overhead',
+    desc:'Sit or stand with dumbbells at shoulder height, palms forward. Press overhead until arms are extended, then lower with control. Brace your core to avoid arching your lower back.',
+    video:'https://www.youtube.com/results?search_query=dumbbell+shoulder+press+proper+form'},
+  'lateral-raises':{name:'Lateral Raises',muscle:'Side Delts',emoji:'✈️',illus:'lateral',
+    desc:'Stand with dumbbells at your sides, palms in. With a slight bend in the elbows, raise your arms out to the sides to shoulder height. Avoid shrugging or swinging. Lower slowly under control for maximum shoulder width.',
+    video:'https://www.youtube.com/results?search_query=lateral+raises+proper+form+tutorial'},
+  'plank':{name:'Plank',muscle:'Core',emoji:'🪨',illus:'plank',
+    desc:'Forearms on the floor, elbows under shoulders, body in a straight line from head to heels. Brace your core, squeeze your glutes, and breathe steadily. Do not let your hips sag or pike upward.',
+    video:'https://www.youtube.com/results?search_query=plank+exercise+proper+form+tutorial'},
+  'leg-raises':{name:'Leg Raises',muscle:'Lower Abs',emoji:'🦵',illus:'legraise',
+    desc:'Lie flat on your back, hands under your hips. Keep legs straight and raise them to 90°, then lower slowly without letting heels touch the floor. Exhale as you lift. This isolates the lower abdominal region.',
+    video:'https://www.youtube.com/results?search_query=leg+raises+abs+proper+form'},
+  'russian-twists':{name:'Russian Twists',muscle:'Obliques',emoji:'🌀',illus:'twist',
+    desc:'Sit with knees bent and feet slightly raised. Lean back to about 45°, keeping a straight back. Rotate your torso and touch both hands to the floor on each side. Add a dumbbell or medicine ball to increase difficulty.',
+    video:'https://www.youtube.com/results?search_query=russian+twists+proper+form+tutorial'},
+  'mountain-climbers':{name:'Mountain Climbers',muscle:'Core & Cardio',emoji:'🧗',illus:'plank',
+    desc:'In a high push-up position, alternate driving knees toward your chest in a running motion. Keep hips level — resist the urge to pike them up. Faster = more cardio intensity. Focus on controlled breathing throughout.',
+    video:'https://www.youtube.com/results?search_query=mountain+climbers+exercise+form+tutorial'},
+  'bicycle-crunches':{name:'Bicycle Crunches',muscle:'Abs & Obliques',emoji:'🚲',illus:'crunch',
+    desc:'Lie on your back, hands lightly behind your head, knees raised at 90°. Alternate bringing the opposite elbow to each knee while extending the other leg. Move slowly and deliberately — do not pull on your neck.',
+    video:'https://www.youtube.com/results?search_query=bicycle+crunches+proper+form+tutorial'},
+  'crunches':{name:'Crunches',muscle:'Upper Abs',emoji:'🎯',illus:'crunch',
+    desc:'Lie on your back, knees bent, feet flat, hands lightly behind your head. Contract your abs to lift shoulder blades off the floor and exhale. Lower with control. Focus on the contraction, not the range of motion.',
+    video:'https://www.youtube.com/results?search_query=crunches+proper+form+tutorial'},
+  'elliptical':{name:'Elliptical Cardio',muscle:'Full Body Cardio',emoji:'🏃',illus:'cardio',
+    desc:'Use the elliptical at a moderate-to-challenging pace. Keep posture upright and engage both arms and legs equally. Target a pace where you can speak in short phrases but not hold a full conversation (zone 2–3 cardio).',
+    video:'https://www.youtube.com/results?search_query=elliptical+machine+proper+form+tips'}
+};
+
+// ── 30-DAY PLAN — KRISSY ─────────────────────────────────────────────────────
+// TODO: Replace placeholder rest days with Krissy's actual workout plan.
+// Each day: { day:N, type:'A'|'B'|'C'|'R', label:'...', exs:[{id, sets, reps, weight?}] }
+// Add any new exercise definitions to the EX dict above before referencing them here.
+const PLAN = [
+  {day:1,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:2,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:3,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:4,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:5,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:6,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:7,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:8,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:9,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:10,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:11,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:12,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:13,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:14,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:15,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:16,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:17,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:18,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:19,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:20,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:21,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:22,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:23,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:24,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:25,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:26,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:27,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:28,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:29,type:'R',label:'Plan Coming Soon',exs:[]},
+  {day:30,type:'R',label:'Plan Coming Soon',exs:[]}
+];
+
+// ── SVG ILLUSTRATIONS ────────────────────────────────────────────────────────
+const ILLUS = {
+pushup:`<svg viewBox="0 0 150 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="75" cy="18" r="10" fill="#e8651a"/>
+  <line x1="75" y1="28" x2="75" y2="62" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="44" x2="50" y2="58" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="50" y1="58" x2="40" y2="76" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="44" x2="100" y2="58" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="100" y1="58" x2="110" y2="76" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="62" x2="60" y2="88" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="60" y1="88" x2="60" y2="104" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="62" x2="90" y2="88" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="90" y1="88" x2="90" y2="104" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="30" y1="76" x2="120" y2="76" stroke="#e8651a" stroke-width="2" stroke-linecap="round" opacity="0.25"/>
+</svg>`,
+bench:`<svg viewBox="0 0 150 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="15" y="72" width="120" height="9" rx="4.5" fill="#2a2a4a"/>
+  <rect x="20" y="81" width="9" height="28" rx="3" fill="#2a2a4a"/>
+  <rect x="121" y="81" width="9" height="28" rx="3" fill="#2a2a4a"/>
+  <circle cx="75" cy="32" r="10" fill="#e8651a"/>
+  <line x1="75" y1="42" x2="75" y2="72" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="52" x2="45" y2="62" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="52" x2="105" y2="62" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="36" cy="62" r="7" fill="#444" stroke="#e8651a" stroke-width="1.5"/>
+  <circle cx="114" cy="62" r="7" fill="#444" stroke="#e8651a" stroke-width="1.5"/>
+  <line x1="43" y1="62" x2="36" y2="62" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="107" y1="62" x2="114" y2="62" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+</svg>`,
+curl:`<svg viewBox="0 0 150 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="75" cy="18" r="10" fill="#e8651a"/>
+  <line x1="75" y1="28" x2="75" y2="66" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="44" x2="98" y2="54" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="98" y1="54" x2="94" y2="36" stroke="#e8651a" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="91" cy="32" r="7" fill="#444" stroke="#e8651a" stroke-width="1.5"/>
+  <line x1="75" y1="44" x2="52" y2="54" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="52" y1="54" x2="52" y2="72" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="66" x2="62" y2="92" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="62" y1="92" x2="62" y2="108" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="75" y1="66" x2="88" y2="92" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="88" y1="92" x2="88" y2="108" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+</svg>`,
+fly:`<svg viewBox="0 0 150 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="66" width="110" height="8" rx="4" fill="#2a2a4a"/>
+  <circle cx="75" cy="30" r="10" fill="#e8651a"/>
+  <line x1="75" y1="40" x2="75" y2="66" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <path d="M75 50 Q50 56 28 66" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M75 50 Q100 56 122 66" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <circle cx="24" cy="66" r="7" fill="#444" stroke="#e8651a" stroke-width="1.5"/>
+  <circle cx="126" cy="66" r="7" fill="#444" stroke="#e8651a" stroke-width="1.5"/>
+</svg>`,
+dip:`<svg viewBox="0 0 150 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="15" y="62" width="120" height="8" rx="4" fill="#2a2a4a"/>
+  <rect x="15" y="70" width="14" height="38" rx="4" fill="#2a2a4a"/>
+  <rect x="121" y="70" width="14" height="38" rx="4" fill="#2a2a4a"/>
+  <circle cx="75" cy="24" r="10" fill="#e8651a"/>
+  <line x1="75" y1="34" x2="75" y2="60" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="46" x2="29" y2="62" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="46" x2="121" y2="62" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="60" x2="63" y2="86" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="60" x2="87" y2="86" stroke="white" stroke-width="3" stroke-linecap="round"/>
+</svg>`,
+overhead:`<svg viewBox="0 0 150 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="75" cy="46" r="10" fill="#e8651a"/>
+  <line x1="75" y1="56" x2="75" y2="90" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="68" x2="50" y2="78" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="68" x2="100" y2="78" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="90" x2="63" y2="112" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="90" x2="87" y2="112" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="50" y1="78" x2="50" y2="56" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="100" y1="78" x2="100" y2="56" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="48" cy="51" r="7" fill="#444" stroke="#e8651a" stroke-width="1.5"/>
+  <circle cx="102" cy="51" r="7" fill="#444" stroke="#e8651a" stroke-width="1.5"/>
+</svg>`,
+lateral:`<svg viewBox="0 0 150 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="75" cy="28" r="10" fill="#e8651a"/>
+  <line x1="75" y1="38" x2="75" y2="78" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="54" x2="22" y2="54" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="54" x2="128" y2="54" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="17" cy="54" r="7" fill="#444" stroke="#e8651a" stroke-width="1.5"/>
+  <circle cx="133" cy="54" r="7" fill="#444" stroke="#e8651a" stroke-width="1.5"/>
+  <line x1="75" y1="78" x2="63" y2="104" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="78" x2="87" y2="104" stroke="white" stroke-width="3" stroke-linecap="round"/>
+</svg>`,
+plank:`<svg viewBox="0 0 150 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="30" cy="38" r="10" fill="#e8651a"/>
+  <line x1="30" y1="48" x2="125" y2="66" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="46" y1="51" x2="46" y2="72" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="82" y1="58" x2="82" y2="80" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="27" y1="72" x2="46" y2="72" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="63" y1="80" x2="82" y2="80" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="125" y1="66" x2="138" y2="84" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="138" y1="84" x2="138" y2="100" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+</svg>`,
+legraise:`<svg viewBox="0 0 150 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <line x1="10" y1="92" x2="140" y2="92" stroke="#333355" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="38" cy="68" r="10" fill="#e8651a"/>
+  <line x1="38" y1="78" x2="78" y2="92" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="53" y1="86" x2="53" y2="68" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="78" y1="92" x2="78" y2="72" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="78" y1="72" x2="100" y2="44" stroke="#e8651a" stroke-width="3" stroke-linecap="round"/>
+  <line x1="100" y1="44" x2="115" y2="28" stroke="#e8651a" stroke-width="3" stroke-linecap="round"/>
+</svg>`,
+twist:`<svg viewBox="0 0 150 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="75" cy="24" r="10" fill="#e8651a"/>
+  <line x1="75" y1="34" x2="70" y2="64" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="70" y1="48" x2="38" y2="44" stroke="#e8651a" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="33" cy="43" r="6" fill="#444" stroke="#e8651a" stroke-width="1.5"/>
+  <line x1="70" y1="64" x2="86" y2="88" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="86" y1="88" x2="86" y2="106" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="70" y1="64" x2="56" y2="88" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="56" y1="88" x2="56" y2="106" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+</svg>`,
+crunch:`<svg viewBox="0 0 150 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <line x1="10" y1="100" x2="140" y2="100" stroke="#333355" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="52" cy="44" r="10" fill="#e8651a"/>
+  <path d="M52 54 Q58 74 74 84" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <line x1="74" y1="84" x2="95" y2="90" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="95" y1="90" x2="110" y2="100" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="52" y1="54" x2="33" y2="50" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="33" y1="50" x2="56" y2="42" stroke="#e8651a" stroke-width="2.5" stroke-linecap="round"/>
+</svg>`,
+cardio:`<svg viewBox="0 0 150 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <line x1="20" y1="62" x2="130" y2="62" stroke="#333355" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="75" cy="24" r="10" fill="#e8651a"/>
+  <line x1="75" y1="34" x2="75" y2="64" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="46" x2="52" y2="38" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="46" x2="98" y2="38" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="64" x2="63" y2="86" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="63" y1="86" x2="54" y2="100" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="64" x2="87" y2="86" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="87" y1="86" x2="96" y2="100" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <polyline points="15,78 28,55 38,68 52,46 65,56 80,40 92,60 106,70 120,50" stroke="#e8651a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+</svg>`
+};
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+const SK = 'fpk_v1';
+function loadStateLocal(){
+  try{ return JSON.parse(localStorage.getItem(SK)) || freshState(); }
+  catch(e){ return freshState(); }
+}
+function freshState(){
+  return { currentDay:1, progress:{} };
+}
+function save(){
+  localStorage.setItem(SK, JSON.stringify(S));
+  syncSchedule();
+}
+function dp(d){ if(!S.progress[d]) S.progress[d]={done:false,sets:{}}; return S.progress[d]; }
+function setsFor(d,id){ const p=dp(d); if(!p.sets[id]) p.sets[id]=0; return p.sets[id]; }
+
+// ── DATE HELPERS ─────────────────────────────────────────────────────────────
+function todayStr(){ return new Date().toISOString().split('T')[0]; }
+function calDaysBetween(a, b){
+  // returns absolute difference in calendar days between two YYYY-MM-DD strings
+  return Math.round(Math.abs(new Date(b) - new Date(a)) / 86400000);
+}
+function restsBetween(dayA, dayB){
+  // count rest days in the plan strictly between plan day numbers dayA and dayB
+  let n = 0;
+  const lo = Math.min(dayA, dayB), hi = Math.max(dayA, dayB);
+  for(let d = lo + 1; d < hi; d++) if(PLAN[d-1].type === 'R') n++;
+  return n;
+}
+function calcStreak(){
+  // Collect all completed days that have a recorded date, in plan order
+  const done = [];
+  for(let d = 1; d <= 30; d++){
+    const p = dp(d);
+    if(p.done) done.push({ day:d, date: p.completedDate || null });
+  }
+  if(done.length === 0) return 0;
+  // Walk backwards; break when calendar gap exceeds allowed window
+  let streak = 1;
+  for(let i = done.length - 1; i > 0; i--){
+    const curr = done[i], prev = done[i-1];
+    // If either entry has no date (completed before this feature), give benefit of the doubt
+    if(!curr.date || !prev.date){ streak++; continue; }
+    const allowed = 1 + restsBetween(prev.day, curr.day);
+    if(calDaysBetween(prev.date, curr.date) > allowed) break;
+    streak++;
+  }
+  return streak;
+}
+
+let S = loadStateLocal();
+let modalEx = null, modalDay = null;
+
+// ── REAL-DATE MAPPING ────────────────────────────────────────────────────────
+function ensureStartDate(){
+  if(S.startDate) return;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const base=new Date(today); base.setDate(base.getDate()-(S.currentDay-1));
+  S.startDate=base.toISOString().split('T')[0];
+  localStorage.setItem(SK,JSON.stringify(S));
+}
+function planDate(dayNum){
+  ensureStartDate();
+  const [y,m,d]=S.startDate.split('-').map(Number);
+  const dt=new Date(y,m-1,d); dt.setDate(dt.getDate()+(dayNum-1));
+  return dt;
+}
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const WDAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function formatDate(d){ return `${MONTHS[d.getMonth()]} ${d.getDate()}`; }
+function formatDateFull(d){ return `${WDAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`; }
+
+// ── RENDER TODAY ─────────────────────────────────────────────────────────────
+function renderToday(){
+  const idx = S.currentDay - 1;
+  const plan = PLAN[idx];
+  document.getElementById('hd-badge').textContent = `Day ${S.currentDay}`;
+  document.getElementById('hd-date').textContent = formatDateFull(new Date());
+  const _pDt=planDate(S.currentDay),_tDt=new Date(); _tDt.setHours(0,0,0,0);
+  const _diff=Math.round((_pDt-_tDt)/86400000);
+  document.getElementById('hd-title').textContent =
+    S.currentDay===30 ? 'Final Day! 🏆' :
+    plan.type==='R' ? 'Rest Day 😌' :
+    _diff<=0 ? 'Today' : _diff===1 ? 'Tomorrow' : formatDate(_pDt);
+
+  // pill color
+  const pill = document.getElementById('type-pill');
+  pill.className = 'type-pill' + (plan.type==='B'?' core':plan.type==='C'?' cardio':plan.type==='R'?' rest':'');
+  document.getElementById('type-label').textContent = plan.label;
+
+  const list = document.getElementById('ex-list');
+  list.innerHTML = '';
+  document.getElementById('ex-section-title').style.display = plan.type==='R' ? 'none' : '';
+
+  if(plan.type==='R'){
+    list.innerHTML = `<div class="rest-card">
+      <div class="rest-icon">😌</div>
+      <h2>Rest &amp; Recover</h2>
+      <p>Your muscles grow during rest. Stay hydrated, sleep well, eat some protein, and come back stronger tomorrow.</p>
+    </div>`;
+    updateRing(1,1);
+    checkComplete();
+    return;
+  }
+
+  let total=0, done=0;
+  plan.exs.forEach((ex,i)=>{
+    const def = EX[ex.id];
+    const sc = setsFor(S.currentDay, ex.id);
+    total += ex.sets;
+    done += Math.min(sc, ex.sets);
+    const allDone = sc >= ex.sets;
+
+    let dots='';
+    for(let j=0;j<ex.sets;j++){
+      dots += `<div class="set-dot${j<sc?' done':''}"></div>`;
+    }
+
+    const card = document.createElement('div');
+    card.className = 'exercise-card' + (allDone?' complete':'');
+    card.style.animationDelay = (i*0.05)+'s';
+    card.onclick = (e) => {
+      if(e.target.closest('.ex-menu-btn')) return;
+      tapLog(ex.id, card);
+    };
+    card.innerHTML = `
+      <div class="ex-card-inner">
+        <div class="ex-card-main">
+          <div class="exercise-name">${def.name}</div>
+          <div class="exercise-meta">${ex.sets} sets × ${ex.reps}${ex.weight ? ' · <span class="weight-tag">' + ex.weight + ' lbs</span>' : ''}</div>
+          <div class="ex-card-progress">
+            <div class="set-dots">${dots}</div>
+            <div class="${allDone?'done-label':'set-counter'}">${allDone ? '✓ Done' : 'Set '+(sc+1)+' of '+ex.sets}</div>
+          </div>
+        </div>
+        <button class="ex-menu-btn" onclick="event.stopPropagation();openModal('${ex.id}',${S.currentDay})" aria-label="Exercise details">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <circle cx="8" cy="2.5" r="1.6"/>
+            <circle cx="8" cy="8" r="1.6"/>
+            <circle cx="8" cy="13.5" r="1.6"/>
+          </svg>
+        </button>
+      </div>`;
+    list.appendChild(card);
+  });
+
+  updateRing(done, total);
+  checkComplete();
+}
+
+function updateRing(done, total){
+  const pct = total===0 ? 100 : Math.round(done/total*100);
+  const circ = 2*Math.PI*62;
+  const offset = circ - (pct/100)*circ;
+  document.getElementById('ring').style.strokeDashoffset = offset;
+  document.getElementById('ring-pct').textContent = pct+'%';
+  const plan = PLAN[S.currentDay-1];
+  document.getElementById('ring-sub').innerHTML = plan.type==='R'
+    ? 'Rest day — your body thanks you'
+    : `<strong>${done}</strong> of ${total} sets done today`;
+}
+
+function checkComplete(){
+  const plan = PLAN[S.currentDay-1];
+  const banner = document.getElementById('complete-banner');
+  let allDone = plan.type==='R';
+  if(!allDone){
+    allDone = plan.exs.length>0 && plan.exs.every(ex => setsFor(S.currentDay,ex.id)>=ex.sets);
+  }
+  if(allDone && !dp(S.currentDay).done){
+    dp(S.currentDay).done = true;
+    dp(S.currentDay).completedDate = todayStr();
+    save(); launchConfetti();
+  }
+  if(allDone){
+    banner.classList.add('show');
+    if(S.currentDay===30){
+      document.getElementById('cb-title').textContent = '🏆 You Did It!';
+      document.getElementById('cb-msg').textContent = 'You completed the full 30-Day FitPlan. Incredible dedication.';
+      document.getElementById('cb-btn').style.display='none';
+    } else {
+      document.getElementById('cb-title').textContent = plan.type==='R' ? 'Rest Day Complete! 😌' : 'Day Complete! 🎉';
+      document.getElementById('cb-msg').textContent = plan.type==='R'
+        ? 'Rest day logged. Get ready for tomorrow.' : 'Fantastic work. You\'re building real momentum.';
+      document.getElementById('cb-btn').style.display='';
+      document.getElementById('cb-next').textContent = S.currentDay+1;
+    }
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+// ── TAP-TO-LOG ───────────────────────────────────────────────────────────────
+function tapLog(id, cardEl){
+  const plan = PLAN[S.currentDay-1];
+  const ex = plan.exs.find(e=>e.id===id);
+  if(!ex) return;
+  const p = dp(S.currentDay);
+  if(!p.sets[id]) p.sets[id]=0;
+
+  // Punch animation — reset to none first so rapid taps always restart cleanly.
+  // Leave the inline style set (don't clear on animationend) so fadeUp never
+  // re-triggers and causes the card to flash invisible.
+  cardEl.style.animation = 'none';
+  void cardEl.offsetWidth; // force reflow
+  cardEl.style.animation = 'cardPunch 0.4s cubic-bezier(0.34,1.5,0.64,1) forwards';
+
+  if(p.sets[id] >= ex.sets){
+    // ── RESET ── tap beyond completion clears the exercise
+    p.sets[id] = 0;
+    if(dp(S.currentDay).done){
+      dp(S.currentDay).done = false;
+      dp(S.currentDay).completedDate = null;
+    }
+    save();
+    if(navigator.vibrate) navigator.vibrate(20);
+    resetCardInPlace(cardEl, ex);
+  } else {
+    // ── LOG SET ──
+    p.sets[id]++;
+    save();
+    if(navigator.vibrate) navigator.vibrate([12,8,18]);
+    spawnBurst(cardEl);
+    updateCardInPlace(cardEl, ex, p.sets[id]);
+  }
+
+  // Update ring + completion banner in-place (no full re-render)
+  let total=0, doneCount=0;
+  plan.exs.forEach(e=>{
+    total += e.sets;
+    doneCount += Math.min(setsFor(S.currentDay, e.id), e.sets);
+  });
+  updateRing(doneCount, total);
+  checkComplete();
+}
+
+function resetCardInPlace(cardEl, ex){
+  cardEl.querySelectorAll('.set-dot').forEach(dot=>dot.classList.remove('done','pop'));
+  const label = cardEl.querySelector('.set-counter, .done-label');
+  if(label){ label.className='set-counter'; label.textContent='Set 1 of '+ex.sets; }
+  cardEl.classList.remove('complete');
+}
+
+function updateCardInPlace(cardEl, ex, newSc){
+  // Fill the newly-completed dot with a pop
+  const dots = cardEl.querySelectorAll('.set-dot');
+  const newDot = dots[newSc-1];
+  if(newDot && !newDot.classList.contains('done')){
+    newDot.classList.add('done','pop');
+    newDot.addEventListener('animationend', ()=>newDot.classList.remove('pop'), {once:true});
+  }
+  // Update counter label
+  const counter = cardEl.querySelector('.set-counter, .done-label');
+  if(counter){
+    if(newSc >= ex.sets){
+      counter.className = 'done-label';
+      counter.textContent = '✓ Done';
+      cardEl.classList.add('complete');
+    } else {
+      counter.textContent = 'Set '+(newSc+1)+' of '+ex.sets;
+    }
+  }
+}
+
+// ── BURST ANIMATION ──────────────────────────────────────────────────────────
+function spawnBurst(cardEl){
+  const rect = cardEl.getBoundingClientRect();
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+  const colors = ['#e8651a','#ff9a42','#2ecc71','#f1c40f','#9b59b6','#3498db','#e74c3c','#1abc9c'];
+  const N = 12;
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:300;overflow:hidden';
+
+  for(let i=0;i<N;i++){
+    const angle = (i/N)*Math.PI*2 + (Math.random()-0.5)*0.6;
+    const dist  = 46 + Math.random()*38;
+    const size  = 5 + Math.random()*8;
+    const color = colors[Math.floor(Math.random()*colors.length)];
+    const shape = Math.random()>0.55 ? '2px' : '50%';
+    const dur   = (0.38 + Math.random()*0.18).toFixed(2);
+    const tx    = (Math.cos(angle)*dist).toFixed(1);
+    const ty    = (Math.sin(angle)*dist - 18).toFixed(1);
+
+    const p = document.createElement('div');
+    p.style.cssText = `position:absolute;left:${cx}px;top:${cy}px;
+      width:${size}px;height:${size}px;border-radius:${shape};background:${color};
+      pointer-events:none;
+      animation:burstOut ${dur}s ease-out forwards;
+      --tx:${tx}px;--ty:${ty}px`;
+    wrap.appendChild(p);
+  }
+
+  // +1 floating label
+  const plus = document.createElement('div');
+  plus.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;
+    transform:translate(-50%,-50%);
+    font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;
+    color:#ff9a42;pointer-events:none;z-index:301;
+    animation:floatUp 0.72s ease-out forwards;
+    text-shadow:0 2px 10px rgba(0,0,0,0.6)`;
+  plus.textContent = '+1';
+
+  document.body.appendChild(wrap);
+  document.body.appendChild(plus);
+  setTimeout(()=>{ wrap.remove(); plus.remove(); }, 820);
+}
+
+
+function advanceDay(){
+  if(S.currentDay<30){
+    S.currentDay++;
+    save();
+    document.getElementById('complete-banner').classList.remove('show');
+    renderToday();
+    renderProgress();
+    document.getElementById('view-today').scrollTop=0;
+  }
+}
+
+// ── MODAL ────────────────────────────────────────────────────────────────────
+function openModal(exId, dayNum){
+  modalEx=exId; modalDay=dayNum;
+  const def=EX[exId];
+  const plan=PLAN[dayNum-1];
+  const ex=plan.exs.find(e=>e.id===exId);
+  const sc=setsFor(dayNum,exId);
+
+  document.getElementById('m-muscle').textContent=def.muscle.toUpperCase();
+  document.getElementById('m-title').textContent=def.name;
+  document.getElementById('m-desc').textContent=def.desc;
+  document.getElementById('m-video').href=def.video;
+  document.getElementById('m-stats').innerHTML=`
+    <div class="modal-stat"><div class="val">${ex.sets}</div><div class="lbl">Sets</div></div>
+    <div class="modal-stat"><div class="val">${ex.reps}</div><div class="lbl">Reps/Time</div></div>
+    ${ex.weight ? `<div class="modal-stat"><div class="val">${ex.weight}</div><div class="lbl">Lbs</div></div>` : ''}
+    <div class="modal-stat"><div class="val">${sc}/${ex.sets}</div><div class="lbl">Done</div></div>`;
+  renderModalSets(ex.sets, sc);
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function renderModalSets(total, done){
+  const row=document.getElementById('m-sets');
+  row.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=i<done, a=i===done;
+    const box=document.createElement('div');
+    box.className='set-box'+(d?' done':a?' active':'');
+    box.innerHTML=`<div class="sn">${d?'✓':i+1}</div><div class="sl">Set ${i+1}</div>`;
+    row.appendChild(box);
+  }
+  const btn=document.getElementById('m-log-btn');
+  if(done>=total){ btn.textContent='✓ All Sets Complete'; btn.disabled=true; }
+  else { btn.textContent=`Log Set ${done+1}`; btn.disabled=false; }
+}
+
+function logSetFromModal(){
+  if(!modalEx||!modalDay) return;
+  const plan=PLAN[modalDay-1];
+  const ex=plan.exs.find(e=>e.id===modalEx);
+  if(!ex) return;
+  const p=dp(modalDay);
+  if(!p.sets[modalEx]) p.sets[modalEx]=0;
+  if(p.sets[modalEx]<ex.sets){
+    p.sets[modalEx]++; save();
+    const sc=p.sets[modalEx];
+    renderModalSets(ex.sets,sc);
+    document.getElementById('m-stats').innerHTML=`
+      <div class="modal-stat"><div class="val">${ex.sets}</div><div class="lbl">Sets</div></div>
+      <div class="modal-stat"><div class="val">${ex.reps}</div><div class="lbl">Reps/Time</div></div>
+      ${ex.weight ? `<div class="modal-stat"><div class="val">${ex.weight}</div><div class="lbl">Lbs</div></div>` : ''}
+      <div class="modal-stat"><div class="val">${sc}/${ex.sets}</div><div class="lbl">Done</div></div>`;
+    if(navigator.vibrate) navigator.vibrate(25);
+    renderToday();
+  }
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  modalEx=null; modalDay=null;
+}
+function overlayClose(e){
+  if(e.target===document.getElementById('modal-overlay')) closeModal();
+}
+
+// ── DAY DETAIL DRAWER ─────────────────────────────────────────────────────────
+let _calDayOpen=false;
+function openDayDrawer(dayNum){
+  renderDayDrawer(dayNum);
+  document.querySelectorAll('#cal-grid .cal-cell').forEach(c=>c.classList.remove('selected'));
+  const cells=document.querySelectorAll('#cal-grid .cal-cell');
+  if(cells[dayNum-1]) cells[dayNum-1].classList.add('selected');
+  if(!_calDayOpen){
+    document.getElementById('cal-day-overlay').classList.add('open');
+    document.body.style.overflow='hidden';
+    _calDayOpen=true;
+  }
+}
+function renderDayDrawer(dayNum){
+  const plan=PLAN[dayNum-1];
+  document.getElementById('cd-daynum').textContent=`DAY ${dayNum}`;
+  document.getElementById('cd-title').textContent=plan.label;
+  document.getElementById('cd-date').textContent=formatDateFull(planDate(dayNum));
+  const list=document.getElementById('cd-list');
+  if(plan.type==='R'||plan.exs.length===0){
+    list.innerHTML=`<div style="text-align:center;padding:24px 0">
+      <div style="font-size:48px;margin-bottom:10px">😌</div>
+      <div style="font-size:22px;font-weight:700;font-family:'Barlow Condensed',sans-serif">Rest &amp; Recover</div>
+      <div style="font-size:18px;color:var(--dim);margin-top:6px;font-family:'Barlow Condensed',sans-serif">Recovery is part of the plan.</div>
+    </div>`;
+    return;
+  }
+  list.innerHTML='<div class="msec-title" style="margin-bottom:4px">Exercises</div>'+
+    plan.exs.map(ex=>{
+      const def=EX[ex.id];
+      const done=setsFor(dayNum,ex.id)>=ex.sets;
+      return `<div class="cd-ex-row">
+        <div style="flex:1;min-width:0">
+          <div class="cd-ex-name${done?' done':''}">${done?'✓ ':''}${def.name}</div>
+          <div class="cd-ex-meta">${ex.sets} sets &times; ${ex.reps}${ex.weight?` &middot; <span style="color:var(--orange)">${ex.weight} lbs</span>`:''}</div>
+        </div>
+        ${done?'<div class="cd-done-badge">Done</div>':''}
+      </div>`;
+    }).join('');
+}
+function closeDayDrawer(){
+  document.getElementById('cal-day-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  _calDayOpen=false;
+  document.querySelectorAll('#cal-grid .cal-cell').forEach(c=>c.classList.remove('selected'));
+}
+function overlayCloseCalDay(e){
+  if(e.target===document.getElementById('cal-day-overlay')) closeDayDrawer();
+}
+
+// ── PROGRESS VIEW ─────────────────────────────────────────────────────────────
+function renderProgress(){
+  ensureStartDate();
+  const grid=document.getElementById('cal-grid');
+  grid.innerHTML='';
+
+  // Map date strings → plan day numbers
+  const dateToPlan={};
+  for(let d=1;d<=30;d++) dateToPlan[planDate(d).toISOString().split('T')[0]]=d;
+
+  const todayDt=new Date(); todayDt.setHours(0,0,0,0);
+  const today0=todayDt.toISOString().split('T')[0];
+
+  // Render months: from plan start through 2 months past plan end
+  const [sy,sm]=S.startDate.split('-').map(Number);
+  const planEndDt=planDate(30);
+  const stopDt=new Date(planEndDt.getFullYear(),planEndDt.getMonth()+3,1);
+  let curM=new Date(sy,sm-1,1);
+
+  while(curM<stopDt){
+    const yr=curM.getFullYear(), mo=curM.getMonth();
+    const firstDow=new Date(yr,mo,1).getDay();
+    const daysInMo=new Date(yr,mo+1,0).getDate();
+
+    const mWrap=document.createElement('div');
+    mWrap.className='cal-month';
+
+    const mTitle=document.createElement('div');
+    mTitle.className='cal-month-title';
+    mTitle.textContent=`${MONTHS[mo]} ${yr}`;
+    mWrap.appendChild(mTitle);
+
+    const dowRow=document.createElement('div');
+    dowRow.className='cal-dow';
+    ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(lbl=>{
+      const h=document.createElement('div'); h.textContent=lbl; dowRow.appendChild(h);
+    });
+    mWrap.appendChild(dowRow);
+
+    const mGrid=document.createElement('div');
+    mGrid.className='cal-month-grid';
+
+    for(let i=0;i<firstDow;i++){
+      const e=document.createElement('div');
+      e.className='cal-cell cal-cell-empty';
+      mGrid.appendChild(e);
+    }
+
+    for(let day=1;day<=daysInMo;day++){
+      const ds=`${yr}-${String(mo+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const planDay=dateToPlan[ds];
+      const isToday=ds===today0;
+      const cell=document.createElement('div');
+      let cls='cal-cell';
+
+      if(planDay){
+        const p=dp(planDay);
+        if(p.done) cls+=' done';
+        else if(planDay===S.currentDay) cls+=' today';
+        else cls+=' future';
+        cell.onclick=()=>openDayDrawer(planDay);
+      } else {
+        cls+=' no-plan';
+      }
+      if(isToday) cls+=' real-today';
+      cell.className=cls;
+      cell.innerHTML=`<div class="cn">${day}</div>${isToday?'<div class="ct">today</div>':''}`;
+      mGrid.appendChild(cell);
+    }
+
+    mWrap.appendChild(mGrid);
+    grid.appendChild(mWrap);
+    curM=new Date(yr,mo+1,1);
+  }
+
+  // Stats
+  let doneCt=0;
+  for(let d=1;d<=30;d++) if(dp(d).done) doneCt++;
+  const curStreak=calcStreak();
+  document.getElementById('s-done').textContent=doneCt;
+  document.getElementById('s-streak').textContent=curStreak;
+  document.getElementById('s-left').textContent=Math.max(0,30-doneCt);
+  const sc=document.getElementById('streak-card');
+  if(curStreak>=2){
+    sc.classList.add('show');
+    document.getElementById('streak-title').textContent=`${curStreak}-Day Streak!`;
+  } else { sc.classList.remove('show'); }
+}
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(t){
+  document.getElementById('view-today').classList.toggle('hidden',t!=='today');
+  document.getElementById('view-progress').classList.toggle('hidden',t!=='progress');
+  document.getElementById('tab-today').classList.toggle('active',t==='today');
+  document.getElementById('tab-progress').classList.toggle('active',t==='progress');
+  if(t==='progress') renderProgress();
+}
+
+// ── CONFETTI ─────────────────────────────────────────────────────────────────
+function launchConfetti(){
+  const cv=document.getElementById('confetti');
+  const cx=cv.getContext('2d');
+  cv.width=window.innerWidth; cv.height=window.innerHeight;
+  const cols=['#e8651a','#ff9a42','#2ecc71','#3498db','#9b59b6','#f1c40f','#e74c3c'];
+  const ps=Array.from({length:90},()=>({
+    x:Math.random()*cv.width, y:-10,
+    w:Math.random()*10+5, h:Math.random()*6+3,
+    c:cols[Math.floor(Math.random()*cols.length)],
+    vx:(Math.random()-.5)*5, vy:Math.random()*4+2,
+    rot:Math.random()*360, vr:(Math.random()-.5)*10
+  }));
+  let f=0;
+  (function frame(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    ps.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.vy+=0.08; p.rot+=p.vr;
+      cx.save(); cx.translate(p.x,p.y); cx.rotate(p.rot*Math.PI/180);
+      cx.fillStyle=p.c; cx.fillRect(-p.w/2,-p.h/2,p.w,p.h); cx.restore();
+    });
+    if(++f<140) requestAnimationFrame(frame);
+    else cx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+// ── THEME ─────────────────────────────────────────────────────────────────────
+const TH='fpk_theme';
+function applyTheme(t){
+  document.body.classList.toggle('light',t==='light');
+  const bl=document.getElementById('btn-light'),bd=document.getElementById('btn-dark');
+  if(bl) bl.classList.toggle('active',t==='light');
+  if(bd) bd.classList.toggle('active',t==='dark');
+}
+function setTheme(t){ localStorage.setItem(TH,t); applyTheme(t); }
+
+// ── GITHUB GIST SYNC ─────────────────────────────────────────────────────────
+const TK = 'fpk_token';
+const GK = 'fpk_gist';
+const GIST_FILE = 'fitplan-krissy-progress.json';
+const GHAPI = 'https://api.github.com';
+
+function getToken(){ return localStorage.getItem(TK); }
+function getGistId(){ return localStorage.getItem(GK); }
+
+async function ghFetch(method, path, token, body){
+  const res = await fetch(GHAPI + path, {
+    method,
+    headers:{
+      'Authorization':'token '+token,
+      'Content-Type':'application/json',
+      'Accept':'application/vnd.github.v3+json'
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if(!res.ok){
+    const err = await res.json().catch(()=>({}));
+    throw new Error(err.message || 'GitHub API error '+res.status);
+  }
+  return res.json();
+}
+
+async function gistCreate(token, state){
+  const data = await ghFetch('POST','/gists',token,{
+    description:'FitPlan — Krissy workout progress',
+    public: false,
+    files:{ [GIST_FILE]:{ content: JSON.stringify(state,null,2) } }
+  });
+  localStorage.setItem(GK, data.id);
+  return data.id;
+}
+
+async function gistLoad(token, gistId){
+  const data = await ghFetch('GET','/gists/'+gistId,token);
+  const raw = data.files?.[GIST_FILE]?.content;
+  return raw ? JSON.parse(raw) : null;
+}
+
+async function gistSave(token, gistId, state){
+  await ghFetch('PATCH','/gists/'+gistId,token,{
+    files:{ [GIST_FILE]:{ content: JSON.stringify(state,null,2) } }
+  });
+}
+
+// ── DEBOUNCED SYNC ────────────────────────────────────────────────────────────
+let _syncTimer = null;
+function syncSchedule(){
+  if(!getToken()||!getGistId()) return;
+  clearTimeout(_syncTimer);
+  setSyncState('pending');
+  _syncTimer = setTimeout(syncNow, 1500);
+}
+
+async function syncNow(){
+  const token=getToken(), gistId=getGistId();
+  if(!token||!gistId) return;
+  setSyncState('syncing');
+  try{
+    await gistSave(token, gistId, S);
+    setSyncState('synced');
+    setTimeout(()=>setSyncState('idle'), 3000);
+  } catch(e){
+    console.warn('Sync failed:',e.message);
+    setSyncState('error');
+  }
+}
+
+function setSyncState(state){
+  const btn = document.getElementById('sync-btn');
+  if(!btn) return;
+  btn.className = 'sync-btn' + (state&&state!=='idle' ? ' '+state : '');
+  const tips = {idle:'Sync settings',pending:'Saving…',syncing:'Syncing…',synced:'Synced ✓',error:'Sync error — tap for details'};
+  btn.setAttribute('aria-label', tips[state]||'Sync');
+}
+
+// ── SETUP SCREEN ──────────────────────────────────────────────────────────────
+function showSetup(){
+  document.getElementById('setup-screen').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('token-input').focus(), 120);
+}
+function hideSetup(){
+  document.getElementById('setup-screen').classList.add('hidden');
+}
+
+async function setupConnect(){
+  const input = document.getElementById('token-input');
+  const btn   = document.getElementById('setup-btn');
+  const errEl = document.getElementById('setup-error');
+  const token = input.value.trim();
+  if(!token){ errEl.textContent='Please paste your token first.'; return; }
+
+  btn.disabled=true; btn.textContent='Connecting…'; errEl.textContent='';
+
+  try{
+    // Validate token with a lightweight endpoint
+    const check = await fetch(GHAPI+'/user',{
+      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}
+    });
+    if(!check.ok) throw new Error('Token not accepted — make sure it has the gist scope selected.');
+
+    localStorage.setItem(TK, token);
+
+    // Migrate any existing local progress into the new Gist
+    const existing = loadStateLocal();
+    await gistCreate(token, existing);
+    S = existing;
+
+    hideSetup();
+    renderToday();
+    setSyncState('synced');
+    setTimeout(()=>setSyncState('idle'), 3000);
+  } catch(e){
+    errEl.textContent = e.message;
+    btn.disabled=false; btn.textContent='Connect';
+  }
+}
+
+// Allow Enter key to submit
+document.getElementById('token-input').addEventListener('keydown', e=>{
+  if(e.key==='Enter') setupConnect();
+});
+
+// ── SETTINGS SHEET ────────────────────────────────────────────────────────────
+function showSettings(){
+  const token  = getToken();
+  const gistId = getGistId();
+  const syncBtn = document.getElementById('sync-btn');
+  const isError = syncBtn && syncBtn.classList.contains('error');
+
+  let statusText, statusClass;
+  if(!token)        { statusText='Not connected'; statusClass='err'; }
+  else if(isError)  { statusText='Sync error'; statusClass='err'; }
+  else              { statusText='Connected'; statusClass='ok'; }
+
+  document.getElementById('settings-body').innerHTML = `
+    <div class="settings-section">
+      <div class="settings-label">Sync Status</div>
+      <div class="settings-row">
+        <span class="settings-val ${statusClass}">${statusText}</span>
+        ${gistId ? `<a class="gist-link" href="https://gist.github.com/${gistId}" target="_blank" rel="noopener">View Gist ↗</a>` : ''}
+      </div>
+    </div>
+    ${token && gistId ? `
+    <div class="settings-section">
+      <div class="settings-label">Manual Sync</div>
+      <div class="settings-row">
+        <span class="settings-val">Push local progress to Gist now</span>
+        <button class="settings-pill-btn orange" onclick="closeSettings();syncNow()">Sync Now</button>
+      </div>
+    </div>` : ''}
+    <div class="settings-section">
+      <div class="settings-label">Account</div>
+      <div class="settings-row">
+        <span class="settings-val">${token ? 'Token stored on this device' : 'No token saved'}</span>
+        <button class="settings-pill-btn red" onclick="disconnectGist()">${token ? 'Disconnect' : 'Set Up'}</button>
+      </div>
+    </div>
+    <button class="close-modal-btn" onclick="closeSettings()">Close</button>`;
+
+  document.getElementById('settings-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeSettings(){
+  document.getElementById('settings-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function overlayCloseSettings(e){
+  if(e.target===document.getElementById('settings-overlay')) closeSettings();
+}
+
+function disconnectGist(){
+  if(!getToken()){ closeSettings(); showSetup(); return; }
+  if(!confirm('Remove the sync token from this device? Your progress stays safe in the Gist and can be reconnected later.')) return;
+  localStorage.removeItem(TK);
+  localStorage.removeItem(GK);
+  closeSettings();
+  showSetup();
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+async function init(){
+  const token  = getToken();
+  const gistId = getGistId();
+
+  if(!token){
+    showSetup();
+    return;
+  }
+
+  ensureStartDate();
+  // Render immediately from local cache — no loading screen
+  renderToday();
+
+  if(!gistId){
+    // Token exists but Gist not created yet — make one from local state
+    setSyncState('syncing');
+    try{
+      await gistCreate(token, S);
+      setSyncState('synced');
+      setTimeout(()=>setSyncState('idle'), 3000);
+    } catch(e){ setSyncState('error'); }
+    return;
+  }
+
+  // Background fetch from Gist — silently updates if remote differs
+  setSyncState('syncing');
+  try{
+    const remote = await gistLoad(token, gistId);
+    if(remote){
+      S = remote;
+      ensureStartDate();
+      localStorage.setItem(SK, JSON.stringify(S));
+      renderToday(); // refresh with authoritative remote data
+    }
+    setSyncState('synced');
+    setTimeout(()=>setSyncState('idle'), 3000);
+  } catch(e){
+    console.warn('Gist load failed, using local cache:', e.message);
+    setSyncState('error');
+  }
+}
+
+applyTheme(localStorage.getItem(TH)||'dark');
+init();
+</script>
+</body>
+</html>
