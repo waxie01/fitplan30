@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!-- v1.0.3 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1371,7 +1371,9 @@ function renderDayDrawer(dayNum){
   if(markBtn){
     const pDt=planDate(dayNum); pDt.setHours(0,0,0,0);
     const tod=new Date(); tod.setHours(0,0,0,0);
-    const showMark=dayNum===S.currentDay&&tod>pDt&&!(S.progress[dayNum]&&S.progress[dayNum].done);
+    const alreadyDone=S.progress[dayNum]&&S.progress[dayNum].done;
+    // Only show for the active plan day, only if it's due (today or past), only if not done
+    const showMark=dayNum===S.currentDay&&tod>=pDt&&!alreadyDone;
     markBtn.classList.toggle('hidden',!showMark);
   }
   const list=document.getElementById('cd-list');
