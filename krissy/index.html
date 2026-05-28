@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v1.0.2 -->
+<!DOCTYPE html><!-- v1.0.3 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -98,13 +98,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
 .done-label{font-size:17px;color:var(--green);font-weight:700;
   font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
-.ex-menu-btn{background:rgba(255,255,255,0.06);border:1px solid var(--border);
+.ex-menu-btn{background:transparent;border:none;
   color:var(--dim);border-radius:8px;width:34px;height:34px;display:flex;
   align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
   -webkit-tap-highlight-color:transparent;padding:0;
-  transition:background 0.12s,color 0.12s,border-color 0.12s}
-.ex-menu-btn:active,.ex-menu-btn.open{background:rgba(255,255,255,0.14);
-  color:var(--text);border-color:rgba(255,255,255,0.2)}
+  transition:background 0.12s,color 0.12s}
+.ex-menu-btn:active,.ex-menu-btn.open{background:rgba(255,255,255,0.1);
+  color:var(--text)}
 
 /* COMPLETE BANNER */
 .complete-banner{margin:16px;background:linear-gradient(135deg,#27ae60,#2ecc71);
@@ -202,6 +202,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .cal-cell .cn{font-size:16px;font-weight:800;line-height:1.1}
 .cal-cell .ct{font-size:10px;color:inherit;letter-spacing:0.3px;text-transform:uppercase;opacity:0.85;margin-top:1px;line-height:1}
 .cal-cell.today{border-color:var(--orange);background:var(--orange-dim);color:var(--orange)}
+.cal-cell.behind{border-color:rgba(232,101,26,0.5);background:rgba(232,101,26,0.07);color:var(--orange);opacity:0.8}
 .cal-cell.done{background:rgba(46,204,113,0.12);border-color:rgba(46,204,113,0.35);color:var(--green)}
 .cal-cell.future{opacity:0.4}
 .cal-cell.no-plan{background:transparent;border-color:transparent;cursor:default;opacity:0.25}
@@ -313,9 +314,25 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .gist-link{color:var(--orange);font-size:17px;text-decoration:none;
   font-family:'Barlow Condensed',sans-serif;font-weight:700;flex-shrink:0}
 
+/* BEHIND BANNER */
+.behind-banner{margin:10px 20px 0;background:rgba(232,101,26,0.09);border:1px solid rgba(232,101,26,0.22);border-radius:12px;padding:10px 10px 10px 14px;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text)}
+.behind-banner.hidden{display:none}
+.behind-banner-icon{font-size:18px;flex-shrink:0}
+.behind-banner-text{flex:1;line-height:1.35}
+.behind-banner-text strong{color:var(--orange)}
+.behind-dismiss{background:none;border:none;color:var(--dim);cursor:pointer;font-size:18px;padding:2px 4px;line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+/* MARK MISSED DAY BUTTON */
+.mark-complete-btn{width:100%;margin-top:16px;padding:14px;background:rgba(232,101,26,0.12);border:1px solid rgba(232,101,26,0.3);border-radius:12px;color:var(--orange);font-size:16px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background 0.15s}
+.mark-complete-btn:active{background:rgba(232,101,26,0.22)}
+.mark-complete-btn.hidden{display:none}
+
+/* THEME TRANSITION */
+body,body>*,.card,.ex-card,.nav-bar,.nav-btn,.type-pill,.cal-cell,.month-hdr,.day-hdr,.modal,.modal-inner,.setup-card,.complete-banner,.ring-wrap{
+  transition:background-color 0.35s ease,color 0.35s ease,border-color 0.35s ease}
+
 /* THEME TOGGLE */
 .theme-toggle{display:flex;align-items:center;background:var(--card2);
-  border:1px solid var(--border);border-radius:999px;padding:3px;gap:2px}
+  border:1px solid var(--border);border-radius:999px;padding:3px;gap:2px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .theme-btn{width:28px;height:28px;border:none;border-radius:999px;background:transparent;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
   color:var(--dim);-webkit-tap-highlight-color:transparent;padding:0;
@@ -336,13 +353,13 @@ body.light{
 body.light .ring-wrap svg circle:first-child{stroke:rgba(0,0,0,0.07)}
 body.light .modal-handle{background:rgba(0,0,0,0.12)}
 body.light .modal-desc{color:#555566}
-body.light .ex-menu-btn{background:rgba(0,0,0,0.05);border-color:rgba(0,0,0,0.1);color:#888}
-body.light .ex-menu-btn:active,body.light .ex-menu-btn.open{background:rgba(0,0,0,0.1);color:var(--text);border-color:rgba(0,0,0,0.18)}
+body.light .ex-menu-btn{background:transparent;color:#aaa}
+body.light .ex-menu-btn:active,body.light .ex-menu-btn.open{background:rgba(0,0,0,0.07);color:var(--text)}
 body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
 </style>
 </head>
 <body>
-<script>document.body.classList.toggle('light',localStorage.getItem('fpk_theme')==='light')</script>
+<script>document.body.classList.toggle('light',localStorage.getItem('fp30_theme')==='light')</script>
 <canvas id="confetti"></canvas>
 
 <!-- SETUP SCREEN -->
@@ -361,10 +378,13 @@ body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
         <div class="st">Copy the token GitHub shows you and paste it here. You won't see it again.</div>
       </div>
     </div>
-    <a class="setup-link" href="https://github.com/settings/tokens/new?description=FitPlan+Krissy&scopes=gist" target="_blank" rel="noopener">Open GitHub → New Token ↗</a>
+    <a class="setup-link" href="https://github.com/settings/tokens/new?description=FitPlan+30&scopes=gist" target="_blank" rel="noopener">Open GitHub → New Token ↗</a>
     <div class="token-row">
       <input class="token-input" id="token-input" type="password" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" spellcheck="false"/>
       <button class="setup-connect-btn" id="setup-btn" onclick="setupConnect()">Connect</button>
+    </div>
+    <div style="margin-top:12px">
+      <input class="token-input" id="gist-id-input" type="text" placeholder="Existing Gist ID (optional — to reconnect)" autocomplete="off" spellcheck="false" style="width:100%;box-sizing:border-box"/>
     </div>
     <div class="setup-error" id="setup-error"></div>
     <p class="setup-note">Your token is stored only in this browser and used solely to sync your workout data. It is never sent anywhere other than api.github.com.</p>
@@ -396,6 +416,12 @@ body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
       </div>
     </div>
 
+    <div id="behind-banner" class="behind-banner hidden">
+      <span class="behind-banner-icon">📅</span>
+      <span class="behind-banner-text" id="behind-banner-text">You're <strong>1 day</strong> behind — no big deal.</span>
+      <button class="behind-dismiss" onclick="dismissBehindBanner()" aria-label="Dismiss">✕</button>
+    </div>
+
     <div class="ring-container">
       <div class="ring-wrap">
         <svg width="150" height="150" viewBox="0 0 150 150">
@@ -423,21 +449,16 @@ body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
         <div class="dot"></div>
         <span id="type-label">Chest &amp; Arms</span>
       </div>
-      <div class="theme-toggle">
-        <button class="theme-btn" id="btn-light" onclick="setTheme('light')" aria-label="Light mode">
+      <div class="theme-toggle" onclick="toggleTheme()">
+        <button class="theme-btn" id="btn-light" aria-label="Light mode">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-            <circle cx="12" cy="12" r="4"/>
-            <line x1="12" y1="2" x2="12" y2="5"/>
-            <line x1="12" y1="19" x2="12" y2="22"/>
-            <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/>
-            <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
-            <line x1="2" y1="12" x2="5" y2="12"/>
-            <line x1="19" y1="12" x2="22" y2="12"/>
-            <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/>
-            <line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+            <circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+            <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+            <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
           </svg>
         </button>
-        <button class="theme-btn" id="btn-dark" onclick="setTheme('dark')" aria-label="Dark mode">
+        <button class="theme-btn" id="btn-dark" aria-label="Dark mode">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
           </svg>
@@ -539,7 +560,8 @@ body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
     <div class="modal-body">
       <div id="cd-date" style="font-size:16px;color:var(--dim);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;margin-bottom:14px"></div>
       <div id="cd-list"></div>
-      <button class="close-modal-btn" style="margin-top:18px" onclick="closeDayDrawer()">Close</button>
+      <button id="cd-mark-btn" class="mark-complete-btn hidden" onclick="markMissedDay()">I did this — mark complete</button>
+      <button class="close-modal-btn" style="margin-top:12px" onclick="closeDayDrawer()">Close</button>
     </div>
   </div>
 </div>
@@ -636,11 +658,8 @@ const EX = {
     video:'https://www.youtube.com/results?search_query=kettlebell+goblet+squat+proper+form+tutorial'}
 };
 
-// ── 30-DAY PLAN — KRISSY ─────────────────────────────────────────────────────
-// 4x/week full-body compound split. Pattern per week: A B R A B R R
-// Day A = Squat & Push (quad-dominant + chest/triceps)
-// Day B = Hinge & Pull (hip-dominant + back/shoulders)
-// Progression: 2×8 → 2×10 → 3×8 → 3×10 → 3×12 over 9 sessions of each type
+// ── 30-DAY PLAN ──────────────────────────────────────────────────────────────
+// type: A=Chest+Arms, B=Core, C=Cardio+Shoulders, R=Rest
 const PLAN = [
   // ── WEEK 1 ──────────────────────────────────────────────────────────────────
   {day:1,type:'A',label:'Squat & Push',exs:[
@@ -887,7 +906,7 @@ cardio:`<svg viewBox="0 0 150 120" fill="none" xmlns="http://www.w3.org/2000/svg
 };
 
 // ── STATE ────────────────────────────────────────────────────────────────────
-const SK = 'fpk_v1';
+const SK = 'fp30_v1';
 function loadStateLocal(){
   try{ return JSON.parse(localStorage.getItem(SK)) || freshState(); }
   catch(e){ return freshState(); }
@@ -914,6 +933,12 @@ function restsBetween(dayA, dayB){
   const lo = Math.min(dayA, dayB), hi = Math.max(dayA, dayB);
   for(let d = lo + 1; d < hi; d++) if(PLAN[d-1].type === 'R') n++;
   return n;
+}
+function daysBehind(){
+  ensureStartDate();
+  const today=new Date(); today.setHours(0,0,0,0);
+  const pDt=planDate(S.currentDay); pDt.setHours(0,0,0,0);
+  return Math.max(0,Math.round((today-pDt)/86400000));
 }
 function calcStreak(){
   // Collect all completed days that have a recorded date, in plan order
@@ -942,10 +967,45 @@ let modalEx = null, modalDay = null;
 // ── REAL-DATE MAPPING ────────────────────────────────────────────────────────
 function ensureStartDate(){
   if(S.startDate) return;
+  // Primary: anchor on the most recent completedDate (most accurate — avoids
+  // off-by-N errors that arise when currentDay has run ahead of the calendar).
+  for(let d=30;d>=1;d--){
+    const p=S.progress&&S.progress[d];
+    if(p&&p.done&&p.completedDate){
+      const [cy,cm,cd]=p.completedDate.split('-').map(Number);
+      const base=new Date(cy,cm-1,cd); base.setDate(base.getDate()-(d-1));
+      S.startDate=base.toISOString().split('T')[0];
+      localStorage.setItem(SK,JSON.stringify(S));
+      return;
+    }
+  }
+  // Fallback: estimate from currentDay and today (only accurate when you're
+  // exactly on track — may be off if you're ahead or behind).
   const today=new Date(); today.setHours(0,0,0,0);
   const base=new Date(today); base.setDate(base.getDate()-(S.currentDay-1));
   S.startDate=base.toISOString().split('T')[0];
   localStorage.setItem(SK,JSON.stringify(S));
+}
+// Cross-check an existing startDate against completedDate evidence.
+// If the stored startDate is off by ≥2 days from what completedDates imply,
+// correct it — this fixes a stale/wrong startDate without touching valid ones.
+function verifyStartDate(){
+  if(!S.startDate) return;
+  for(let d=30;d>=1;d--){
+    const p=S.progress&&S.progress[d];
+    if(p&&p.done&&p.completedDate){
+      const [cy,cm,cd]=p.completedDate.split('-').map(Number);
+      const impliedDt=new Date(cy,cm-1,cd); impliedDt.setDate(impliedDt.getDate()-(d-1));
+      const [sy,sm,sd]=S.startDate.split('-').map(Number);
+      const startDt=new Date(sy,sm-1,sd);
+      const diffDays=Math.round(Math.abs(startDt-impliedDt)/86400000);
+      if(diffDays>=2){
+        S.startDate=impliedDt.toISOString().split('T')[0];
+        localStorage.setItem(SK,JSON.stringify(S));
+      }
+      return; // only verify against the most recent completedDate
+    }
+  }
 }
 function planDate(dayNum){
   ensureStartDate();
@@ -1034,6 +1094,7 @@ function renderToday(){
 
   updateRing(done, total);
   checkComplete();
+  showBehindBanner();
 }
 
 function updateRing(done, total){
@@ -1051,6 +1112,10 @@ function updateRing(done, total){
 function checkComplete(){
   const plan = PLAN[S.currentDay-1];
   const banner = document.getElementById('complete-banner');
+  // Don't allow completing a day whose plan date is still in the future
+  const pDt=planDate(S.currentDay); pDt.setHours(0,0,0,0);
+  const tod=new Date(); tod.setHours(0,0,0,0);
+  if(tod<pDt){ banner.classList.remove('show'); return; }
   let allDone = plan.type==='R';
   if(!allDone){
     allDone = plan.exs.length>0 && plan.exs.every(ex => setsFor(S.currentDay,ex.id)>=ex.sets);
@@ -1182,12 +1247,13 @@ function spawnBurst(cardEl){
 
   // +1 floating label
   const plus = document.createElement('div');
+  const _lt = document.body.classList.contains('light');
   plus.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;
     transform:translate(-50%,-50%);
     font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;
-    color:#ff9a42;pointer-events:none;z-index:301;
+    color:${_lt ? '#000' : '#ff9a42'};pointer-events:none;z-index:301;
     animation:floatUp 0.72s ease-out forwards;
-    text-shadow:0 2px 10px rgba(0,0,0,0.6)`;
+    text-shadow:0 2px 10px ${_lt ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.6)'}`;
   plus.textContent = '+1';
 
   document.body.appendChild(wrap);
@@ -1292,6 +1358,16 @@ function renderDayDrawer(dayNum){
   document.getElementById('cd-daynum').textContent=`DAY ${dayNum}`;
   document.getElementById('cd-title').textContent=plan.label;
   document.getElementById('cd-date').textContent=formatDateFull(planDate(dayNum));
+  // Show "mark complete" only for the current behind day
+  const markBtn=document.getElementById('cd-mark-btn');
+  if(markBtn){
+    const pDt=planDate(dayNum); pDt.setHours(0,0,0,0);
+    const tod=new Date(); tod.setHours(0,0,0,0);
+    const alreadyDone=S.progress[dayNum]&&S.progress[dayNum].done;
+    // Only show for the active plan day, only if it's due (today or past), only if not done
+    const showMark=dayNum===S.currentDay&&tod>=pDt&&!alreadyDone;
+    markBtn.classList.toggle('hidden',!showMark);
+  }
   const list=document.getElementById('cd-list');
   if(plan.type==='R'||plan.exs.length===0){
     list.innerHTML=`<div style="text-align:center;padding:24px 0">
@@ -1322,6 +1398,37 @@ function closeDayDrawer(){
 }
 function overlayCloseCalDay(e){
   if(e.target===document.getElementById('cal-day-overlay')) closeDayDrawer();
+}
+function showBehindBanner(){
+  const n=daysBehind();
+  const banner=document.getElementById('behind-banner');
+  if(!banner) return;
+  if(n<=0||sessionStorage.getItem('fp30_behind_dismissed')==='1'){
+    banner.classList.add('hidden'); return;
+  }
+  const txt=document.getElementById('behind-banner-text');
+  txt.innerHTML=n===1
+    ? `You're <strong>1 day</strong> behind — no big deal.`
+    : `You're <strong>${n} days</strong> behind — no big deal.`;
+  banner.classList.remove('hidden');
+}
+function dismissBehindBanner(){
+  sessionStorage.setItem('fp30_behind_dismissed','1');
+  document.getElementById('behind-banner').classList.add('hidden');
+}
+function markMissedDay(){
+  const dayNum=S.currentDay;
+  const plan=PLAN[dayNum-1];
+  if(!S.progress[dayNum]) S.progress[dayNum]={done:false,sets:{}};
+  if(plan.type!=='R'){
+    plan.exs.forEach(ex=>{ S.progress[dayNum].sets[ex.id]=ex.sets; });
+  }
+  S.progress[dayNum].done=true;
+  if(S.currentDay<30) S.currentDay++;
+  save();
+  closeDayDrawer();
+  renderToday();
+  if(_tab==='progress') renderProgress();
 }
 
 // ── PROGRESS VIEW ─────────────────────────────────────────────────────────────
@@ -1382,7 +1489,7 @@ function renderProgress(){
       if(planDay){
         const p=dp(planDay);
         if(p.done) cls+=' done';
-        else if(planDay===S.currentDay) cls+=' today';
+        else if(planDay===S.currentDay) cls+=daysBehind()>0?' behind':' today';
         else cls+=' future';
         cell.onclick=()=>openDayDrawer(planDay);
       } else {
@@ -1421,10 +1528,11 @@ function switchTab(t,animated=true){
   if(slider){
     slider.style.transition=animated?'':'none';
     slider.style.transform=t==='today'?'translateX(0%)':'translateX(-50%)';
-    if(!animated) slider.offsetHeight;
+    if(!animated) slider.offsetHeight; // force reflow
   }
   document.getElementById('tab-today').classList.toggle('active',t==='today');
   document.getElementById('tab-progress').classList.toggle('active',t==='progress');
+  if(t==='progress') renderProgress();
   if(t==='progress') renderProgress();
 }
 
@@ -1454,8 +1562,8 @@ function launchConfetti(){
   })();
 }
 
-// ── THEME ─────────────────────────────────────────────────────────────────────
-const TH='fpk_theme';
+// ── THEME ────────────────────────────────────────────────────────────────────
+const TH='fp30_theme';
 function applyTheme(t){
   document.body.classList.toggle('light',t==='light');
   const bl=document.getElementById('btn-light'),bd=document.getElementById('btn-dark');
@@ -1463,11 +1571,12 @@ function applyTheme(t){
   if(bd) bd.classList.toggle('active',t==='dark');
 }
 function setTheme(t){ localStorage.setItem(TH,t); applyTheme(t); }
+function toggleTheme(){ setTheme(document.body.classList.contains('light')?'dark':'light'); }
 
 // ── GITHUB GIST SYNC ─────────────────────────────────────────────────────────
-const TK = 'fpk_token';
-const GK = 'fpk_gist';
-const GIST_FILE = 'fitplan-krissy-progress.json';
+const TK = 'fp30_token';
+const GK = 'fp30_gist';
+const GIST_FILE = 'fitplan30-progress.json';
 const GHAPI = 'https://api.github.com';
 
 function getToken(){ return localStorage.getItem(TK); }
@@ -1492,7 +1601,7 @@ async function ghFetch(method, path, token, body){
 
 async function gistCreate(token, state){
   const data = await ghFetch('POST','/gists',token,{
-    description:'FitPlan — Krissy workout progress',
+    description:'FitPlan — Krissy — workout progress',
     public: false,
     files:{ [GIST_FILE]:{ content: JSON.stringify(state,null,2) } }
   });
@@ -1553,10 +1662,12 @@ function hideSetup(){
 }
 
 async function setupConnect(){
-  const input = document.getElementById('token-input');
-  const btn   = document.getElementById('setup-btn');
-  const errEl = document.getElementById('setup-error');
-  const token = input.value.trim();
+  const input   = document.getElementById('token-input');
+  const gistIn  = document.getElementById('gist-id-input');
+  const btn     = document.getElementById('setup-btn');
+  const errEl   = document.getElementById('setup-error');
+  const token   = input.value.trim();
+  const existingGistId = gistIn ? gistIn.value.trim() : '';
   if(!token){ errEl.textContent='Please paste your token first.'; return; }
 
   btn.disabled=true; btn.textContent='Connecting…'; errEl.textContent='';
@@ -1570,16 +1681,26 @@ async function setupConnect(){
 
     localStorage.setItem(TK, token);
 
-    // Migrate any existing local progress into the new Gist
-    const existing = loadStateLocal();
-    await gistCreate(token, existing);
-    S = existing;
-
-    // For a brand-new user with no logged progress, anchor Day 1 to today
-    if(Object.keys(S.progress || {}).length === 0){
-      S.startDate = todayStr();
-      S.currentDay = 1;
+    if(existingGistId){
+      // Reconnect to an existing Gist — load its state
+      const remote = await gistLoad(token, existingGistId);
+      if(!remote) throw new Error('Could not load Gist — check the ID and try again.');
+      localStorage.setItem(GK, existingGistId);
+      S = remote;
+      ensureStartDate();
+      verifyStartDate();
       localStorage.setItem(SK, JSON.stringify(S));
+    } else {
+      // Fresh setup — create a new Gist from current local state
+      const existing = loadStateLocal();
+      await gistCreate(token, existing);
+      S = existing;
+      // Anchor Day 1 to today for a brand-new user with no logged progress
+      if(Object.keys(S.progress || {}).length === 0){
+        S.startDate = todayStr();
+        S.currentDay = 1;
+        localStorage.setItem(SK, JSON.stringify(S));
+      }
     }
 
     hideSetup();
@@ -1621,8 +1742,12 @@ function showSettings(){
     <div class="settings-section">
       <div class="settings-label">Manual Sync</div>
       <div class="settings-row">
-        <span class="settings-val">Push local progress to Gist now</span>
-        <button class="settings-pill-btn orange" onclick="closeSettings();syncNow()">Sync Now</button>
+        <span class="settings-val">Load latest progress from Gist</span>
+        <button class="settings-pill-btn" onclick="closeSettings();pullFromGist()">Load from Gist</button>
+      </div>
+      <div class="settings-row" style="margin-top:8px">
+        <span class="settings-val">Push local progress to Gist</span>
+        <button class="settings-pill-btn orange" onclick="closeSettings();syncNow()">Push to Gist</button>
       </div>
     </div>` : ''}
     <div class="settings-section">
@@ -1666,6 +1791,7 @@ async function init(){
   }
 
   ensureStartDate();
+  verifyStartDate(); // correct a stale/wrong startDate before first render
   // Render immediately from local cache — no loading screen
   renderToday();
 
@@ -1687,8 +1813,15 @@ async function init(){
     if(remote){
       S = remote;
       ensureStartDate();
+      verifyStartDate();
       localStorage.setItem(SK, JSON.stringify(S));
       renderToday(); // refresh with authoritative remote data
+      // Re-render open day drawer so it reflects the latest state from Gist
+      if(_calDayOpen){
+        const label = document.getElementById('cd-daynum')?.textContent||'';
+        const m = label.match(/\d+/);
+        if(m) renderDayDrawer(+m[0]);
+      }
     }
     setSyncState('synced');
     setTimeout(()=>setSyncState('idle'), 3000);
@@ -1698,9 +1831,37 @@ async function init(){
   }
 }
 
+// ── PULL FROM GIST ────────────────────────────────────────────────────────────
+async function pullFromGist(){
+  const token=getToken(), gistId=getGistId();
+  if(!token||!gistId) return;
+  setSyncState('syncing');
+  try{
+    const remote = await gistLoad(token, gistId);
+    if(remote){
+      S = remote;
+      ensureStartDate();
+      verifyStartDate();
+      localStorage.setItem(SK, JSON.stringify(S));
+      renderToday();
+      if(_calDayOpen){
+        const label = document.getElementById('cd-daynum')?.textContent||'';
+        const m = label.match(/\d+/);
+        if(m) renderDayDrawer(+m[0]);
+      }
+    }
+    setSyncState('synced');
+    setTimeout(()=>setSyncState('idle'), 3000);
+  } catch(e){
+    console.warn('Pull from Gist failed:', e.message);
+    setSyncState('error');
+  }
+}
+
 // ── SWIPE NAVIGATION ─────────────────────────────────────────────────────────
 (()=>{
   let sx=0,sy=0,dir=null,dragging=false;
+  const track=()=>document.getElementById('views-track');
   const slider=()=>document.getElementById('views-slider');
   function baseX(){ return _tab==='today'?0:-50; }
 
@@ -1716,10 +1877,11 @@ async function init(){
     if(!dir){ if(Math.abs(dx)>6||Math.abs(dy)>6) dir=Math.abs(dx)>Math.abs(dy)?'h':'v'; return; }
     if(dir!=='h') return;
     const s=slider(); if(!s) return;
+    // Live follow finger with resistance at edges
     const pct=dx/(window.innerWidth*2)*100;
     let next=baseX()+pct;
-    if(next>0) next=next*0.2;
-    if(next<-50) next=-50+(next+50)*0.2;
+    if(next>0) next=next*0.2;      // resist past left edge
+    if(next<-50) next=-50+(next+50)*0.2; // resist past right edge
     s.style.transition='none';
     s.style.transform=`translateX(${next}%)`;
   },{passive:true});
