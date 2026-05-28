@@ -89,7 +89,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .exercise-name{font-size:23px;font-weight:700;white-space:nowrap;overflow:hidden;
   text-overflow:ellipsis;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
 .exercise-meta{font-size:19px;color:var(--dim);margin-top:2px;font-family:'Barlow Condensed',sans-serif}
-.weight-tag{color:var(--orange)}
+.weight-tag{color:var(--orange);display:inline-block;}
+@keyframes weightPulse{0%{transform:scale(1)}45%{transform:scale(1.3)}100%{transform:scale(1)}}
+.weight-tag.pulse{animation:weightPulse 0.4s cubic-bezier(0.34,1.5,0.64,1) both}
 .set-dots{display:flex;gap:5px;align-items:center}
 .set-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--dim);
   transition:background 0.15s,border-color 0.15s}
@@ -1675,14 +1677,15 @@ function saveWeight(exId,lbs){
   pd.weights[exId]=val;
   save();
   hideWeightRow(exId);
-  // Update card meta line to show the logged weight
+  // Update card meta line to show the logged weight, then pulse it
   const wr=document.getElementById('wr-'+exId);
   if(wr){
     const card=wr.closest('.exercise-card');
     if(card){
-      const wt=card.querySelector('.weight-tag');
+      let wt=card.querySelector('.weight-tag');
       if(wt){wt.textContent=val+' lbs';}
-      else{const meta=card.querySelector('.exercise-meta');if(meta) meta.innerHTML+=' · <span class="weight-tag">'+val+' lbs</span>';}
+      else{const meta=card.querySelector('.exercise-meta');if(meta){meta.innerHTML+=' · <span class="weight-tag">'+val+' lbs</span>';wt=card.querySelector('.weight-tag');}}
+      if(wt){wt.classList.remove('pulse');void wt.offsetWidth;wt.classList.add('pulse');wt.addEventListener('animationend',()=>wt.classList.remove('pulse'),{once:true});}
     }
   }
   if(pr===null||val>pr) upgradePillToPR();
