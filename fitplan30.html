@@ -201,6 +201,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .cal-cell .cn{font-size:16px;font-weight:800;line-height:1.1}
 .cal-cell .ct{font-size:10px;color:inherit;letter-spacing:0.3px;text-transform:uppercase;opacity:0.85;margin-top:1px;line-height:1}
 .cal-cell.today{border-color:var(--orange);background:var(--orange-dim);color:var(--orange)}
+.cal-cell.behind{border-color:rgba(232,101,26,0.5);background:rgba(232,101,26,0.07);color:var(--orange);opacity:0.8}
 .cal-cell.done{background:rgba(46,204,113,0.12);border-color:rgba(46,204,113,0.35);color:var(--green)}
 .cal-cell.future{opacity:0.4}
 .cal-cell.no-plan{background:transparent;border-color:transparent;cursor:default;opacity:0.25}
@@ -312,6 +313,17 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .gist-link{color:var(--orange);font-size:17px;text-decoration:none;
   font-family:'Barlow Condensed',sans-serif;font-weight:700;flex-shrink:0}
 
+/* BEHIND BANNER */
+.behind-banner{margin:10px 20px 0;background:rgba(232,101,26,0.09);border:1px solid rgba(232,101,26,0.22);border-radius:12px;padding:10px 10px 10px 14px;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text)}
+.behind-banner.hidden{display:none}
+.behind-banner-icon{font-size:18px;flex-shrink:0}
+.behind-banner-text{flex:1;line-height:1.35}
+.behind-banner-text strong{color:var(--orange)}
+.behind-dismiss{background:none;border:none;color:var(--dim);cursor:pointer;font-size:18px;padding:2px 4px;line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+/* MARK MISSED DAY BUTTON */
+.mark-complete-btn{width:100%;margin-top:16px;padding:14px;background:rgba(232,101,26,0.12);border:1px solid rgba(232,101,26,0.3);border-radius:12px;color:var(--orange);font-size:16px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background 0.15s}
+.mark-complete-btn:active{background:rgba(232,101,26,0.22)}
+
 /* THEME TRANSITION */
 body,body>*,.card,.ex-card,.nav-bar,.nav-btn,.type-pill,.cal-cell,.month-hdr,.day-hdr,.modal,.modal-inner,.setup-card,.complete-banner,.ring-wrap{
   transition:background-color 0.35s ease,color 0.35s ease,border-color 0.35s ease}
@@ -394,6 +406,12 @@ body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
           </svg>
         </button>
       </div>
+    </div>
+
+    <div id="behind-banner" class="behind-banner hidden">
+      <span class="behind-banner-icon">📅</span>
+      <span class="behind-banner-text" id="behind-banner-text">You're <strong>1 day</strong> behind — no big deal.</span>
+      <button class="behind-dismiss" onclick="dismissBehindBanner()" aria-label="Dismiss">✕</button>
     </div>
 
     <div class="ring-container">
@@ -531,7 +549,8 @@ body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
     <div class="modal-body">
       <div id="cd-date" style="font-size:16px;color:var(--dim);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;margin-bottom:14px"></div>
       <div id="cd-list"></div>
-      <button class="close-modal-btn" style="margin-top:18px" onclick="closeDayDrawer()">Close</button>
+      <button id="cd-mark-btn" class="mark-complete-btn hidden" onclick="markMissedDay()">I did this — mark complete</button>
+      <button class="close-modal-btn" style="margin-top:12px" onclick="closeDayDrawer()">Close</button>
     </div>
   </div>
 </div>
@@ -955,6 +974,12 @@ function restsBetween(dayA, dayB){
   for(let d = lo + 1; d < hi; d++) if(PLAN[d-1].type === 'R') n++;
   return n;
 }
+function daysBehind(){
+  ensureStartDate();
+  const today=new Date(); today.setHours(0,0,0,0);
+  const pDt=planDate(S.currentDay); pDt.setHours(0,0,0,0);
+  return Math.max(0,Math.round((today-pDt)/86400000));
+}
 function calcStreak(){
   // Collect all completed days that have a recorded date, in plan order
   const done = [];
@@ -1074,6 +1099,7 @@ function renderToday(){
 
   updateRing(done, total);
   checkComplete();
+  showBehindBanner();
 }
 
 function updateRing(done, total){
@@ -1333,6 +1359,12 @@ function renderDayDrawer(dayNum){
   document.getElementById('cd-daynum').textContent=`DAY ${dayNum}`;
   document.getElementById('cd-title').textContent=plan.label;
   document.getElementById('cd-date').textContent=formatDateFull(planDate(dayNum));
+  // Show "mark complete" only for the current behind day
+  const markBtn=document.getElementById('cd-mark-btn');
+  if(markBtn){
+    const showMark=dayNum===S.currentDay&&daysBehind()>0&&!dp(dayNum).done;
+    markBtn.classList.toggle('hidden',!showMark);
+  }
   const list=document.getElementById('cd-list');
   if(plan.type==='R'||plan.exs.length===0){
     list.innerHTML=`<div style="text-align:center;padding:24px 0">
@@ -1363,6 +1395,38 @@ function closeDayDrawer(){
 }
 function overlayCloseCalDay(e){
   if(e.target===document.getElementById('cal-day-overlay')) closeDayDrawer();
+}
+function showBehindBanner(){
+  const n=daysBehind();
+  const banner=document.getElementById('behind-banner');
+  if(!banner) return;
+  if(n<=0||sessionStorage.getItem('fp30_behind_dismissed')==='1'){
+    banner.classList.add('hidden'); return;
+  }
+  const txt=document.getElementById('behind-banner-text');
+  txt.innerHTML=n===1
+    ? `You're <strong>1 day</strong> behind — no big deal.`
+    : `You're <strong>${n} days</strong> behind — no big deal.`;
+  banner.classList.remove('hidden');
+}
+function dismissBehindBanner(){
+  sessionStorage.setItem('fp30_behind_dismissed','1');
+  document.getElementById('behind-banner').classList.add('hidden');
+}
+function markMissedDay(){
+  const dayNum=S.currentDay;
+  const plan=PLAN[dayNum-1];
+  if(!S.progress[dayNum]) S.progress[dayNum]={done:false,sets:{}};
+  if(plan.type!=='R'){
+    plan.exs.forEach(ex=>{ S.progress[dayNum].sets[ex.id]=ex.sets; });
+  }
+  S.progress[dayNum].done=true;
+  if(S.currentDay<30) S.currentDay++;
+  save();
+  closeDayDrawer();
+  renderToday();
+  const pv=document.getElementById('view-progress');
+  if(pv&&!pv.classList.contains('hidden')) renderProgress();
 }
 
 // ── PROGRESS VIEW ─────────────────────────────────────────────────────────────
@@ -1423,7 +1487,7 @@ function renderProgress(){
       if(planDay){
         const p=dp(planDay);
         if(p.done) cls+=' done';
-        else if(planDay===S.currentDay) cls+=' today';
+        else if(planDay===S.currentDay) cls+=daysBehind()>0?' behind':' today';
         else cls+=' future';
         cell.onclick=()=>openDayDrawer(planDay);
       } else {
