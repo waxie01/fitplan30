@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v1.1.0 -->
+<!DOCTYPE html><!-- v1.2.0 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -380,6 +380,24 @@ body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
 .rest-pill-bar{height:100%;background:rgba(255,255,255,0.85);width:100%;transition:width 1s linear}
 .rest-pill.done{background:var(--green)}
 body.light .rest-pill{box-shadow:0 4px 24px rgba(232,101,26,0.4)}
+/* WEIGHT ROW */
+.weight-row{display:flex;align-items:center;gap:8px;padding:10px 14px 12px;border-top:1px solid var(--border);}
+.weight-row.hidden{display:none;}
+.weight-row-label{font-size:14px;color:var(--text2);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px;flex:1;}
+.weight-input{width:76px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;
+  background:var(--bg);color:var(--text);font-size:16px;font-weight:600;text-align:center;
+  -webkit-appearance:none;appearance:none;outline:none;}
+.weight-input:focus{border-color:var(--orange);}
+.weight-save-btn{background:var(--orange);color:#fff;border:none;border-radius:8px;
+  padding:6px 14px;font-size:14px;font-weight:700;cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px;
+  -webkit-tap-highlight-color:transparent;}
+.weight-save-btn:active{opacity:0.85;}
+/* PR PILL */
+.rest-pill.pr{background:#E8990A;box-shadow:0 6px 32px rgba(232,153,10,0.6);}
+body.light .rest-pill.pr{box-shadow:0 4px 24px rgba(232,153,10,0.5);}
+/* MODAL LAST WEIGHT */
+.m-last-weight{font-size:13px;color:var(--text2);padding:0 0 10px;text-align:center;letter-spacing:0.2px;}
 </style>
 </head>
 <body>
@@ -569,6 +587,7 @@ body.light .rest-pill{box-shadow:0 4px 24px rgba(232,101,26,0.4)}
     </div>
 
     <div class="modal-body">
+      <div id="m-last-weight" class="m-last-weight" style="display:none"></div>
       <div class="modal-stats" id="m-stats"></div>
       <div class="msec-title">How to Perform</div>
       <div class="modal-desc" id="m-desc"></div>
@@ -1157,6 +1176,7 @@ function renderToday(){
     card.style.animationDelay = (i*0.05)+'s';
     card.onclick = (e) => {
       if(e.target.closest('.ex-menu-btn')) return;
+      if(e.target.closest('.weight-row')) return;
       tapLog(ex.id, card);
     };
     card.innerHTML = `
@@ -1176,7 +1196,14 @@ function renderToday(){
             <circle cx="8" cy="13.5" r="1.6"/>
           </svg>
         </button>
-      </div>`;
+      </div>
+      ${isWeightedEx(ex.id)?`<div class="weight-row hidden" id="wr-${ex.id}">
+        <span class="weight-row-label">How much?</span>
+        <input type="number" inputmode="decimal" id="wi-${ex.id}" class="weight-input" placeholder="lbs"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();saveWeight('${ex.id}',this.value);}"
+               onblur="saveWeight('${ex.id}',this.value)">
+        <button class="weight-save-btn" onclick="event.stopPropagation();saveWeight('${ex.id}',document.getElementById('wi-${ex.id}').value)">Save</button>
+      </div>`:''}`;
     list.appendChild(card);
   });
 
@@ -1249,6 +1276,7 @@ function tapLog(id, cardEl){
   if(p.sets[id] >= ex.sets){
     // ── RESET ── tap beyond completion clears the exercise
     skipRest();
+    hideWeightRow(id);
     p.sets[id] = 0;
     if(dp(S.currentDay).done){
       dp(S.currentDay).done = false;
@@ -1265,6 +1293,7 @@ function tapLog(id, cardEl){
     spawnBurst(cardEl);
     updateCardInPlace(cardEl, ex, p.sets[id]);
     startRestTimer();
+    if(p.sets[id]>=ex.sets && isWeightedEx(id)) showWeightRow(id);
   }
 
   // Update ring + completion banner in-place (no full re-render)
@@ -1382,6 +1411,12 @@ function openModal(exId, dayNum){
     ${ex.weight ? `<div class="modal-stat"><div class="val">${ex.weight}</div><div class="lbl">Lbs</div></div>` : ''}
     <div class="modal-stat"><div class="val">${sc}/${ex.sets}</div><div class="lbl">Done</div></div>`;
   renderModalSets(ex.sets, sc);
+  const lastEl=document.getElementById('m-last-weight');
+  if(lastEl){
+    const lw=isWeightedEx(exId)?getLastWeight(exId):null;
+    if(lw!==null){lastEl.textContent='Last time: '+lw+' lbs';lastEl.style.display='';}
+    else lastEl.style.display='none';
+  }
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow='hidden';
 }
@@ -1654,6 +1689,65 @@ function launchConfetti(){
   })();
 }
 
+// ── WEIGHT TRACKING ──────────────────────────────────────────────────────────
+function isWeightedEx(exId){
+  for(const day of PLAN){
+    if(day.type==='R') continue;
+    const ex=day.exs.find(e=>e.id===exId);
+    if(ex) return !String(ex.reps).endsWith('s');
+  }
+  return true;
+}
+function getLastWeight(exId){
+  for(let d=S.currentDay-1;d>=1;d--){
+    const p=S.progress[d];
+    if(p&&p.weights&&p.weights[exId]!=null) return p.weights[exId];
+  }
+  return null;
+}
+function getPRWeight(exId){
+  let max=null;
+  for(const d in S.progress){
+    const p=S.progress[d];
+    if(p&&p.weights&&p.weights[exId]!=null){
+      if(max===null||p.weights[exId]>max) max=p.weights[exId];
+    }
+  }
+  return max;
+}
+function saveWeight(exId,lbs){
+  const val=parseFloat(lbs);
+  if(!val||val<=0){hideWeightRow(exId);return;}
+  const pr=getPRWeight(exId);
+  const pd=dp(S.currentDay);
+  if(!pd.weights) pd.weights={};
+  pd.weights[exId]=val;
+  save();
+  hideWeightRow(exId);
+  if(pr===null||val>pr) upgradePillToPR();
+}
+function showWeightRow(exId){
+  const row=document.getElementById('wr-'+exId);
+  if(!row) return;
+  const inp=document.getElementById('wi-'+exId);
+  const last=getLastWeight(exId);
+  inp.placeholder=last!=null?String(last):'lbs';
+  inp.value='';
+  row.classList.remove('hidden');
+  setTimeout(()=>{try{inp.focus();}catch(e){}},150);
+}
+function hideWeightRow(exId){
+  const row=document.getElementById('wr-'+exId);
+  if(row) row.classList.add('hidden');
+}
+function upgradePillToPR(){
+  const pill=document.getElementById('rest-pill');
+  if(pill.classList.contains('hidden')) return;
+  pill.classList.add('pr');
+  pill.querySelector('.rest-pill-icon').textContent='🏆';
+  pill.querySelector('.rest-pill-label').textContent='New PR';
+}
+
 // ── REST TIMER ────────────────────────────────────────────────────────────────
 const REST_SECS=30;
 let _restHandle=null,_restRemaining=0;
@@ -1662,7 +1756,9 @@ function startRestTimer(){
   _restRemaining=REST_SECS;
   const pill=document.getElementById('rest-pill');
   const bar=document.getElementById('rest-pill-bar');
-  pill.classList.remove('hidden','done');
+  pill.classList.remove('hidden','done','pr');
+  pill.querySelector('.rest-pill-icon').textContent='⏱';
+  pill.querySelector('.rest-pill-label').textContent='Rest';
   bar.style.transition='none';
   bar.style.width='100%';
   bar.offsetWidth; // force reflow so transition reset takes effect
@@ -1677,7 +1773,9 @@ function startRestTimer(){
       if(navigator.vibrate) navigator.vibrate([100,50,100]);
       setTimeout(()=>{
         pill.classList.add('hidden');
-        pill.classList.remove('done');
+        pill.classList.remove('done','pr');
+        pill.querySelector('.rest-pill-icon').textContent='⏱';
+        pill.querySelector('.rest-pill-label').textContent='Rest';
       },1200);
     }
   },1000);
@@ -1687,7 +1785,11 @@ function clearRestTimer(){
 }
 function skipRest(){
   clearRestTimer();
-  document.getElementById('rest-pill').classList.add('hidden');
+  const pill=document.getElementById('rest-pill');
+  pill.classList.add('hidden');
+  pill.classList.remove('pr');
+  pill.querySelector('.rest-pill-icon').textContent='⏱';
+  pill.querySelector('.rest-pill-label').textContent='Rest';
 }
 function _updateRestPill(){
   const mins=Math.floor(_restRemaining/60);
