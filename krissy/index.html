@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!-- v1.0.1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -615,44 +615,140 @@ const EX = {
     video:'https://www.youtube.com/results?search_query=crunches+proper+form+tutorial'},
   'elliptical':{name:'Elliptical Cardio',muscle:'Full Body Cardio',emoji:'🏃',illus:'cardio',
     desc:'Use the elliptical at a moderate-to-challenging pace. Keep posture upright and engage both arms and legs equally. Target a pace where you can speak in short phrases but not hold a full conversation (zone 2–3 cardio).',
-    video:'https://www.youtube.com/results?search_query=elliptical+machine+proper+form+tips'}
+    video:'https://www.youtube.com/results?search_query=elliptical+machine+proper+form+tips'},
+  'barbell-squat':{name:'Barbell Back Squat',muscle:'Quads, Glutes & Core',emoji:'🏋️',illus:'pushup',
+    desc:'Stand with the barbell on your upper traps, feet shoulder-width apart, toes slightly out. Brace your core, push knees out in line with toes, and descend until thighs are parallel to the floor. Drive through your whole foot to stand. Keep your chest up and spine neutral throughout.',
+    video:'https://www.youtube.com/results?search_query=barbell+back+squat+proper+form+tutorial'},
+  'barbell-bench':{name:'Barbell Bench Press',muscle:'Chest, Triceps & Front Delts',emoji:'🏋️',illus:'bench',
+    desc:'Lie on the bench with your eyes under the bar. Grip slightly wider than shoulder-width, retract your shoulder blades into the bench, and unrack the bar over your chest. Lower to the bottom of your sternum with elbows at ~45°, pause briefly, then press back to lockout. Keep feet flat on the floor throughout.',
+    video:'https://www.youtube.com/results?search_query=barbell+bench+press+proper+form+tutorial'},
+  'db-rdl':{name:'Dumbbell Romanian Deadlift',muscle:'Hamstrings & Glutes',emoji:'🔽',illus:'pushup',
+    desc:'Stand holding dumbbells in front of your thighs, palms facing you. Hinge at the hips — push them back as you lower the weights along your legs to just below the knee. Feel the stretch in your hamstrings, then drive hips forward to return to standing. Keep your back flat and the weights close to your body the entire time.',
+    video:'https://www.youtube.com/results?search_query=dumbbell+romanian+deadlift+proper+form'},
+  'barbell-deadlift':{name:'Barbell Deadlift',muscle:'Hamstrings, Glutes & Back',emoji:'⚡',illus:'plank',
+    desc:'Stand with the bar over your mid-foot, feet hip-width. Hinge down and grip just outside your legs, arms vertical. Take a breath, brace your whole torso, then push the floor away to stand — keeping the bar dragging against your body the whole way. Lock out by squeezing your glutes at the top, then hinge back down with control.',
+    video:'https://www.youtube.com/results?search_query=barbell+deadlift+proper+form+tutorial'},
+  'barbell-row':{name:'Barbell Bent-Over Row',muscle:'Lats, Rhomboids & Biceps',emoji:'🚣',illus:'pushup',
+    desc:'Hold the bar with an overhand grip, hands hip-width. Hinge forward to about 45° with a flat back. Pull the bar to your lower ribs, driving elbows back and squeezing your shoulder blades together at the top. Lower with control — don\'t let momentum swing the bar. Keep your core braced throughout.',
+    video:'https://www.youtube.com/results?search_query=barbell+bent+over+row+proper+form'},
+  'kb-goblet-squat':{name:'Kettlebell Goblet Squat',muscle:'Quads, Glutes & Core',emoji:'🏺',illus:'pushup',
+    desc:'Hold a kettlebell by the horns at chest height, elbows pointing down. Stand with feet slightly wider than shoulder-width, toes out 30°. Keep the kettlebell close to your chest as you squat down until your elbows touch the inside of your knees. Drive through your heels to stand tall. Excellent for squat depth and keeping your torso upright.',
+    video:'https://www.youtube.com/results?search_query=kettlebell+goblet+squat+proper+form+tutorial'}
 };
 
 // ── 30-DAY PLAN — KRISSY ─────────────────────────────────────────────────────
-// TODO: Replace placeholder rest days with Krissy's actual workout plan.
-// Each day: { day:N, type:'A'|'B'|'C'|'R', label:'...', exs:[{id, sets, reps, weight?}] }
-// Add any new exercise definitions to the EX dict above before referencing them here.
+// 4x/week full-body compound split. Pattern per week: A B R A B R R
+// Day A = Squat & Push (quad-dominant + chest/triceps)
+// Day B = Hinge & Pull (hip-dominant + back/shoulders)
+// Progression: 3×8 → 3×10 → 4×8 → 4×10 → 4×12 over 9 sessions of each type
 const PLAN = [
-  {day:1,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:2,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:3,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:4,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:5,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:6,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:7,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:8,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:9,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:10,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:11,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:12,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:13,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:14,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:15,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:16,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:17,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:18,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:19,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:20,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:21,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:22,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:23,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:24,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:25,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:26,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:27,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:28,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:29,type:'R',label:'Plan Coming Soon',exs:[]},
-  {day:30,type:'R',label:'Plan Coming Soon',exs:[]}
+  // ── WEEK 1 ──────────────────────────────────────────────────────────────────
+  {day:1,type:'A',label:'Squat & Push',exs:[
+    {id:'barbell-squat',sets:3,reps:'8'},
+    {id:'barbell-bench',sets:3,reps:'8'},
+    {id:'db-rdl',sets:3,reps:'8'},
+    {id:'plank',sets:3,reps:'30s'}]},
+  {day:2,type:'B',label:'Hinge & Pull',exs:[
+    {id:'barbell-deadlift',sets:3,reps:'8'},
+    {id:'barbell-row',sets:3,reps:'8'},
+    {id:'kb-goblet-squat',sets:3,reps:'10'},
+    {id:'shoulder-press',sets:3,reps:'10'}]},
+  {day:3,type:'R',label:'Rest Day',exs:[]},
+  {day:4,type:'A',label:'Squat & Push',exs:[
+    {id:'barbell-squat',sets:3,reps:'8'},
+    {id:'barbell-bench',sets:3,reps:'8'},
+    {id:'db-rdl',sets:3,reps:'8'},
+    {id:'plank',sets:3,reps:'35s'}]},
+  {day:5,type:'B',label:'Hinge & Pull',exs:[
+    {id:'barbell-deadlift',sets:3,reps:'8'},
+    {id:'barbell-row',sets:3,reps:'8'},
+    {id:'kb-goblet-squat',sets:3,reps:'10'},
+    {id:'shoulder-press',sets:3,reps:'10'}]},
+  {day:6,type:'R',label:'Rest Day',exs:[]},
+  {day:7,type:'R',label:'Rest Day',exs:[]},
+  // ── WEEK 2 ──────────────────────────────────────────────────────────────────
+  {day:8,type:'A',label:'Squat & Push',exs:[
+    {id:'barbell-squat',sets:3,reps:'10'},
+    {id:'barbell-bench',sets:3,reps:'10'},
+    {id:'db-rdl',sets:3,reps:'10'},
+    {id:'plank',sets:3,reps:'40s'}]},
+  {day:9,type:'B',label:'Hinge & Pull',exs:[
+    {id:'barbell-deadlift',sets:3,reps:'10'},
+    {id:'barbell-row',sets:3,reps:'10'},
+    {id:'kb-goblet-squat',sets:3,reps:'12'},
+    {id:'shoulder-press',sets:3,reps:'10'}]},
+  {day:10,type:'R',label:'Rest Day',exs:[]},
+  {day:11,type:'A',label:'Squat & Push',exs:[
+    {id:'barbell-squat',sets:3,reps:'10'},
+    {id:'barbell-bench',sets:3,reps:'10'},
+    {id:'db-rdl',sets:3,reps:'10'},
+    {id:'plank',sets:3,reps:'45s'}]},
+  {day:12,type:'B',label:'Hinge & Pull',exs:[
+    {id:'barbell-deadlift',sets:3,reps:'10'},
+    {id:'barbell-row',sets:3,reps:'10'},
+    {id:'kb-goblet-squat',sets:3,reps:'12'},
+    {id:'shoulder-press',sets:3,reps:'10'}]},
+  {day:13,type:'R',label:'Rest Day',exs:[]},
+  {day:14,type:'R',label:'Rest Day',exs:[]},
+  // ── WEEK 3 ──────────────────────────────────────────────────────────────────
+  {day:15,type:'A',label:'Squat & Push',exs:[
+    {id:'barbell-squat',sets:4,reps:'8'},
+    {id:'barbell-bench',sets:4,reps:'8'},
+    {id:'db-rdl',sets:4,reps:'8'},
+    {id:'plank',sets:4,reps:'50s'}]},
+  {day:16,type:'B',label:'Hinge & Pull',exs:[
+    {id:'barbell-deadlift',sets:4,reps:'8'},
+    {id:'barbell-row',sets:4,reps:'8'},
+    {id:'kb-goblet-squat',sets:4,reps:'10'},
+    {id:'shoulder-press',sets:4,reps:'8'}]},
+  {day:17,type:'R',label:'Rest Day',exs:[]},
+  {day:18,type:'A',label:'Squat & Push',exs:[
+    {id:'barbell-squat',sets:4,reps:'8'},
+    {id:'barbell-bench',sets:4,reps:'8'},
+    {id:'db-rdl',sets:4,reps:'8'},
+    {id:'plank',sets:4,reps:'55s'}]},
+  {day:19,type:'B',label:'Hinge & Pull',exs:[
+    {id:'barbell-deadlift',sets:4,reps:'8'},
+    {id:'barbell-row',sets:4,reps:'8'},
+    {id:'kb-goblet-squat',sets:4,reps:'10'},
+    {id:'shoulder-press',sets:4,reps:'8'}]},
+  {day:20,type:'R',label:'Rest Day',exs:[]},
+  {day:21,type:'R',label:'Rest Day',exs:[]},
+  // ── WEEK 4 ──────────────────────────────────────────────────────────────────
+  {day:22,type:'A',label:'Squat & Push',exs:[
+    {id:'barbell-squat',sets:4,reps:'10'},
+    {id:'barbell-bench',sets:4,reps:'10'},
+    {id:'db-rdl',sets:4,reps:'10'},
+    {id:'plank',sets:4,reps:'60s'}]},
+  {day:23,type:'B',label:'Hinge & Pull',exs:[
+    {id:'barbell-deadlift',sets:4,reps:'10'},
+    {id:'barbell-row',sets:4,reps:'10'},
+    {id:'kb-goblet-squat',sets:4,reps:'12'},
+    {id:'shoulder-press',sets:4,reps:'10'}]},
+  {day:24,type:'R',label:'Rest Day',exs:[]},
+  {day:25,type:'A',label:'Squat & Push',exs:[
+    {id:'barbell-squat',sets:4,reps:'10'},
+    {id:'barbell-bench',sets:4,reps:'10'},
+    {id:'db-rdl',sets:4,reps:'10'},
+    {id:'plank',sets:4,reps:'60s'}]},
+  {day:26,type:'B',label:'Hinge & Pull',exs:[
+    {id:'barbell-deadlift',sets:4,reps:'10'},
+    {id:'barbell-row',sets:4,reps:'10'},
+    {id:'kb-goblet-squat',sets:4,reps:'12'},
+    {id:'shoulder-press',sets:4,reps:'10'}]},
+  {day:27,type:'R',label:'Rest Day',exs:[]},
+  {day:28,type:'R',label:'Rest Day',exs:[]},
+  // ── FINISH STRONG ───────────────────────────────────────────────────────────
+  {day:29,type:'A',label:'Squat & Push',exs:[
+    {id:'barbell-squat',sets:4,reps:'12'},
+    {id:'barbell-bench',sets:4,reps:'12'},
+    {id:'db-rdl',sets:4,reps:'12'},
+    {id:'plank',sets:4,reps:'60s'}]},
+  {day:30,type:'B',label:'Hinge & Pull',exs:[
+    {id:'barbell-deadlift',sets:4,reps:'12'},
+    {id:'barbell-row',sets:4,reps:'12'},
+    {id:'kb-goblet-squat',sets:4,reps:'15'},
+    {id:'shoulder-press',sets:4,reps:'12'}]}
 ];
 
 // ── SVG ILLUSTRATIONS ────────────────────────────────────────────────────────
