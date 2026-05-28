@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v1.0.1 -->
+<!DOCTYPE html><!-- v1.0.2 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -640,115 +640,115 @@ const EX = {
 // 4x/week full-body compound split. Pattern per week: A B R A B R R
 // Day A = Squat & Push (quad-dominant + chest/triceps)
 // Day B = Hinge & Pull (hip-dominant + back/shoulders)
-// Progression: 3×8 → 3×10 → 4×8 → 4×10 → 4×12 over 9 sessions of each type
+// Progression: 2×8 → 2×10 → 3×8 → 3×10 → 3×12 over 9 sessions of each type
 const PLAN = [
   // ── WEEK 1 ──────────────────────────────────────────────────────────────────
   {day:1,type:'A',label:'Squat & Push',exs:[
-    {id:'barbell-squat',sets:3,reps:'8'},
-    {id:'barbell-bench',sets:3,reps:'8'},
-    {id:'db-rdl',sets:3,reps:'8'},
-    {id:'plank',sets:3,reps:'30s'}]},
+    {id:'barbell-squat',sets:2,reps:'8'},
+    {id:'barbell-bench',sets:2,reps:'8'},
+    {id:'db-rdl',sets:2,reps:'8'},
+    {id:'plank',sets:2,reps:'30s'}]},
   {day:2,type:'B',label:'Hinge & Pull',exs:[
-    {id:'barbell-deadlift',sets:3,reps:'8'},
-    {id:'barbell-row',sets:3,reps:'8'},
-    {id:'kb-goblet-squat',sets:3,reps:'10'},
-    {id:'shoulder-press',sets:3,reps:'10'}]},
+    {id:'barbell-deadlift',sets:2,reps:'8'},
+    {id:'barbell-row',sets:2,reps:'8'},
+    {id:'kb-goblet-squat',sets:2,reps:'10'},
+    {id:'shoulder-press',sets:2,reps:'10'}]},
   {day:3,type:'R',label:'Rest Day',exs:[]},
   {day:4,type:'A',label:'Squat & Push',exs:[
-    {id:'barbell-squat',sets:3,reps:'8'},
-    {id:'barbell-bench',sets:3,reps:'8'},
-    {id:'db-rdl',sets:3,reps:'8'},
-    {id:'plank',sets:3,reps:'35s'}]},
+    {id:'barbell-squat',sets:2,reps:'8'},
+    {id:'barbell-bench',sets:2,reps:'8'},
+    {id:'db-rdl',sets:2,reps:'8'},
+    {id:'plank',sets:2,reps:'35s'}]},
   {day:5,type:'B',label:'Hinge & Pull',exs:[
-    {id:'barbell-deadlift',sets:3,reps:'8'},
-    {id:'barbell-row',sets:3,reps:'8'},
-    {id:'kb-goblet-squat',sets:3,reps:'10'},
-    {id:'shoulder-press',sets:3,reps:'10'}]},
+    {id:'barbell-deadlift',sets:2,reps:'8'},
+    {id:'barbell-row',sets:2,reps:'8'},
+    {id:'kb-goblet-squat',sets:2,reps:'10'},
+    {id:'shoulder-press',sets:2,reps:'10'}]},
   {day:6,type:'R',label:'Rest Day',exs:[]},
   {day:7,type:'R',label:'Rest Day',exs:[]},
   // ── WEEK 2 ──────────────────────────────────────────────────────────────────
   {day:8,type:'A',label:'Squat & Push',exs:[
-    {id:'barbell-squat',sets:3,reps:'10'},
-    {id:'barbell-bench',sets:3,reps:'10'},
-    {id:'db-rdl',sets:3,reps:'10'},
-    {id:'plank',sets:3,reps:'40s'}]},
+    {id:'barbell-squat',sets:2,reps:'10'},
+    {id:'barbell-bench',sets:2,reps:'10'},
+    {id:'db-rdl',sets:2,reps:'10'},
+    {id:'plank',sets:2,reps:'40s'}]},
   {day:9,type:'B',label:'Hinge & Pull',exs:[
-    {id:'barbell-deadlift',sets:3,reps:'10'},
-    {id:'barbell-row',sets:3,reps:'10'},
-    {id:'kb-goblet-squat',sets:3,reps:'12'},
-    {id:'shoulder-press',sets:3,reps:'10'}]},
+    {id:'barbell-deadlift',sets:2,reps:'10'},
+    {id:'barbell-row',sets:2,reps:'10'},
+    {id:'kb-goblet-squat',sets:2,reps:'12'},
+    {id:'shoulder-press',sets:2,reps:'10'}]},
   {day:10,type:'R',label:'Rest Day',exs:[]},
   {day:11,type:'A',label:'Squat & Push',exs:[
-    {id:'barbell-squat',sets:3,reps:'10'},
-    {id:'barbell-bench',sets:3,reps:'10'},
-    {id:'db-rdl',sets:3,reps:'10'},
-    {id:'plank',sets:3,reps:'45s'}]},
+    {id:'barbell-squat',sets:2,reps:'10'},
+    {id:'barbell-bench',sets:2,reps:'10'},
+    {id:'db-rdl',sets:2,reps:'10'},
+    {id:'plank',sets:2,reps:'45s'}]},
   {day:12,type:'B',label:'Hinge & Pull',exs:[
-    {id:'barbell-deadlift',sets:3,reps:'10'},
-    {id:'barbell-row',sets:3,reps:'10'},
-    {id:'kb-goblet-squat',sets:3,reps:'12'},
-    {id:'shoulder-press',sets:3,reps:'10'}]},
+    {id:'barbell-deadlift',sets:2,reps:'10'},
+    {id:'barbell-row',sets:2,reps:'10'},
+    {id:'kb-goblet-squat',sets:2,reps:'12'},
+    {id:'shoulder-press',sets:2,reps:'10'}]},
   {day:13,type:'R',label:'Rest Day',exs:[]},
   {day:14,type:'R',label:'Rest Day',exs:[]},
   // ── WEEK 3 ──────────────────────────────────────────────────────────────────
   {day:15,type:'A',label:'Squat & Push',exs:[
-    {id:'barbell-squat',sets:4,reps:'8'},
-    {id:'barbell-bench',sets:4,reps:'8'},
-    {id:'db-rdl',sets:4,reps:'8'},
-    {id:'plank',sets:4,reps:'50s'}]},
+    {id:'barbell-squat',sets:3,reps:'8'},
+    {id:'barbell-bench',sets:3,reps:'8'},
+    {id:'db-rdl',sets:3,reps:'8'},
+    {id:'plank',sets:3,reps:'50s'}]},
   {day:16,type:'B',label:'Hinge & Pull',exs:[
-    {id:'barbell-deadlift',sets:4,reps:'8'},
-    {id:'barbell-row',sets:4,reps:'8'},
-    {id:'kb-goblet-squat',sets:4,reps:'10'},
-    {id:'shoulder-press',sets:4,reps:'8'}]},
+    {id:'barbell-deadlift',sets:3,reps:'8'},
+    {id:'barbell-row',sets:3,reps:'8'},
+    {id:'kb-goblet-squat',sets:3,reps:'10'},
+    {id:'shoulder-press',sets:3,reps:'8'}]},
   {day:17,type:'R',label:'Rest Day',exs:[]},
   {day:18,type:'A',label:'Squat & Push',exs:[
-    {id:'barbell-squat',sets:4,reps:'8'},
-    {id:'barbell-bench',sets:4,reps:'8'},
-    {id:'db-rdl',sets:4,reps:'8'},
-    {id:'plank',sets:4,reps:'55s'}]},
+    {id:'barbell-squat',sets:3,reps:'8'},
+    {id:'barbell-bench',sets:3,reps:'8'},
+    {id:'db-rdl',sets:3,reps:'8'},
+    {id:'plank',sets:3,reps:'55s'}]},
   {day:19,type:'B',label:'Hinge & Pull',exs:[
-    {id:'barbell-deadlift',sets:4,reps:'8'},
-    {id:'barbell-row',sets:4,reps:'8'},
-    {id:'kb-goblet-squat',sets:4,reps:'10'},
-    {id:'shoulder-press',sets:4,reps:'8'}]},
+    {id:'barbell-deadlift',sets:3,reps:'8'},
+    {id:'barbell-row',sets:3,reps:'8'},
+    {id:'kb-goblet-squat',sets:3,reps:'10'},
+    {id:'shoulder-press',sets:3,reps:'8'}]},
   {day:20,type:'R',label:'Rest Day',exs:[]},
   {day:21,type:'R',label:'Rest Day',exs:[]},
   // ── WEEK 4 ──────────────────────────────────────────────────────────────────
   {day:22,type:'A',label:'Squat & Push',exs:[
-    {id:'barbell-squat',sets:4,reps:'10'},
-    {id:'barbell-bench',sets:4,reps:'10'},
-    {id:'db-rdl',sets:4,reps:'10'},
-    {id:'plank',sets:4,reps:'60s'}]},
+    {id:'barbell-squat',sets:3,reps:'10'},
+    {id:'barbell-bench',sets:3,reps:'10'},
+    {id:'db-rdl',sets:3,reps:'10'},
+    {id:'plank',sets:3,reps:'60s'}]},
   {day:23,type:'B',label:'Hinge & Pull',exs:[
-    {id:'barbell-deadlift',sets:4,reps:'10'},
-    {id:'barbell-row',sets:4,reps:'10'},
-    {id:'kb-goblet-squat',sets:4,reps:'12'},
-    {id:'shoulder-press',sets:4,reps:'10'}]},
+    {id:'barbell-deadlift',sets:3,reps:'10'},
+    {id:'barbell-row',sets:3,reps:'10'},
+    {id:'kb-goblet-squat',sets:3,reps:'12'},
+    {id:'shoulder-press',sets:3,reps:'10'}]},
   {day:24,type:'R',label:'Rest Day',exs:[]},
   {day:25,type:'A',label:'Squat & Push',exs:[
-    {id:'barbell-squat',sets:4,reps:'10'},
-    {id:'barbell-bench',sets:4,reps:'10'},
-    {id:'db-rdl',sets:4,reps:'10'},
-    {id:'plank',sets:4,reps:'60s'}]},
+    {id:'barbell-squat',sets:3,reps:'10'},
+    {id:'barbell-bench',sets:3,reps:'10'},
+    {id:'db-rdl',sets:3,reps:'10'},
+    {id:'plank',sets:3,reps:'60s'}]},
   {day:26,type:'B',label:'Hinge & Pull',exs:[
-    {id:'barbell-deadlift',sets:4,reps:'10'},
-    {id:'barbell-row',sets:4,reps:'10'},
-    {id:'kb-goblet-squat',sets:4,reps:'12'},
-    {id:'shoulder-press',sets:4,reps:'10'}]},
+    {id:'barbell-deadlift',sets:3,reps:'10'},
+    {id:'barbell-row',sets:3,reps:'10'},
+    {id:'kb-goblet-squat',sets:3,reps:'12'},
+    {id:'shoulder-press',sets:3,reps:'10'}]},
   {day:27,type:'R',label:'Rest Day',exs:[]},
   {day:28,type:'R',label:'Rest Day',exs:[]},
   // ── FINISH STRONG ───────────────────────────────────────────────────────────
   {day:29,type:'A',label:'Squat & Push',exs:[
-    {id:'barbell-squat',sets:4,reps:'12'},
-    {id:'barbell-bench',sets:4,reps:'12'},
-    {id:'db-rdl',sets:4,reps:'12'},
-    {id:'plank',sets:4,reps:'60s'}]},
+    {id:'barbell-squat',sets:3,reps:'12'},
+    {id:'barbell-bench',sets:3,reps:'12'},
+    {id:'db-rdl',sets:3,reps:'12'},
+    {id:'plank',sets:3,reps:'60s'}]},
   {day:30,type:'B',label:'Hinge & Pull',exs:[
-    {id:'barbell-deadlift',sets:4,reps:'12'},
-    {id:'barbell-row',sets:4,reps:'12'},
-    {id:'kb-goblet-squat',sets:4,reps:'15'},
-    {id:'shoulder-press',sets:4,reps:'12'}]}
+    {id:'barbell-deadlift',sets:3,reps:'12'},
+    {id:'barbell-row',sets:3,reps:'12'},
+    {id:'kb-goblet-squat',sets:3,reps:'15'},
+    {id:'shoulder-press',sets:3,reps:'12'}]}
 ];
 
 // ── SVG ILLUSTRATIONS ────────────────────────────────────────────────────────
@@ -1574,6 +1574,13 @@ async function setupConnect(){
     const existing = loadStateLocal();
     await gistCreate(token, existing);
     S = existing;
+
+    // For a brand-new user with no logged progress, anchor Day 1 to today
+    if(Object.keys(S.progress || {}).length === 0){
+      S.startDate = todayStr();
+      S.currentDay = 1;
+      localStorage.setItem(SK, JSON.stringify(S));
+    }
 
     hideSetup();
     renderToday();
