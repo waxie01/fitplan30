@@ -31,14 +31,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 #app{height:100%;display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative}
 
 /* VIEWS */
-.view{flex:1;overflow-y:auto;overflow-x:hidden;
+.views-track{flex:1;overflow:hidden;position:relative;min-height:0}
+.views-slider{display:flex;width:200%;height:100%;transition:transform 0.32s cubic-bezier(0.4,0,0.2,1);will-change:transform}
+.view{flex:0 0 50%;width:50%;overflow-y:auto;overflow-x:hidden;
   padding-bottom:calc(var(--tab-h) + var(--safe-b) + 16px);
   -webkit-overflow-scrolling:touch}
 .view::-webkit-scrollbar{display:none}
-.view.hidden{display:none}
 
 /* HEADER */
-.header{padding:52px 20px 12px;display:flex;align-items:flex-start;justify-content:space-between}
+.header{padding:16px 20px 12px;display:flex;align-items:flex-start;justify-content:space-between}
 .header-left{display:flex;flex-direction:column;gap:3px}
 .header-eyebrow{font-size:17px;font-weight:700;color:var(--dim);letter-spacing:1.2px;text-transform:uppercase;font-family:'Barlow Condensed',sans-serif}
 .header h1{font-size:38px;font-weight:800;line-height:1.05;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
@@ -284,7 +285,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 /* SYNC STATUS BUTTON */
 .header-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
 .sync-btn{background:transparent;border:none;padding:4px;cursor:pointer;
-  -webkit-tap-highlight-color:transparent;display:flex;align-items:center;
+  -webkit-tap-highlight-color:transparent;display:none;align-items:center;
   justify-content:center;border-radius:8px;transition:opacity 0.2s}
 .sync-icon{width:18px;height:18px;color:var(--dim);transition:color 0.2s}
 .sync-btn.syncing .sync-icon{color:var(--orange);animation:spinSync 1s linear infinite}
@@ -372,6 +373,9 @@ body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
 
 <div id="app">
 
+  <div class="views-track" id="views-track">
+  <div class="views-slider" id="views-slider">
+
   <!-- TODAY VIEW -->
   <div class="view" id="view-today">
     <div class="header">
@@ -452,7 +456,7 @@ body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
   </div>
 
   <!-- PROGRESS VIEW -->
-  <div class="view hidden" id="view-progress">
+  <div class="view" id="view-progress">
     <div class="header">
       <div class="header-left">
         <div class="header-eyebrow">Your Journey</div>
@@ -473,6 +477,9 @@ body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
     </div>
     <div class="cal-grid" id="cal-grid"></div>
   </div>
+
+  </div><!-- /views-slider -->
+  </div><!-- /views-track -->
 
   <!-- TAB BAR -->
   <div class="tab-bar">
@@ -1311,9 +1318,15 @@ function renderProgress(){
 }
 
 // ── TABS ─────────────────────────────────────────────────────────────────────
-function switchTab(t){
-  document.getElementById('view-today').classList.toggle('hidden',t!=='today');
-  document.getElementById('view-progress').classList.toggle('hidden',t!=='progress');
+let _tab='today';
+function switchTab(t,animated=true){
+  _tab=t;
+  const slider=document.getElementById('views-slider');
+  if(slider){
+    slider.style.transition=animated?'':'none';
+    slider.style.transform=t==='today'?'translateX(0%)':'translateX(-50%)';
+    if(!animated) slider.offsetHeight;
+  }
   document.getElementById('tab-today').classList.toggle('active',t==='today');
   document.getElementById('tab-progress').classList.toggle('active',t==='progress');
   if(t==='progress') renderProgress();
@@ -1581,6 +1594,47 @@ async function init(){
     setSyncState('error');
   }
 }
+
+// ── SWIPE NAVIGATION ─────────────────────────────────────────────────────────
+(()=>{
+  let sx=0,sy=0,dir=null,dragging=false;
+  const slider=()=>document.getElementById('views-slider');
+  function baseX(){ return _tab==='today'?0:-50; }
+
+  document.addEventListener('touchstart',e=>{
+    if(document.body.style.overflow==='hidden') return;
+    sx=e.touches[0].clientX; sy=e.touches[0].clientY;
+    dir=null; dragging=true;
+  },{passive:true});
+
+  document.addEventListener('touchmove',e=>{
+    if(!dragging) return;
+    const dx=e.touches[0].clientX-sx, dy=e.touches[0].clientY-sy;
+    if(!dir){ if(Math.abs(dx)>6||Math.abs(dy)>6) dir=Math.abs(dx)>Math.abs(dy)?'h':'v'; return; }
+    if(dir!=='h') return;
+    const s=slider(); if(!s) return;
+    const pct=dx/(window.innerWidth*2)*100;
+    let next=baseX()+pct;
+    if(next>0) next=next*0.2;
+    if(next<-50) next=-50+(next+50)*0.2;
+    s.style.transition='none';
+    s.style.transform=`translateX(${next}%)`;
+  },{passive:true});
+
+  const t=document.getElementById('views-track');
+  if(t) t.addEventListener('touchmove',e=>{ if(dir==='h') e.preventDefault(); },{passive:false});
+
+  document.addEventListener('touchend',e=>{
+    if(!dragging||dir!=='h'){ dragging=false; return; }
+    dragging=false;
+    const dx=e.changedTouches[0].clientX-sx;
+    const s=slider(); if(!s) return;
+    s.style.transition='';
+    if(dx<-50&&_tab==='today') switchTab('progress');
+    else if(dx>50&&_tab==='progress') switchTab('today');
+    else s.style.transform=`translateX(${baseX()}%)`;
+  },{passive:true});
+})();
 
 applyTheme(localStorage.getItem(TH)||'dark');
 init();
