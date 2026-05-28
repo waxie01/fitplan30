@@ -359,28 +359,27 @@ body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
 
 /* REST TIMER PILL */
 .rest-pill{position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 10px);left:50%;
-  width:calc(100% - 32px);max-width:398px;background:var(--card);border:1px solid var(--border);
+  width:calc(100% - 32px);max-width:398px;background:var(--orange);border:none;
   border-radius:16px;overflow:hidden;z-index:50;
-  box-shadow:0 6px 32px rgba(0,0,0,0.3);
+  box-shadow:0 6px 32px rgba(232,101,26,0.5);
   transform:translateX(-50%) translateY(0);
-  transition:transform 0.35s cubic-bezier(0.34,1.2,0.64,1),opacity 0.3s;opacity:1}
+  transition:transform 0.35s cubic-bezier(0.34,1.2,0.64,1),opacity 0.3s,background 0.4s;opacity:1}
 .rest-pill.hidden{transform:translateX(-50%) translateY(140%);opacity:0;pointer-events:none}
 .rest-pill-inner{display:flex;align-items:center;padding:12px 16px;gap:10px}
 .rest-pill-icon{font-size:20px;flex-shrink:0}
-.rest-pill-label{font-size:17px;font-weight:700;color:var(--dim);
+.rest-pill-label{font-size:17px;font-weight:700;color:rgba(255,255,255,0.72);
   font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;flex:1}
-.rest-pill-time{font-size:28px;font-weight:800;color:var(--orange);
+.rest-pill-time{font-size:28px;font-weight:800;color:#fff;
   font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;min-width:50px;text-align:right}
-.rest-pill-skip{background:transparent;border:1px solid var(--border);border-radius:8px;
-  padding:6px 14px;font-size:16px;font-weight:700;color:var(--dim);cursor:pointer;
+.rest-pill-skip{background:rgba(0,0,0,0.15);border:1px solid rgba(255,255,255,0.28);border-radius:8px;
+  padding:6px 14px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;
   font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px;
-  -webkit-tap-highlight-color:transparent;flex-shrink:0;transition:background 0.15s,color 0.15s}
-.rest-pill-skip:active{background:var(--card2);color:var(--text)}
-.rest-pill-bar-track{height:4px;background:var(--orange-dim)}
-.rest-pill-bar{height:100%;background:var(--orange);width:100%;transition:width 1s linear}
-.rest-pill.done .rest-pill-time{color:var(--green)}
-.rest-pill.done .rest-pill-bar{background:var(--green);transition:background 0.4s}
-body.light .rest-pill{box-shadow:0 4px 20px rgba(0,0,0,0.12)}
+  -webkit-tap-highlight-color:transparent;flex-shrink:0;transition:background 0.15s}
+.rest-pill-skip:active{background:rgba(0,0,0,0.28)}
+.rest-pill-bar-track{height:4px;background:rgba(0,0,0,0.2)}
+.rest-pill-bar{height:100%;background:rgba(255,255,255,0.85);width:100%;transition:width 1s linear}
+.rest-pill.done{background:var(--green)}
+body.light .rest-pill{box-shadow:0 4px 24px rgba(232,101,26,0.4)}
 </style>
 </head>
 <body>
@@ -552,7 +551,7 @@ body.light .rest-pill{box-shadow:0 4px 20px rgba(0,0,0,0.12)}
   <div class="rest-pill-inner">
     <span class="rest-pill-icon">⏱</span>
     <span class="rest-pill-label">Rest</span>
-    <span class="rest-pill-time" id="rest-pill-time">1:00</span>
+    <span class="rest-pill-time" id="rest-pill-time">0:30</span>
     <button class="rest-pill-skip" onclick="skipRest()">Skip</button>
   </div>
   <div class="rest-pill-bar-track">
@@ -1265,7 +1264,7 @@ function tapLog(id, cardEl){
     if(navigator.vibrate) navigator.vibrate([12,8,18]);
     spawnBurst(cardEl);
     updateCardInPlace(cardEl, ex, p.sets[id]);
-    if(p.sets[id] < ex.sets) startRestTimer();
+    startRestTimer();
   }
 
   // Update ring + completion banner in-place (no full re-render)
@@ -1419,7 +1418,7 @@ function logSetFromModal(){
       ${ex.weight ? `<div class="modal-stat"><div class="val">${ex.weight}</div><div class="lbl">Lbs</div></div>` : ''}
       <div class="modal-stat"><div class="val">${sc}/${ex.sets}</div><div class="lbl">Done</div></div>`;
     if(navigator.vibrate) navigator.vibrate(25);
-    if(sc < ex.sets) startRestTimer();
+    startRestTimer();
     renderToday();
   }
 }
@@ -1656,7 +1655,7 @@ function launchConfetti(){
 }
 
 // ── REST TIMER ────────────────────────────────────────────────────────────────
-const REST_SECS=60;
+const REST_SECS=30;
 let _restHandle=null,_restRemaining=0;
 function startRestTimer(){
   clearRestTimer();
