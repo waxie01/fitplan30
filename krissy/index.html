@@ -1354,10 +1354,11 @@ function openModal(exId, dayNum){
   document.getElementById('m-title').textContent=def.name;
   document.getElementById('m-desc').textContent=def.desc;
   document.getElementById('m-video').href=def.video;
+  const todayW=isWeightedEx(exId)?((dp(dayNum).weights||{})[exId]??null):null;
   document.getElementById('m-stats').innerHTML=`
     <div class="modal-stat"><div class="val">${ex.sets}</div><div class="lbl">Sets</div></div>
     <div class="modal-stat"><div class="val">${ex.reps}</div><div class="lbl">Reps/Time</div></div>
-    ${ex.weight ? `<div class="modal-stat"><div class="val">${ex.weight}</div><div class="lbl">Lbs</div></div>` : ''}
+    ${todayW!==null?`<div class="modal-stat"><div class="val">${todayW}</div><div class="lbl">Lbs</div></div>`:ex.weight?`<div class="modal-stat"><div class="val">${ex.weight}</div><div class="lbl">Lbs</div></div>`:''}
     <div class="modal-stat"><div class="val">${sc}/${ex.sets}</div><div class="lbl">Done</div></div>`;
   renderModalSets(ex.sets, sc);
   const lastEl=document.getElementById('m-last-weight');
@@ -1395,11 +1396,12 @@ function logSetFromModal(){
   if(p.sets[modalEx]<ex.sets){
     p.sets[modalEx]++; save();
     const sc=p.sets[modalEx];
+    const todayW=isWeightedEx(modalEx)?((dp(modalDay).weights||{})[modalEx]??null):null;
     renderModalSets(ex.sets,sc);
     document.getElementById('m-stats').innerHTML=`
       <div class="modal-stat"><div class="val">${ex.sets}</div><div class="lbl">Sets</div></div>
       <div class="modal-stat"><div class="val">${ex.reps}</div><div class="lbl">Reps/Time</div></div>
-      ${ex.weight ? `<div class="modal-stat"><div class="val">${ex.weight}</div><div class="lbl">Lbs</div></div>` : ''}
+      ${todayW!==null?`<div class="modal-stat"><div class="val">${todayW}</div><div class="lbl">Lbs</div></div>`:ex.weight?`<div class="modal-stat"><div class="val">${ex.weight}</div><div class="lbl">Lbs</div></div>`:''}
       <div class="modal-stat"><div class="val">${sc}/${ex.sets}</div><div class="lbl">Done</div></div>`;
     if(navigator.vibrate) navigator.vibrate(25);
     startRestTimer();
@@ -1673,6 +1675,16 @@ function saveWeight(exId,lbs){
   pd.weights[exId]=val;
   save();
   hideWeightRow(exId);
+  // Update card meta line to show the logged weight
+  const wr=document.getElementById('wr-'+exId);
+  if(wr){
+    const card=wr.closest('.exercise-card');
+    if(card){
+      const wt=card.querySelector('.weight-tag');
+      if(wt){wt.textContent=val+' lbs';}
+      else{const meta=card.querySelector('.exercise-meta');if(meta) meta.innerHTML+=' · <span class="weight-tag">'+val+' lbs</span>';}
+    }
+  }
   if(pr===null||val>pr) upgradePillToPR();
 }
 function showWeightRow(exId){
