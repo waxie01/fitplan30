@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v1.0.3 -->
+<!DOCTYPE html><!-- v1.0.4 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1730,8 +1730,12 @@ function showSettings(){
     <div class="settings-section">
       <div class="settings-label">Manual Sync</div>
       <div class="settings-row">
-        <span class="settings-val">Push local progress to Gist now</span>
-        <button class="settings-pill-btn orange" onclick="closeSettings();syncNow()">Sync Now</button>
+        <span class="settings-val">Load latest progress from Gist</span>
+        <button class="settings-pill-btn" onclick="closeSettings();pullFromGist()">Load from Gist</button>
+      </div>
+      <div class="settings-row" style="margin-top:8px">
+        <span class="settings-val">Push local progress to Gist</span>
+        <button class="settings-pill-btn orange" onclick="closeSettings();syncNow()">Push to Gist</button>
       </div>
     </div>` : ''}
     <div class="settings-section">
@@ -1798,11 +1802,43 @@ async function init(){
       ensureStartDate();
       localStorage.setItem(SK, JSON.stringify(S));
       renderToday(); // refresh with authoritative remote data
+      // Re-render open day drawer so it reflects the latest state from Gist
+      if(_calDayOpen){
+        const label = document.getElementById('cd-daynum')?.textContent||'';
+        const m = label.match(/\d+/);
+        if(m) renderDayDrawer(+m[0]);
+      }
     }
     setSyncState('synced');
     setTimeout(()=>setSyncState('idle'), 3000);
   } catch(e){
     console.warn('Gist load failed, using local cache:', e.message);
+    setSyncState('error');
+  }
+}
+
+// ── PULL FROM GIST ────────────────────────────────────────────────────────────
+async function pullFromGist(){
+  const token=getToken(), gistId=getGistId();
+  if(!token||!gistId) return;
+  setSyncState('syncing');
+  try{
+    const remote = await gistLoad(token, gistId);
+    if(remote){
+      S = remote;
+      ensureStartDate();
+      localStorage.setItem(SK, JSON.stringify(S));
+      renderToday();
+      if(_calDayOpen){
+        const label = document.getElementById('cd-daynum')?.textContent||'';
+        const m = label.match(/\d+/);
+        if(m) renderDayDrawer(+m[0]);
+      }
+    }
+    setSyncState('synced');
+    setTimeout(()=>setSyncState('idle'), 3000);
+  } catch(e){
+    console.warn('Pull from Gist failed:', e.message);
     setSyncState('error');
   }
 }
