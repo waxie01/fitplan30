@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v1.0.5 -->
+<!DOCTYPE html><!-- v1.0.6 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1017,10 +1017,45 @@ let modalEx = null, modalDay = null;
 // ── REAL-DATE MAPPING ────────────────────────────────────────────────────────
 function ensureStartDate(){
   if(S.startDate) return;
+  // Primary: anchor on the most recent completedDate (most accurate — avoids
+  // off-by-N errors that arise when currentDay has run ahead of the calendar).
+  for(let d=30;d>=1;d--){
+    const p=S.progress&&S.progress[d];
+    if(p&&p.done&&p.completedDate){
+      const [cy,cm,cd]=p.completedDate.split('-').map(Number);
+      const base=new Date(cy,cm-1,cd); base.setDate(base.getDate()-(d-1));
+      S.startDate=base.toISOString().split('T')[0];
+      localStorage.setItem(SK,JSON.stringify(S));
+      return;
+    }
+  }
+  // Fallback: estimate from currentDay and today (only accurate when you're
+  // exactly on track — may be off if you're ahead or behind).
   const today=new Date(); today.setHours(0,0,0,0);
   const base=new Date(today); base.setDate(base.getDate()-(S.currentDay-1));
   S.startDate=base.toISOString().split('T')[0];
   localStorage.setItem(SK,JSON.stringify(S));
+}
+// Cross-check an existing startDate against completedDate evidence.
+// If the stored startDate is off by ≥2 days from what completedDates imply,
+// correct it — this fixes a stale/wrong startDate without touching valid ones.
+function verifyStartDate(){
+  if(!S.startDate) return;
+  for(let d=30;d>=1;d--){
+    const p=S.progress&&S.progress[d];
+    if(p&&p.done&&p.completedDate){
+      const [cy,cm,cd]=p.completedDate.split('-').map(Number);
+      const impliedDt=new Date(cy,cm-1,cd); impliedDt.setDate(impliedDt.getDate()-(d-1));
+      const [sy,sm,sd]=S.startDate.split('-').map(Number);
+      const startDt=new Date(sy,sm-1,sd);
+      const diffDays=Math.round(Math.abs(startDt-impliedDt)/86400000);
+      if(diffDays>=2){
+        S.startDate=impliedDt.toISOString().split('T')[0];
+        localStorage.setItem(SK,JSON.stringify(S));
+      }
+      return; // only verify against the most recent completedDate
+    }
+  }
 }
 function planDate(dayNum){
   ensureStartDate();
@@ -1702,6 +1737,7 @@ async function setupConnect(){
       localStorage.setItem(GK, existingGistId);
       S = remote;
       ensureStartDate();
+      verifyStartDate();
       localStorage.setItem(SK, JSON.stringify(S));
     } else {
       // Fresh setup — create a new Gist from current local state
@@ -1798,6 +1834,7 @@ async function init(){
   }
 
   ensureStartDate();
+  verifyStartDate(); // correct a stale/wrong startDate before first render
   // Render immediately from local cache — no loading screen
   renderToday();
 
@@ -1819,6 +1856,7 @@ async function init(){
     if(remote){
       S = remote;
       ensureStartDate();
+      verifyStartDate();
       localStorage.setItem(SK, JSON.stringify(S));
       renderToday(); // refresh with authoritative remote data
       // Re-render open day drawer so it reflects the latest state from Gist
@@ -1846,6 +1884,7 @@ async function pullFromGist(){
     if(remote){
       S = remote;
       ensureStartDate();
+      verifyStartDate();
       localStorage.setItem(SK, JSON.stringify(S));
       renderToday();
       if(_calDayOpen){
