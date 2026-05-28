@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v1.0.4 -->
+<!DOCTYPE html><!-- v1.0.5 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -381,6 +381,9 @@ body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
     <div class="token-row">
       <input class="token-input" id="token-input" type="password" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" spellcheck="false"/>
       <button class="setup-connect-btn" id="setup-btn" onclick="setupConnect()">Connect</button>
+    </div>
+    <div style="margin-top:12px">
+      <input class="token-input" id="gist-id-input" type="text" placeholder="Existing Gist ID (optional — to reconnect)" autocomplete="off" spellcheck="false" style="width:100%;box-sizing:border-box"/>
     </div>
     <div class="setup-error" id="setup-error"></div>
     <p class="setup-note">Your token is stored only in this browser and used solely to sync your workout data. It is never sent anywhere other than api.github.com.</p>
@@ -1124,6 +1127,10 @@ function updateRing(done, total){
 function checkComplete(){
   const plan = PLAN[S.currentDay-1];
   const banner = document.getElementById('complete-banner');
+  // Don't allow completing a day whose plan date is still in the future
+  const pDt=planDate(S.currentDay); pDt.setHours(0,0,0,0);
+  const tod=new Date(); tod.setHours(0,0,0,0);
+  if(tod<pDt){ banner.classList.remove('show'); return; }
   let allDone = plan.type==='R';
   if(!allDone){
     allDone = plan.exs.length>0 && plan.exs.every(ex => setsFor(S.currentDay,ex.id)>=ex.sets);
@@ -1669,10 +1676,12 @@ function hideSetup(){
 }
 
 async function setupConnect(){
-  const input = document.getElementById('token-input');
-  const btn   = document.getElementById('setup-btn');
-  const errEl = document.getElementById('setup-error');
-  const token = input.value.trim();
+  const input   = document.getElementById('token-input');
+  const gistIn  = document.getElementById('gist-id-input');
+  const btn     = document.getElementById('setup-btn');
+  const errEl   = document.getElementById('setup-error');
+  const token   = input.value.trim();
+  const existingGistId = gistIn ? gistIn.value.trim() : '';
   if(!token){ errEl.textContent='Please paste your token first.'; return; }
 
   btn.disabled=true; btn.textContent='Connecting…'; errEl.textContent='';
@@ -1686,10 +1695,20 @@ async function setupConnect(){
 
     localStorage.setItem(TK, token);
 
-    // Migrate any existing local progress into the new Gist
-    const existing = loadStateLocal();
-    await gistCreate(token, existing);
-    S = existing;
+    if(existingGistId){
+      // Reconnect to an existing Gist — load its state
+      const remote = await gistLoad(token, existingGistId);
+      if(!remote) throw new Error('Could not load Gist — check the ID and try again.');
+      localStorage.setItem(GK, existingGistId);
+      S = remote;
+      ensureStartDate();
+      localStorage.setItem(SK, JSON.stringify(S));
+    } else {
+      // Fresh setup — create a new Gist from current local state
+      const existing = loadStateLocal();
+      await gistCreate(token, existing);
+      S = existing;
+    }
 
     hideSetup();
     renderToday();
