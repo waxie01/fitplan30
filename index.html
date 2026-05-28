@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v1.0.7 -->
+<!DOCTYPE html><!-- v1.0.8 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -332,7 +332,7 @@ body,body>*,.card,.ex-card,.nav-bar,.nav-btn,.type-pill,.cal-cell,.month-hdr,.da
 
 /* THEME TOGGLE */
 .theme-toggle{display:flex;align-items:center;background:var(--card2);
-  border:1px solid var(--border);border-radius:999px;padding:3px;gap:2px}
+  border:1px solid var(--border);border-radius:999px;padding:3px;gap:2px;cursor:pointer}
 .theme-btn{width:28px;height:28px;border:none;border-radius:999px;background:transparent;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
   color:var(--dim);-webkit-tap-highlight-color:transparent;padding:0;
@@ -449,8 +449,8 @@ body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
         <div class="dot"></div>
         <span id="type-label">Chest &amp; Arms</span>
       </div>
-      <div class="theme-toggle">
-        <button class="theme-btn" id="btn-light" onclick="setTheme('light')" aria-label="Light mode">
+      <div class="theme-toggle" onclick="toggleTheme()">
+        <button class="theme-btn" id="btn-light" aria-label="Light mode">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
             <circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
             <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
@@ -458,7 +458,7 @@ body.light .cal-cell.no-plan.real-today{border-color:rgba(0,0,0,0.12)}
             <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
           </svg>
         </button>
-        <button class="theme-btn" id="btn-dark" onclick="setTheme('dark')" aria-label="Dark mode">
+        <button class="theme-btn" id="btn-dark" aria-label="Dark mode">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
           </svg>
@@ -1622,6 +1622,7 @@ function applyTheme(t){
   if(bd) bd.classList.toggle('active',t==='dark');
 }
 function setTheme(t){ localStorage.setItem(TH,t); applyTheme(t); }
+function toggleTheme(){ setTheme(document.body.classList.contains('light')?'dark':'light'); }
 
 // ── GITHUB GIST SYNC ─────────────────────────────────────────────────────────
 const TK = 'fp30_token';
