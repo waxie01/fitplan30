@@ -1369,7 +1369,9 @@ function renderDayDrawer(dayNum){
   // Show "mark complete" only for the current behind day
   const markBtn=document.getElementById('cd-mark-btn');
   if(markBtn){
-    const showMark=dayNum===S.currentDay&&daysBehind()>0&&!dp(dayNum).done;
+    const pDt=planDate(dayNum); pDt.setHours(0,0,0,0);
+    const tod=new Date(); tod.setHours(0,0,0,0);
+    const showMark=dayNum===S.currentDay&&tod>pDt&&!(S.progress[dayNum]&&S.progress[dayNum].done);
     markBtn.classList.toggle('hidden',!showMark);
   }
   const list=document.getElementById('cd-list');
