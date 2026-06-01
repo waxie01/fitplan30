@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f0f1a">
 <title>FitPlan — Krissy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -403,7 +404,7 @@ body.light .rest-pill.pr{box-shadow:0 4px 24px rgba(232,153,10,0.5);}
 </style>
 </head>
 <body>
-<script>document.body.classList.toggle('light',localStorage.getItem('fp30_theme')==='light')</script>
+<script>var _ft=localStorage.getItem('fp30_theme');document.body.classList.toggle('light',_ft==='light');var _fm=document.querySelector('meta[name="theme-color"]');if(_fm)_fm.content=_ft==='light'?'#f4f3ef':'#0f0f1a'</script>
 <canvas id="confetti"></canvas>
 
 <!-- SETUP SCREEN -->
@@ -1771,6 +1772,8 @@ function applyTheme(t){
   const bl=document.getElementById('btn-light'),bd=document.getElementById('btn-dark');
   if(bl) bl.classList.toggle('active',t==='light');
   if(bd) bd.classList.toggle('active',t==='dark');
+  const tc=document.querySelector('meta[name="theme-color"]');
+  if(tc) tc.content=t==='light'?'#f4f3ef':'#0f0f1a';
 }
 function setTheme(t){ localStorage.setItem(TH,t); applyTheme(t); }
 function toggleTheme(){ setTheme(document.body.classList.contains('light')?'dark':'light'); }
