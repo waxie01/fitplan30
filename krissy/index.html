@@ -1255,7 +1255,7 @@ function tapLog(id, cardEl){
   spawnBurst(cardEl);
   updateCardInPlace(cardEl, ex, p.sets[id]);
   const _lastWeightedSet = p.sets[id]>=ex.sets && isWeightedEx(id);
-  if(!_lastWeightedSet) startRestTimer();
+  if(!_lastWeightedSet) startRestTimer(id);
   if(_lastWeightedSet) showWeightRow(id);
 
   // Update ring + completion banner in-place (no full re-render)
@@ -1532,7 +1532,7 @@ function logSetFromModal(){
       ${todayW!==null?`<div class="modal-stat"><div class="val">${todayW}</div><div class="lbl">Lbs</div></div>`:ex.weight?`<div class="modal-stat"><div class="val">${ex.weight}</div><div class="lbl">Lbs</div></div>`:''}
       <div class="modal-stat"><div class="val">${sc}/${ex.sets}</div><div class="lbl">Done</div></div>`;
     if(navigator.vibrate) navigator.vibrate(25);
-    startRestTimer();
+    startRestTimer(modalEx);
     renderToday();
   }
 }
@@ -1837,11 +1837,11 @@ function upgradePillToPR(){
 }
 
 // ── REST TIMER ────────────────────────────────────────────────────────────────
-const REST_SECS=30;
-let _restHandle=null,_restRemaining=0;
-function startRestTimer(){
+let _restHandle=null,_restRemaining=0,_restTotal=30;
+function startRestTimer(exId){
   clearRestTimer();
-  _restRemaining=REST_SECS;
+  _restTotal = isWeightedEx(exId) ? 60 : 30;
+  _restRemaining=_restTotal;
   const pill=document.getElementById('rest-pill');
   const bar=document.getElementById('rest-pill-bar');
   pill.classList.remove('hidden','done','pr');
@@ -1885,7 +1885,7 @@ function _updateRestPill(){
   document.getElementById('rest-pill-time').textContent=
     mins+':'+String(secs).padStart(2,'0');
   document.getElementById('rest-pill-bar').style.width=
-    (_restRemaining/REST_SECS*100)+'%';
+    (_restRemaining/_restTotal*100)+'%';
 }
 
 // ── THEME ────────────────────────────────────────────────────────────────────
