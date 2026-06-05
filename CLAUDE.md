@@ -76,3 +76,98 @@ function isWeightedEx(exId) { return WEIGHTED_EXS.has(exId); }
 ### Design: exercise card icon changed from kebab (⋮) to circled ⓘ (`index.html` + `krissy/index.html`)
 
 The three-dot menu icon implied actions (edit/delete/share). The button actually opens an info sheet (exercise description, how-to, video) with a secondary "Log Set" capability. Circled ⓘ better represents the primary intent. `aria-label` updated to "Exercise info".
+
+---
+
+## UX backlog — June 5, 2026
+
+Full review of the app experience. Items below are prioritized roughly by impact. Each is a self-contained fix or feature to be built in a future session.
+
+---
+
+### Bug fix: modal "Log Set" still fires rest timer on last weighted set
+
+**Problem:** The fix that suppresses the rest timer on the last set of a weighted exercise only applies to the card-tap path (`tapLog`). `logSetFromModal()` always calls `startRestTimer()`, so the weight entry row + rest timer conflict can still be triggered via the exercise modal.
+
+**Fix:** Apply the same `_lastWeightedSet` guard in `logSetFromModal()` — check if `p.sets[modalEx] >= ex.sets && isWeightedEx(modalEx)` after incrementing, and skip `startRestTimer()` / show weight row accordingly.
+
+**Scope:** `index.html` + `krissy/index.html`
+
+---
+
+### Bug fix / UX: accidental tap-to-reset on completed exercise cards
+
+**Problem:** Tapping a completed card (all sets done, green border, "✓ Done") silently resets it to 0 sets with no warning, no undo, and no visual affordance that this is even possible. A user who finishes their last set and taps the card out of habit loses all their logged work.
+
+**Fix options (pick one):**
+- Require a **long-press** to reset; a normal tap on a complete card does nothing (or shows a brief "hold to undo" hint).
+- Show a **confirmation sheet**: "Reset this exercise?" with Cancel / Reset.
+- Implement **swipe-left to undo last set** as the reset gesture, making it intentional and reversible one-set-at-a-time.
+
+**Scope:** `index.html` + `krissy/index.html`
+
+---
+
+### Feature: built-in countdown for timed exercises
+
+**Problem:** Exercises with time-based reps (Plank × 45s, Mountain Climbers × 30s) show the duration as static text. The user has to self-time, guess, or stare at the phone clock.
+
+**Feature:** When a timed exercise card is tapped to log a set, start a countdown timer matching the exercise's duration (parse `reps` for a trailing `s` — e.g. `'45s'` → 45 seconds). Reuse or extend the existing rest timer pill UI. Timer fires, counts down, then transitions to the rest timer (or ends). The log is recorded when the countdown starts (or when it ends — decide which feels better).
+
+**Scope:** `index.html` + `krissy/index.html`
+
+---
+
+### Feature: adjustable rest timer duration
+
+**Problem:** The rest timer is fixed at 30 seconds. That's appropriate for conditioning circuits but too short for strength sets (conventional rest is 60–90 seconds). David's plan has both types.
+
+**Feature:** Add a rest duration setting in the Settings sheet — e.g. a segmented control: 30s / 60s / 90s / 2 min. Persist in `localStorage`. Optionally, default weighted exercises to 60s and bodyweight to 30s automatically.
+
+**Scope:** `index.html` + `krissy/index.html`
+
+---
+
+### Feature: "Day Complete" as a bottom sheet, not a scroll-to banner
+
+**Problem:** The completion banner ("Day Complete! 🎉") appears below the exercise list, requiring the user to scroll down after finishing the last set. The payoff is buried.
+
+**Feature:** Replace the inline banner with a bottom sheet modal (same pattern as exercise modal / day drawer) that slides up automatically when all sets are logged. Confetti still fires. "Start Day X" button is in the sheet. Dismissing the sheet returns to the (now all-green) exercise list.
+
+**Scope:** `index.html` + `krissy/index.html`
+
+---
+
+### Feature: "Tomorrow's Workout" preview on Today screen
+
+**Feature:** A small preview card at the bottom of the Today view (below the exercise list, above the tab bar padding) showing the next plan day's workout type and exercise list. Label: "Tomorrow · Core & Abs" with the exercises listed. On rest days, say "Tomorrow · Rest Day 😌". Tapping it could navigate to a read-only day drawer for that day.
+
+Helps users pace today's effort, builds anticipation, and makes the plan feel like a program rather than a one-day-at-a-time checklist.
+
+**Scope:** `index.html` + `krissy/index.html`
+
+---
+
+### Feature: personal records (PRs) for weighted exercises
+
+**Problem:** There is already a `.rest-pill.pr` CSS class (gold background, amber glow box-shadow) in the stylesheet — PR detection was anticipated but never wired up.
+
+**Feature:** After saving a weight for a weighted exercise, compare it against the highest weight ever logged for that exercise across all completed days (`S.progress`). If it's a new high, show the PR pill: "New PR! 🏆 You lifted X lbs." Persist per-exercise PR history in state.
+
+**Scope:** `index.html` + `krissy/index.html` (Krissy's version also has weighted exercises)
+
+---
+
+### Feature: week-complete summary on rest days
+
+**Feature:** When the current day is a rest day (Days 7, 14, 21), replace the static "Rest & Recover" card with a week-in-review summary: total sets logged that week, days completed, current streak, and a motivating message. Turns a passive rest day into a milestone moment.
+
+**Scope:** `index.html` + `krissy/index.html`
+
+---
+
+### Feature: per-day notes field
+
+**Feature:** A simple single-line text input at the bottom of each workout day (below the exercise list, above the completion banner) — "Add a note…" placeholder. Saved to `S.progress[day].note`. Surfaced in the calendar day-detail drawer when reviewing past days. Over 30 days this becomes a personal workout journal.
+
+**Scope:** `index.html` + `krissy/index.html`
