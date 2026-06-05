@@ -254,7 +254,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .exercise-card.lp-hold::after{content:'';position:absolute;bottom:0;left:3px;right:0;
   height:3px;background:linear-gradient(90deg,var(--orange),#ff9a42);
   border-radius:0 0 16px 0;transform-origin:left center;transform:scaleX(0);
-  animation:lpFill 0.5s linear forwards}
+  animation:lpFill 0.35s linear forwards}
 @keyframes lpFill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 /* Shake — nothing to undo */
 @keyframes cardShake{
@@ -1337,15 +1337,17 @@ function spawnBurst(cardEl){
 
 // ── LONG-PRESS TO UNDO A SET ─────────────────────────────────────────────────
 function initLongPress(cardEl, ex){
-  let lpTimer = null;
+  let lpVisualTimer = null;
+  let lpActionTimer = null;
   let startX = 0, startY = 0;
 
   function startPress(x, y, target){
     if(target.closest('.ex-menu-btn') || target.closest('.weight-row')) return;
     startX = x; startY = y;
-    cardEl.classList.add('lp-hold');
-    lpTimer = setTimeout(()=>{
-      lpTimer = null;
+    // 150ms dead zone — filters out normal taps before showing any feedback
+    lpVisualTimer = setTimeout(()=>{ cardEl.classList.add('lp-hold'); }, 150);
+    lpActionTimer = setTimeout(()=>{
+      lpActionTimer = null;
       cardEl.classList.remove('lp-hold');
       _lpFiredAt[ex.id] = Date.now();
       handleLongPress(ex.id, cardEl, ex);
@@ -1353,7 +1355,8 @@ function initLongPress(cardEl, ex){
   }
 
   function cancelPress(){
-    if(lpTimer){ clearTimeout(lpTimer); lpTimer = null; }
+    if(lpVisualTimer){ clearTimeout(lpVisualTimer); lpVisualTimer = null; }
+    if(lpActionTimer){ clearTimeout(lpActionTimer); lpActionTimer = null; }
     cardEl.classList.remove('lp-hold');
   }
 
