@@ -249,6 +249,22 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 /* Dot pop */
 @keyframes popDot{0%{transform:scale(1)}50%{transform:scale(1.6)}100%{transform:scale(1)}}
 .set-dot.pop{animation:popDot 0.3s cubic-bezier(0.34,1.6,0.64,1)}
+/* Long-press hold — orange progress bar fills along card bottom */
+.exercise-card.lp-hold{border-color:rgba(232,101,26,0.5)}
+.exercise-card.lp-hold::after{content:'';position:absolute;bottom:0;left:3px;right:0;
+  height:3px;background:linear-gradient(90deg,var(--orange),#ff9a42);
+  border-radius:0 0 16px 0;transform-origin:left center;transform:scaleX(0);
+  animation:lpFill 0.5s linear forwards}
+@keyframes lpFill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+/* Shake — nothing to undo */
+@keyframes cardShake{
+  0%,100%{transform:translateX(0)}
+  15%{transform:translateX(-7px)}30%{transform:translateX(7px)}
+  45%{transform:translateX(-5px)}60%{transform:translateX(5px)}
+  75%{transform:translateX(-3px)}90%{transform:translateX(3px)}}
+/* Un-pop dot (set removed) */
+@keyframes unpopDot{0%{transform:scale(1)}40%{transform:scale(0.2)}100%{transform:scale(1)}}
+.set-dot.unpop{animation:unpopDot 0.3s cubic-bezier(0.34,1.6,0.64,1)}
 #confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200}
 
 /* SETUP SCREEN */
@@ -1022,6 +1038,7 @@ function calcStreak(){
 let S = loadStateLocal();
 let modalEx = null, modalDay = null;
 const _wRowHiddenAt = {};
+const _lpFiredAt = {};
 
 // ── REAL-DATE MAPPING ────────────────────────────────────────────────────────
 function ensureStartDate(){
@@ -1130,8 +1147,10 @@ function renderToday(){
       if(e.target.closest('.ex-menu-btn')) return;
       if(e.target.closest('.weight-row')) return;
       if(_wRowHiddenAt[ex.id] && Date.now()-_wRowHiddenAt[ex.id] < 300) return;
+      if(_lpFiredAt[ex.id] && Date.now()-_lpFiredAt[ex.id] < 600) return;
       tapLog(ex.id, card);
     };
+    initLongPress(card, ex);
     card.innerHTML = `
       <div class="ex-card-inner">
         <div class="ex-card-main">
@@ -1219,6 +1238,9 @@ function tapLog(id, cardEl){
   const p = dp(S.currentDay);
   if(!p.sets[id]) p.sets[id]=0;
 
+  // All sets already done — tap does nothing; long-press removes a set
+  if(p.sets[id] >= ex.sets) return;
+
   // Punch animation — reset to none first so rapid taps always restart cleanly.
   // Leave the inline style set (don't clear on animationend) so fadeUp never
   // re-triggers and causes the card to flash invisible.
@@ -1226,29 +1248,15 @@ function tapLog(id, cardEl){
   void cardEl.offsetWidth; // force reflow
   cardEl.style.animation = 'cardPunch 0.4s cubic-bezier(0.34,1.5,0.64,1) forwards';
 
-  if(p.sets[id] >= ex.sets){
-    // ── RESET ── tap beyond completion clears the exercise
-    skipRest();
-    hideWeightRow(id);
-    p.sets[id] = 0;
-    if(dp(S.currentDay).done){
-      dp(S.currentDay).done = false;
-      dp(S.currentDay).completedDate = null;
-    }
-    save();
-    if(navigator.vibrate) navigator.vibrate(20);
-    resetCardInPlace(cardEl, ex);
-  } else {
-    // ── LOG SET ──
-    p.sets[id]++;
-    save();
-    if(navigator.vibrate) navigator.vibrate([12,8,18]);
-    spawnBurst(cardEl);
-    updateCardInPlace(cardEl, ex, p.sets[id]);
-    const _lastWeightedSet = p.sets[id]>=ex.sets && isWeightedEx(id);
-    if(!_lastWeightedSet) startRestTimer();
-    if(_lastWeightedSet) showWeightRow(id);
-  }
+  // ── LOG SET ──
+  p.sets[id]++;
+  save();
+  if(navigator.vibrate) navigator.vibrate([12,8,18]);
+  spawnBurst(cardEl);
+  updateCardInPlace(cardEl, ex, p.sets[id]);
+  const _lastWeightedSet = p.sets[id]>=ex.sets && isWeightedEx(id);
+  if(!_lastWeightedSet) startRestTimer();
+  if(_lastWeightedSet) showWeightRow(id);
 
   // Update ring + completion banner in-place (no full re-render)
   let total=0, doneCount=0;
@@ -1258,13 +1266,6 @@ function tapLog(id, cardEl){
   });
   updateRing(doneCount, total);
   checkComplete();
-}
-
-function resetCardInPlace(cardEl, ex){
-  cardEl.querySelectorAll('.set-dot').forEach(dot=>dot.classList.remove('done','pop'));
-  const label = cardEl.querySelector('.set-counter, .done-label');
-  if(label){ label.className='set-counter'; label.textContent='Set 1 of '+ex.sets; }
-  cardEl.classList.remove('complete');
 }
 
 function updateCardInPlace(cardEl, ex, newSc){
@@ -1334,6 +1335,125 @@ function spawnBurst(cardEl){
   setTimeout(()=>{ wrap.remove(); plus.remove(); }, 820);
 }
 
+// ── LONG-PRESS TO UNDO A SET ─────────────────────────────────────────────────
+function initLongPress(cardEl, ex){
+  let lpTimer = null;
+  let startX = 0, startY = 0;
+
+  function startPress(x, y, target){
+    if(target.closest('.ex-menu-btn') || target.closest('.weight-row')) return;
+    startX = x; startY = y;
+    cardEl.classList.add('lp-hold');
+    lpTimer = setTimeout(()=>{
+      lpTimer = null;
+      cardEl.classList.remove('lp-hold');
+      _lpFiredAt[ex.id] = Date.now();
+      handleLongPress(ex.id, cardEl, ex);
+    }, 500);
+  }
+
+  function cancelPress(){
+    if(lpTimer){ clearTimeout(lpTimer); lpTimer = null; }
+    cardEl.classList.remove('lp-hold');
+  }
+
+  cardEl.addEventListener('contextmenu', e=>e.preventDefault());
+  cardEl.addEventListener('touchstart', (e)=>{
+    const t = e.touches[0];
+    startPress(t.clientX, t.clientY, e.target);
+  }, {passive:true});
+  cardEl.addEventListener('touchmove', (e)=>{
+    const t = e.touches[0];
+    if(Math.abs(t.clientX-startX)>8 || Math.abs(t.clientY-startY)>8) cancelPress();
+  }, {passive:true});
+  cardEl.addEventListener('touchend', cancelPress);
+  cardEl.addEventListener('touchcancel', cancelPress);
+  cardEl.addEventListener('mousedown', (e)=>{
+    if(e.button !== 0) return;
+    startPress(e.clientX, e.clientY, e.target);
+  });
+  cardEl.addEventListener('mouseup', cancelPress);
+  cardEl.addEventListener('mouseleave', cancelPress);
+}
+
+function handleLongPress(id, cardEl, ex){
+  const p = dp(S.currentDay);
+  const currentSets = p.sets[id] || 0;
+
+  if(currentSets <= 0){
+    // Nothing to undo — shake the card "no"
+    cardEl.style.animation = 'none';
+    void cardEl.offsetWidth;
+    cardEl.style.animation = 'cardShake 0.45s cubic-bezier(0.36,0.07,0.19,0.97) both';
+    if(navigator.vibrate) navigator.vibrate(50);
+    return;
+  }
+
+  // Decrement one set
+  p.sets[id]--;
+  skipRest();
+  hideWeightRow(id);
+  if(dp(S.currentDay).done){
+    dp(S.currentDay).done = false;
+    dp(S.currentDay).completedDate = null;
+  }
+  save();
+  if(navigator.vibrate) navigator.vibrate([8,4,8]);
+
+  // Brief reverse-punch so the removal feels distinct
+  cardEl.style.animation = 'none';
+  void cardEl.offsetWidth;
+  cardEl.style.animation = 'cardPunch 0.35s cubic-bezier(0.34,1.5,0.64,1) forwards';
+
+  spawnMinus(cardEl);
+  removeSetFromCard(cardEl, ex, p.sets[id]);
+
+  const plan = PLAN[S.currentDay-1];
+  let total=0, doneCount=0;
+  plan.exs.forEach(e=>{
+    total += e.sets;
+    doneCount += Math.min(setsFor(S.currentDay, e.id), e.sets);
+  });
+  updateRing(doneCount, total);
+  checkComplete();
+}
+
+function spawnMinus(cardEl){
+  const rect = cardEl.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const _lt = document.body.classList.contains('light');
+  const minus = document.createElement('div');
+  minus.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;
+    transform:translate(-50%,-50%);
+    font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;
+    color:${_lt ? '#8888aa' : 'var(--dim)'};pointer-events:none;z-index:301;
+    animation:floatUp 0.6s ease-out forwards;
+    text-shadow:0 2px 8px ${_lt ? 'rgba(0,0,0,0.15)' : 'rgba(0,0,0,0.5)'}`;
+  minus.textContent = '−1';
+  document.body.appendChild(minus);
+  setTimeout(()=>minus.remove(), 680);
+}
+
+function removeSetFromCard(cardEl, ex, newSc){
+  // Animate the dot that was just removed back to empty
+  const dots = cardEl.querySelectorAll('.set-dot');
+  const removedDot = dots[newSc];
+  if(removedDot && removedDot.classList.contains('done')){
+    removedDot.classList.add('unpop');
+    removedDot.addEventListener('animationend', ()=>{
+      removedDot.classList.remove('done','unpop');
+    }, {once:true});
+  }
+  // Update counter text
+  const counter = cardEl.querySelector('.set-counter, .done-label');
+  if(counter){
+    counter.className = 'set-counter';
+    counter.textContent = 'Set '+(newSc+1)+' of '+ex.sets;
+  }
+  // Strip complete styling
+  cardEl.classList.remove('complete');
+}
 
 function advanceDay(){
   skipRest();
