@@ -1296,8 +1296,9 @@ function tapLog(id, cardEl){
     if(navigator.vibrate) navigator.vibrate([12,8,18]);
     spawnBurst(cardEl);
     updateCardInPlace(cardEl, ex, p.sets[id]);
-    startRestTimer();
-    if(p.sets[id]>=ex.sets && isWeightedEx(id)) showWeightRow(id);
+    const _lastWeightedSet = p.sets[id]>=ex.sets && isWeightedEx(id);
+    if(!_lastWeightedSet) startRestTimer();
+    if(_lastWeightedSet) showWeightRow(id);
   }
 
   // Update ring + completion banner in-place (no full re-render)
