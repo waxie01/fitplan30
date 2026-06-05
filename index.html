@@ -1696,14 +1696,11 @@ function launchConfetti(){
 }
 
 // ── WEIGHT TRACKING ──────────────────────────────────────────────────────────
-function isWeightedEx(exId){
-  for(const day of PLAN){
-    if(day.type==='R') continue;
-    const ex=day.exs.find(e=>e.id===exId);
-    if(ex) return !String(ex.reps).endsWith('s');
-  }
-  return true;
-}
+const WEIGHTED_EXS = new Set([
+  'db-bench-press','db-flyes','bicep-curls','hammer-curls',
+  'concentration-curls','tricep-extensions','shoulder-press','lateral-raises'
+]);
+function isWeightedEx(exId){ return WEIGHTED_EXS.has(exId); }
 function getLastWeight(exId){
   for(let d=S.currentDay-1;d>=1;d--){
     const p=S.progress[d];
