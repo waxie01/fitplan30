@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v1.3.0 -->
+<!DOCTYPE html><!-- v1.3.1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -729,16 +729,22 @@ const EX = {
     video:'https://www.youtube.com/results?search_query=seated+cable+row+proper+form+tutorial'},
   'tricep-pushdown':{name:'Tricep Pushdown',muscle:'Triceps',emoji:'↓',illus:'overhead',
     desc:'Stand at a cable machine with pulley set high. Keep elbows pinned to your sides and push the bar down until arms are fully extended, squeezing the triceps hard at the bottom. Return slowly with control.',
-    video:'https://www.youtube.com/results?search_query=tricep+cable+pushdown+proper+form+tutorial'}
+    video:'https://www.youtube.com/results?search_query=tricep+cable+pushdown+proper+form+tutorial'},
+  'barbell-row':{name:'Barbell Bent-Over Row',muscle:'Back & Lats',emoji:'🚣',illus:'row',
+    desc:'Stand with feet hip-width, hinge forward to about 45° with a flat back, grip the bar just outside shoulder-width. Pull the bar to your lower rib cage, driving elbows back and squeezing your shoulder blades. Lower with control — do not round your spine.',
+    video:'https://www.youtube.com/results?search_query=barbell+bent+over+row+proper+form+tutorial'},
+  'kb-swing':{name:'Kettlebell Swing',muscle:'Posterior Chain & Cardio',emoji:'🔔',illus:'cardio',
+    desc:'Hinge at the hips with the KB between your feet, hike it back, then drive your hips forward explosively to swing the KB to chest height. Power comes from the hip snap, not your arms. Squeeze your glutes hard at the top and let the KB float briefly before hinging back.',
+    video:'https://www.youtube.com/results?search_query=kettlebell+swing+proper+form+tutorial'}
 };
 
 // ── 30-DAY PLAN ──────────────────────────────────────────────────────────────
-// type: A=Chest+Back, B=Core, C=Cardio+Arms+Shoulders, R=Rest
+// type: A=Chest+Back, B=Core, C=KB+Arms+Shoulders, R=Rest
 const PLAN = [
   // WEEK 1 — Foundation (2 sets, dialing in form)
   {day:1,type:'A',label:'Chest & Back',exs:[
     {id:'barbell-bench',sets:2,reps:'10',weight:95},
-    {id:'lat-pulldown',sets:2,reps:'10',weight:70},
+    {id:'barbell-row',sets:2,reps:'10',weight:75},
     {id:'bicep-curls',sets:2,reps:'10',weight:17.5},
     {id:'tricep-dips',sets:2,reps:'10'}
   ]},
@@ -748,14 +754,14 @@ const PLAN = [
     {id:'russian-twists',sets:2,reps:'15'},
     {id:'mountain-climbers',sets:2,reps:'20'}
   ]},
-  {day:3,type:'C',label:'Cardio & Shoulders',exs:[
-    {id:'elliptical',sets:1,reps:'15 min'},
+  {day:3,type:'C',label:'KB & Shoulders',exs:[
+    {id:'kb-swing',sets:3,reps:'15'},
     {id:'hammer-curls',sets:2,reps:'10',weight:17.5},
     {id:'lateral-raises',sets:2,reps:'10',weight:10}
   ]},
   {day:4,type:'A',label:'Chest & Back',exs:[
     {id:'barbell-bench',sets:2,reps:'12',weight:95},
-    {id:'cable-row',sets:2,reps:'10',weight:70},
+    {id:'barbell-row',sets:2,reps:'12',weight:75},
     {id:'bicep-curls',sets:2,reps:'12',weight:17.5},
     {id:'tricep-dips',sets:2,reps:'12'}
   ]},
@@ -765,17 +771,17 @@ const PLAN = [
     {id:'bicycle-crunches',sets:2,reps:'15'},
     {id:'russian-twists',sets:2,reps:'20'}
   ]},
-  {day:6,type:'C',label:'Cardio & Shoulders',exs:[
-    {id:'elliptical',sets:1,reps:'18 min'},
+  {day:6,type:'C',label:'KB & Shoulders',exs:[
+    {id:'kb-swing',sets:3,reps:'20'},
     {id:'hammer-curls',sets:2,reps:'12',weight:17.5},
     {id:'shoulder-press',sets:2,reps:'10',weight:20}
   ]},
   {day:7,type:'R',label:'Rest Day',exs:[]},
 
-  // WEEK 2 — Building (3 sets, introduce cables)
+  // WEEK 2 — Building (3 sets, adding volume)
   {day:8,type:'A',label:'Chest & Back',exs:[
     {id:'barbell-bench',sets:3,reps:'8',weight:105},
-    {id:'lat-pulldown',sets:3,reps:'10',weight:75},
+    {id:'barbell-row',sets:3,reps:'8',weight:85},
     {id:'bicep-curls',sets:3,reps:'10',weight:17.5},
     {id:'tricep-extensions',sets:3,reps:'10',weight:20}
   ]},
@@ -785,15 +791,15 @@ const PLAN = [
     {id:'russian-twists',sets:3,reps:'20'},
     {id:'mountain-climbers',sets:2,reps:'25'}
   ]},
-  {day:10,type:'C',label:'Cardio & Shoulders',exs:[
-    {id:'elliptical',sets:1,reps:'20 min'},
+  {day:10,type:'C',label:'KB & Shoulders',exs:[
+    {id:'kb-swing',sets:3,reps:'20'},
     {id:'hammer-curls',sets:3,reps:'10',weight:17.5},
     {id:'lateral-raises',sets:3,reps:'10',weight:10}
   ]},
   {day:11,type:'A',label:'Chest & Back',exs:[
     {id:'incline-bench',sets:3,reps:'8',weight:85},
-    {id:'cable-row',sets:3,reps:'10',weight:75},
-    {id:'tricep-pushdown',sets:3,reps:'12',weight:40},
+    {id:'barbell-row',sets:3,reps:'10',weight:85},
+    {id:'tricep-extensions',sets:3,reps:'12',weight:20},
     {id:'hammer-curls',sets:2,reps:'12',weight:17.5}
   ]},
   {day:12,type:'B',label:'Core & Abs',exs:[
@@ -803,7 +809,7 @@ const PLAN = [
     {id:'russian-twists',sets:2,reps:'20'}
   ]},
   {day:13,type:'C',label:'Active Recovery',exs:[
-    {id:'elliptical',sets:1,reps:'20 min'},
+    {id:'kb-swing',sets:3,reps:'20'},
     {id:'lateral-raises',sets:2,reps:'12',weight:10},
     {id:'plank',sets:2,reps:'45s'}
   ]},
@@ -813,8 +819,8 @@ const PLAN = [
   {day:15,type:'A',label:'Chest & Back',exs:[
     {id:'barbell-bench',sets:3,reps:'10',weight:110},
     {id:'incline-bench',sets:3,reps:'8',weight:90},
-    {id:'lat-pulldown',sets:3,reps:'12',weight:80},
-    {id:'tricep-pushdown',sets:3,reps:'12',weight:45}
+    {id:'barbell-row',sets:3,reps:'10',weight:90},
+    {id:'tricep-extensions',sets:3,reps:'12',weight:22.5}
   ]},
   {day:16,type:'B',label:'Core & Abs',exs:[
     {id:'plank',sets:3,reps:'50s'},
@@ -822,18 +828,18 @@ const PLAN = [
     {id:'leg-raises',sets:3,reps:'15'},
     {id:'mountain-climbers',sets:3,reps:'25'}
   ]},
-  {day:17,type:'C',label:'Cardio & Shoulders',exs:[
-    {id:'elliptical',sets:1,reps:'25 min'},
+  {day:17,type:'C',label:'KB & Shoulders',exs:[
+    {id:'kb-swing',sets:4,reps:'20'},
     {id:'hammer-curls',sets:3,reps:'12',weight:20},
     {id:'lateral-raises',sets:3,reps:'12',weight:12},
     {id:'shoulder-press',sets:2,reps:'12',weight:20}
   ]},
   {day:18,type:'A',label:'Chest & Back',exs:[
     {id:'barbell-bench',sets:4,reps:'8',weight:115},
-    {id:'cable-fly',sets:3,reps:'12',weight:20},
-    {id:'cable-row',sets:3,reps:'12',weight:80},
+    {id:'db-flyes',sets:3,reps:'12',weight:17.5},
+    {id:'barbell-row',sets:4,reps:'8',weight:95},
     {id:'bicep-curls',sets:3,reps:'12',weight:20},
-    {id:'tricep-pushdown',sets:3,reps:'12',weight:45}
+    {id:'tricep-extensions',sets:3,reps:'12',weight:22.5}
   ]},
   {day:19,type:'B',label:'Core & Abs',exs:[
     {id:'plank',sets:3,reps:'60s'},
@@ -841,8 +847,8 @@ const PLAN = [
     {id:'bicycle-crunches',sets:3,reps:'20'},
     {id:'leg-raises',sets:3,reps:'15'}
   ]},
-  {day:20,type:'C',label:'Cardio & Shoulders',exs:[
-    {id:'elliptical',sets:1,reps:'25 min'},
+  {day:20,type:'C',label:'KB & Shoulders',exs:[
+    {id:'kb-swing',sets:4,reps:'20'},
     {id:'hammer-curls',sets:3,reps:'12',weight:20},
     {id:'shoulder-press',sets:3,reps:'12',weight:20}
   ]},
@@ -852,9 +858,9 @@ const PLAN = [
   {day:22,type:'A',label:'Chest & Back',exs:[
     {id:'barbell-bench',sets:4,reps:'10',weight:120},
     {id:'incline-bench',sets:3,reps:'10',weight:95},
-    {id:'lat-pulldown',sets:4,reps:'12',weight:85},
+    {id:'barbell-row',sets:4,reps:'10',weight:100},
     {id:'bicep-curls',sets:4,reps:'12',weight:20},
-    {id:'tricep-pushdown',sets:3,reps:'12',weight:50}
+    {id:'tricep-extensions',sets:3,reps:'12',weight:25}
   ]},
   {day:23,type:'B',label:'Core & Abs',exs:[
     {id:'plank',sets:4,reps:'60s'},
@@ -864,13 +870,13 @@ const PLAN = [
   ]},
   {day:24,type:'A',label:'Chest & Back',exs:[
     {id:'barbell-bench',sets:4,reps:'10',weight:120},
-    {id:'cable-fly',sets:3,reps:'12',weight:25},
-    {id:'cable-row',sets:4,reps:'12',weight:85},
+    {id:'db-flyes',sets:3,reps:'12',weight:17.5},
+    {id:'barbell-row',sets:4,reps:'10',weight:100},
     {id:'concentration-curls',sets:3,reps:'12',weight:17.5},
-    {id:'tricep-extensions',sets:4,reps:'12',weight:25}
+    {id:'tricep-dips',sets:4,reps:'15'}
   ]},
-  {day:25,type:'C',label:'Cardio & Shoulders',exs:[
-    {id:'elliptical',sets:1,reps:'28 min'},
+  {day:25,type:'C',label:'KB & Shoulders',exs:[
+    {id:'kb-swing',sets:4,reps:'25'},
     {id:'lateral-raises',sets:3,reps:'12',weight:12},
     {id:'shoulder-press',sets:4,reps:'12',weight:25}
   ]},
@@ -883,12 +889,12 @@ const PLAN = [
   {day:27,type:'A',label:'Chest & Back',exs:[
     {id:'barbell-bench',sets:4,reps:'12',weight:115},
     {id:'incline-bench',sets:3,reps:'12',weight:90},
-    {id:'lat-pulldown',sets:4,reps:'12',weight:85},
+    {id:'barbell-row',sets:4,reps:'12',weight:95},
     {id:'bicep-curls',sets:4,reps:'12',weight:20},
-    {id:'tricep-pushdown',sets:4,reps:'12',weight:50}
+    {id:'tricep-extensions',sets:4,reps:'12',weight:25}
   ]},
-  {day:28,type:'C',label:'Cardio & Shoulders',exs:[
-    {id:'elliptical',sets:1,reps:'30 min'},
+  {day:28,type:'C',label:'KB & Shoulders',exs:[
+    {id:'kb-swing',sets:4,reps:'25'},
     {id:'hammer-curls',sets:4,reps:'12',weight:20},
     {id:'shoulder-press',sets:4,reps:'12',weight:25},
     {id:'lateral-raises',sets:3,reps:'15',weight:12}
@@ -897,7 +903,7 @@ const PLAN = [
   // DAYS 29–30 — Finishers
   {day:29,type:'A',label:'Chest, Back & Core',exs:[
     {id:'barbell-bench',sets:3,reps:'12',weight:115},
-    {id:'lat-pulldown',sets:3,reps:'12',weight:85},
+    {id:'barbell-row',sets:3,reps:'12',weight:95},
     {id:'bicep-curls',sets:3,reps:'12',weight:20},
     {id:'plank',sets:3,reps:'60s'},
     {id:'bicycle-crunches',sets:3,reps:'20'}
@@ -905,9 +911,9 @@ const PLAN = [
   {day:30,type:'A',label:'30-Day Finisher 🏆',exs:[
     {id:'barbell-bench',sets:4,reps:'10',weight:115},
     {id:'incline-bench',sets:3,reps:'10',weight:90},
-    {id:'lat-pulldown',sets:4,reps:'12',weight:85},
+    {id:'barbell-row',sets:4,reps:'12',weight:95},
     {id:'bicep-curls',sets:4,reps:'12',weight:20},
-    {id:'tricep-pushdown',sets:4,reps:'12',weight:50},
+    {id:'tricep-extensions',sets:4,reps:'12',weight:25},
     {id:'plank',sets:3,reps:'60s'},
     {id:'leg-raises',sets:3,reps:'15'}
   ]}
